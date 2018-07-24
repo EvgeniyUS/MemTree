@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from app1.models import ElectroData
 from app1.forms import CalcForm
 
-from django.shortcuts import render
+from django.shortcuts import render#, render_to_response
 
 def form(request):
   return render(request, 'app1/homePage.html')
@@ -52,7 +52,9 @@ def calc(request):
         context = {'object_list':objects, 'form': calcForm}
         return render(request, 'app1/calc.html', context)
       else:
-        return HttpResponse("<h2>Ошибка данных: текущие показатели не могут быть меньше предыдущих.</h2>")
+        return render(request, 'app1/error.html')
+        #return HttpResponse("<h2>Ошибка данных: текущие показатели не могут быть меньше предыдущих.</h2>")
+        #return render_to_response('app1/msg.html', {'message':'Ошибка данных: текущие показатели не могут быть меньше предыдущих.'})
   else:
     objects = ElectroData.objects.all().order_by("date").reverse()
     calcForm = CalcForm(initial=ElectroData.objects.last().__dict__)
