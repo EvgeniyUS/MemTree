@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Electro calc</title>
+  {% load staticfiles %}
+  <link rel='stylesheet' href="{% static 'app1/css/bootstrap.min.css' %}" type='text/css'>
+</head>
+<body>
+  <div>
+    <div class='container'>
+      <br>
+      <a href='/' class='btn btn-primary btn-sm'>На главную</a>
+      <a href='/cont' class='btn btn-info btn-sm'>Инфо</a>
+      <a href='/calc' class='btn btn-danger btn-lg'>Расчет &raquo;</a>
+      <br>
+      <br>
+      {% block content %}
+      {% endblock %}
+    </div>
+    <div>
+      <hr>&copy; Все права защищены, 2018</hr>
+    </div>
+  </div>
+</body>
+</html>
