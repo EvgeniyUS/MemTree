@@ -46,57 +46,92 @@ ul, #myUL {
   display: block;
 }
 </style>
+
 </head>
+
 <body>
 
-<h2>test</h2>
-<p>1</p>
+<h2>Title</h2>
+<p>description</p>
 
+<button onclick="crEle()">Создать элемент</button>
+<p>
 <ul id="myUL">
-  <li><span class="caret">Beverages</span>
+  <li><span class="caret"></span><input placeholder="Наименование" value="Состав"></input><button onclick='crFunc()'>+</button>
     <ul class="nested">
-      <li>Water</li>
-      <li>Coffee</li>
-      <li><span class="caret">Tea</span>
+      <li><span class="caret"></span><input placeholder="Наименование" value="Элемент1"></input><button onclick='crFunc()'>+</button>
+        <ul class="nested"></ul>
+      </li>
+      <li><span class="caret"></span><input placeholder="Наименование" value="Элемент2"></input><button onclick='crFunc()'>+</button>
+        <ul class="nested"></ul>
+      </li>
+      <li><span class="caret"></span><input placeholder="Наименование" value="Интерфейсы"></input><button onclick='crFunc()'>+</button>
         <ul class="nested">
-          <li>Black Tea</li>
-          <li>White Tea</li>
-          <li><span class="caret">Green Tea</span>
-            <ul class="nested">
-              <li>Sencha</li>
-              <li>Gyokuro</li>
-              <li>Matcha</li>
-              <li>Pi Lo Chun</li>
-            </ul>
+          <li><span class="caret"></span><input placeholder="Наименование" value="USB"></input><button onclick='crFunc()'>+</button>
+            <ul class="nested"></ul>
+          </li>
+          <li><span class="caret"></span><input placeholder="Наименование" value="LAN"></input><button onclick='crFunc()'>+</button>
+            <ul class="nested"></ul>
           </li>
         </ul>
       </li>  
     </ul>
   </li>
-  <li><span class="caret">Состав</span>
-    <ul class="nested">
-      <li>элемент1</li>
-      <li>элемент2</li>
-      <li><span class="caret">Интерфейсы</span>
-        <ul class="nested">
-          <li>USB</li>
-          <li>LAN</li>
-        </ul>
-      </li>  
-    </ul>
-  </li>
 </ul>
+</p>
 
 <script>
+
+function addEvLi(v) {
+    v.addEventListener("click", function() {
+      this.parentElement.querySelector(".nested").classList.toggle("active");
+      this.classList.toggle("caret-down");
+    });
+}
+
+function crEle(toggler) {
+    var treeWidget = document.getElementById("myUL");
+    var root = document.createElement('li');
+    var span = document.createElement('span');
+    var inp = document.createElement('input');
+    var childs = document.createElement('ul');
+    var crBtn = document.createElement('button');
+    var rmBtn = document.createElement('button');
+    //var child = document.createElement('li');
+    //var child1 = document.createElement('li');
+    inp.setAttribute("placeholder", "Наименование");
+    span.className = "caret";
+    crBtn.innerHTML = '+'
+    rmBtn.innerHTML = '-'
+    crBtn.setAttribute("onclick", "crFunc()");
+    rmBtn.setAttribute("onclick", "rmFunc()");
+    addEvLi(span);
+    childs.className = "nested";
+    //child.innerHTML = "тест";
+    //child1.innerHTML = "тест1";
+    treeWidget.appendChild(root);
+    root.appendChild(span);
+    root.appendChild(inp);
+    root.appendChild(crBtn);
+    root.appendChild(rmBtn);
+    root.appendChild(childs);
+    //childs.appendChild(child);
+    //childs.appendChild(child1);
+
+    //alert('OK!');
+
+}
+
+//crEle()
+
 var toggler = document.getElementsByClassName("caret");
+console.log(toggler);
 var i;
 
 for (i = 0; i < toggler.length; i++) {
-  toggler[i].addEventListener("click", function() {
-    this.parentElement.querySelector(".nested").classList.toggle("active");
-    this.classList.toggle("caret-down");
-  });
+    addEvLi(toggler[i]);
 }
+
 </script>
 
 </body>
