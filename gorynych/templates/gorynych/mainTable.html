@@ -54,83 +54,72 @@ ul, #myUL {
 <h2>Title</h2>
 <p>description</p>
 
-<button onclick="crEle()">Создать элемент</button>
+<button onclick="addEle()">Создать элемент</button>
 <p>
 <ul id="myUL">
-  <li><span class="caret"></span><input placeholder="Наименование" value="Состав"></input><button onclick='crFunc()'>+</button>
-    <ul class="nested">
-      <li><span class="caret"></span><input placeholder="Наименование" value="Элемент1"></input><button onclick='crFunc()'>+</button>
-        <ul class="nested"></ul>
-      </li>
-      <li><span class="caret"></span><input placeholder="Наименование" value="Элемент2"></input><button onclick='crFunc()'>+</button>
-        <ul class="nested"></ul>
-      </li>
-      <li><span class="caret"></span><input placeholder="Наименование" value="Интерфейсы"></input><button onclick='crFunc()'>+</button>
-        <ul class="nested">
-          <li><span class="caret"></span><input placeholder="Наименование" value="USB"></input><button onclick='crFunc()'>+</button>
-            <ul class="nested"></ul>
-          </li>
-          <li><span class="caret"></span><input placeholder="Наименование" value="LAN"></input><button onclick='crFunc()'>+</button>
-            <ul class="nested"></ul>
-          </li>
-        </ul>
-      </li>  
-    </ul>
-  </li>
 </ul>
 </p>
 
 <script>
 
-function addEvLi(v) {
-    v.addEventListener("click", function() {
+function nodeOpenToggler(node) {
+    node.addEventListener("click", function() {
       this.parentElement.querySelector(".nested").classList.toggle("active");
       this.classList.toggle("caret-down");
     });
 }
 
-function crEle(toggler) {
-    var treeWidget = document.getElementById("myUL");
+function openNode(node) {
+    node.addEventListener("click", function() {
+      this.parentElement.querySelector(".nested").classList.toggle("active", true);
+      this.classList.toggle("caret-down", true);
+    });
+}
+
+function crFunc(node) {
+    //alert (node.parentNode.childNodes[1].value);
+    addEle(node.parentNode.childNodes[4]);
+    //alert (node.parentNode.childNodes[4].nodeName);
+}
+
+function rmFunc(node) {
+    if (node.parentNode.parentNode) {
+      node.parentNode.parentNode.removeChild(node.parentNode);
+    }
+}
+
+function addEle(ele = document.getElementById("myUL")) {
+    //var treeWidget = document.getElementById("myUL");
     var root = document.createElement('li');
     var span = document.createElement('span');
     var inp = document.createElement('input');
     var childs = document.createElement('ul');
     var crBtn = document.createElement('button');
     var rmBtn = document.createElement('button');
-    //var child = document.createElement('li');
-    //var child1 = document.createElement('li');
     inp.setAttribute("placeholder", "Наименование");
     span.className = "caret";
+    nodeOpenToggler(span);
     crBtn.innerHTML = '+'
     rmBtn.innerHTML = '-'
-    crBtn.setAttribute("onclick", "crFunc()");
-    rmBtn.setAttribute("onclick", "rmFunc()");
-    addEvLi(span);
+    crBtn.setAttribute("onclick", "crFunc(this)");
+    openNode(crBtn);
+    rmBtn.setAttribute("onclick", "rmFunc(this)");
     childs.className = "nested";
-    //child.innerHTML = "тест";
-    //child1.innerHTML = "тест1";
-    treeWidget.appendChild(root);
+    ele.appendChild(root);
     root.appendChild(span);
     root.appendChild(inp);
     root.appendChild(crBtn);
     root.appendChild(rmBtn);
     root.appendChild(childs);
-    //childs.appendChild(child);
-    //childs.appendChild(child1);
-
-    //alert('OK!');
-
 }
 
-//crEle()
-
-var toggler = document.getElementsByClassName("caret");
-console.log(toggler);
-var i;
-
-for (i = 0; i < toggler.length; i++) {
-    addEvLi(toggler[i]);
-}
+//var toggler = document.getElementsByClassName("caret");
+//console.log(toggler);
+//var i;
+//
+//for (i = 0; i < toggler.length; i++) {
+//    nodeOpenToggler(toggler[i]);
+//}
 
 </script>
 
