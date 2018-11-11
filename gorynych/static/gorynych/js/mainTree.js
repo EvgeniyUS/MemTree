@@ -25,29 +25,43 @@ function rmFunc(node) {
     }
 }
 
+function setAttributes(el, attrs) {
+  for(var key in attrs) {
+    el.setAttribute(key, attrs[key]);
+  }
+}
+
 function addEle(ele = document.getElementById("myUL")) {
     //var treeWidget = document.getElementById("myUL");
     var root = document.createElement('li');
+
     var span = document.createElement('span');
-    var inp = document.createElement('input');
-    var childs = document.createElement('ul');
-    var crBtn = document.createElement('button');
-    var rmBtn = document.createElement('button');
-    inp.setAttribute("placeholder", "Наименование");
     span.className = "caret";
     nodeOpenToggler(span);
-    crBtn.innerHTML = '+'
-    rmBtn.innerHTML = '-'
-    crBtn.setAttribute("onclick", "crFunc(this)");
-    openNode(crBtn);
-    rmBtn.setAttribute("onclick", "rmFunc(this)");
-    childs.className = "nested";
-    ele.appendChild(root);
     root.appendChild(span);
+
+    var inp = document.createElement('input');
+    inp.setAttribute("placeholder", "Наименование");
     root.appendChild(inp);
+
+    var crBtn = document.createElement('button');
+    crBtn.innerHTML = "<img src='static/gorynych/img/Create.png'/>";
+    //crBtn.setAttribute("onclick", "crFunc(this)");
+    setAttributes(crBtn, {"onclick": "crFunc(this)", "style": "background-color:transparent; border-color:transparent;"});
+    openNode(crBtn);
     root.appendChild(crBtn);
+
+    var rmBtn = document.createElement('button');
+    rmBtn.innerHTML = "<img src='static/gorynych/img/Delete.png'/>";
+    //rmBtn.setAttribute("onclick", "rmFunc(this)");
+    setAttributes(rmBtn, {"onclick": "rmFunc(this)", "style": "background-color:transparent; border-color:transparent;"});
     root.appendChild(rmBtn);
+    
+    var childs = document.createElement('ul');
+    childs.className = "nested";
     root.appendChild(childs);
+
+    ele.appendChild(root);
 }
 
 //var toggler = document.getElementsByClassName("caret");
