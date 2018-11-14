@@ -2,13 +2,17 @@
 
 {% block mainTable %}
 
+<script type="text/javascript">
+var mainTreeData = {{ object_list|safe }};
+</script>
+
 {% load staticfiles %}
-<script src="{% static 'gorynych/js/mainTree.js' %}"></script>
+<script type="text/javascript" src="{% static 'gorynych/js/mainTree.js' %}"></script>
 <link rel='stylesheet' href="{% static 'gorynych/css/mainTree.css' %}" type='text/css'>
 
-<h2>Title</h2>
+<h2 id="Title">Title</h2>
 
-<p>description</p>
+<p id="Desc">description</p>
 
 <button onclick="addEle()">Создать элемент</button>
 

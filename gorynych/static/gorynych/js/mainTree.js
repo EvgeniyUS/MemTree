@@ -1,3 +1,6 @@
+window.onload = function() {
+    loadMainTree();
+}
 
 function nodeOpenToggler(node) {
     node.addEventListener("click", function() {
@@ -15,7 +18,7 @@ function openNode(node) {
 
 function crFunc(node) {
     //alert (node.parentNode.childNodes[1].value);
-    addEle(node.parentNode.childNodes[4]);
+    addEle(false, node.parentNode.childNodes[4]);
     //alert (node.parentNode.childNodes[4].nodeName);
 }
 
@@ -31,9 +34,14 @@ function setAttributes(el, attrs) {
   }
 }
 
-function addEle(ele = document.getElementById("myUL")) {
-    //var treeWidget = document.getElementById("myUL");
+function nameChanged(inputNode) {
+    //alert (inputNode.parentNode.id);
+    //alert (inputNode.parentNode.id, inputNode.value);
+}
+
+function addEle(value = false, ele = document.getElementById("myUL")) {
     var root = document.createElement('li');
+    root.id = '1';
 
     var span = document.createElement('span');
     span.className = "caret";
@@ -41,7 +49,13 @@ function addEle(ele = document.getElementById("myUL")) {
     root.appendChild(span);
 
     var inp = document.createElement('input');
-    inp.setAttribute("placeholder", "Наименование");
+    if (value) {
+        setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)", "value": value['name']});
+        root.setAttribute('id', value['id']);
+    }
+    else {
+        setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)"});
+    }
     root.appendChild(inp);
 
     var crBtn = document.createElement('button');
@@ -61,8 +75,20 @@ function addEle(ele = document.getElementById("myUL")) {
     childs.className = "nested";
     root.appendChild(childs);
 
+    //if (value['parent']) {
+    //    
+    //    
+    //}
     ele.appendChild(root);
+
 }
+
+function loadMainTree() {
+    for (var i = 0; i < mainTreeData.length; i++) {
+        addEle(mainTreeData[i]);
+    }
+}
+
 
 //var toggler = document.getElementsByClassName("caret");
 //console.log(toggler);
@@ -71,4 +97,5 @@ function addEle(ele = document.getElementById("myUL")) {
 //for (i = 0; i < toggler.length; i++) {
 //    nodeOpenToggler(toggler[i]);
 //}
+
 
