@@ -35,13 +35,28 @@ function setAttributes(el, attrs) {
 }
 
 function nameChanged(inputNode) {
+    $.ajax({
+        url: '127.0.0.1:8000/gorynych/',
+        type: 'post',
+        data: {
+            'id': inputNode.parentNode.id,
+            'name': inputNode.value,
+            'parent': null
+        },
+        dataType: 'json',
+        success: function (data) {
+            alert("Ajax works!");
+        },
+        failure: function(data) { 
+            alert('Got an error dude');
+        }
+    });
     //alert (inputNode.parentNode.id);
     //alert (inputNode.parentNode.id, inputNode.value);
 }
 
 function addEle(value = false, ele = document.getElementById("myUL")) {
     var root = document.createElement('li');
-    root.id = '1';
 
     var span = document.createElement('span');
     span.className = "caret";
@@ -52,6 +67,7 @@ function addEle(value = false, ele = document.getElementById("myUL")) {
     if (value) {
         setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)", "value": value['name']});
         root.setAttribute('id', value['id']);
+        root.id = value['id'];
     }
     else {
         setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)"});
