@@ -1,43 +1,69 @@
 
 ul, #myUL {
-  list-style-type: none;
+    list-style-type: none;
+    overflow: auto;
+    /*
+    display: flex;
+    flex-direction: column;
+    */
 }
 
 li {
-  margin: 10px 0;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    white-space: nowrap;
+    /*
+    max-width: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    */
 }
 
 #myUL {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .caret {
-  cursor: pointer;
-  -webkit-user-select: none; /* Safari 3.1+ */
-  -moz-user-select: none; /* Firefox 2+ */
-  -ms-user-select: none; /* IE 10+ */
-  user-select: none;
+    cursor: pointer;
+    -webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none;
 }
 
 .caret::before {
-  content: "\25B6";
-  color: black;
-  display: inline-block;
-  margin-right: 6px;
+    content: "\25B6";
+    color: black;
+    display: inline-block;
+    margin-right: 6px;
 }
 
 .caret-down::before {
-  -ms-transform: rotate(90deg); /* IE 9 */
-  -webkit-transform: rotate(90deg); /* Safari */'
-  transform: rotate(90deg);  
+    -ms-transform: rotate(90deg); /* IE 9 */
+    -webkit-transform: rotate(90deg); /* Safari */'
+    transform: rotate(90deg);  
 }
 
 .nested {
-  display: none;
+    display: none;
 }
 
 .active {
-  display: block;
+    display: block;
+}
+
+img {
+    padding: 0px 0px 5px 10px;
+    cursor: pointer;
+}
+
+img:hover {
+    transform: scale(1.2, 1.2);
 }
 
