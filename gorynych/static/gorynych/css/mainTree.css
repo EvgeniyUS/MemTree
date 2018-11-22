@@ -61,9 +61,11 @@ li {
 img {
     padding: 0px 0px 5px 10px;
     cursor: pointer;
+    opacity: 0.2;
 }
 
 img:hover {
     transform: scale(1.2, 1.2);
+    opacity: 1.0;
 }
 

@@ -20,7 +20,7 @@ def gorynych(request):
                 else:
                     v = {'name': None, 'parent': None}
                 n = mainTreeDataBase.objects.create(name=v['name'], parent=v['parent'])
-                return HttpResponse(json.dumps({'result': 'ok', 'id': n.id}), content_type="application/json")
+                return HttpResponse(json.dumps({'id': n.id, 'name': n.name, 'parent': n.parent.__dict__['id']}), content_type="application/json")
             elif values['type'] == "delete":
                 mainTreeDataBase.objects.filter(id=values['id']).delete()
                 return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")

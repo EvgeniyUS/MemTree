@@ -30,13 +30,6 @@ function openNode(node) {
     });
 }
 
-function crFunc(node) {
-    //alert (node.parentNode.childNodes[4]);
-    //addEle(false, node.parentNode.childNodes[4]);
-    addNewEle(node.parentNode.id);
-    //alert (node.parentNode.childNodes[4].nodeName);
-}
-
 function rmFunc(node) {
     $.ajax({
         type: 'POST',
@@ -44,18 +37,15 @@ function rmFunc(node) {
         dataType: 'json',
         data: {
             'type': 'delete',
-            'id': node.parentNode.id,
+            'id': node.id,
             'name': null,
             'parent': null
         },
-        //success: function () {
-        //    alert("Ajax works!");
-        //},
-        //failure: function() { 
-        //    alert('Got an error dude');
-        //}
     });
-    node.parentNode.parentNode.removeChild(node.parentNode);
+    if (node.parentNode.childNodes.length == 1) {
+        node.parentNode.parentNode.childNodes[0].style.display = 'none';
+    }
+    node.parentNode.removeChild(node);
 }
 
 function setAttributes(el, attrs) {
@@ -75,15 +65,7 @@ function nameChanged(inputNode) {
             'name': inputNode.value,
             'parent': null
         },
-        //success: function () {
-        //    alert("Ajax works!");
-        //},
-        //failure: function() { 
-        //    alert('Got an error dude');
-        //}
     });
-    //alert (inputNode.parentNode.id);
-    //alert (inputNode.parentNode.id, inputNode.value);
 }
 
 function addNewEle(parentId=null) {
@@ -91,7 +73,6 @@ function addNewEle(parentId=null) {
         type: 'POST',
         url: '/gorynych/',
         dataType: 'json',
-        //async: false,
         data: {
             'type': 'create',
             'id': null,
@@ -99,13 +80,7 @@ function addNewEle(parentId=null) {
             'parent': parentId
         },
         success: function (json) {
-            var value = {'id': json['id']};
-            if (parentId) {
-                addEle(value, document.getElementById(parentId).childNodes[4]);
-            }
-            else {
-                addEle(value);
-            }
+            addEle(json);
         },
         error: function() { 
             alert('Got an error');
@@ -113,11 +88,12 @@ function addNewEle(parentId=null) {
     });
 }
 
-function addEle(value, ele = document.getElementById("myUL")) {
+function addEle(value) {
     var root = document.createElement('li');
 
     var span = document.createElement('span');
     span.className = "caret";
+    span.style.display = "none";
     nodeOpenToggler(span);
     root.appendChild(span);
 
@@ -133,12 +109,12 @@ function addEle(value, ele = document.getElementById("myUL")) {
     root.appendChild(inp);
 
     var crBtn = document.createElement('img');
-    setAttributes(crBtn, {"onclick": "crFunc(this)", "src": "static/gorynych/img/Create.png"});
+    setAttributes(crBtn, {"onclick": "addNewEle(this.parentNode.id)", "src": "static/gorynych/img/Create.png"});
     openNode(crBtn);
     root.appendChild(crBtn);
 
     var rmBtn = document.createElement('img');
-    setAttributes(rmBtn, {"onclick": "rmFunc(this)", "src": "static/gorynych/img/Delete.png"});
+    setAttributes(rmBtn, {"onclick": "rmFunc(this.parentNode)", "src": "static/gorynych/img/Delete.png"});
     root.appendChild(rmBtn);
     
     var ul = document.createElement('ul');
@@ -147,9 +123,12 @@ function addEle(value, ele = document.getElementById("myUL")) {
 
     if (value['parent']) {
         ele = document.getElementById(value['parent']).childNodes[4]
+        parSpan = document.getElementById(value['parent']).childNodes[0]
+        parSpan.style.display = 'inline-block';
         ele.appendChild(root);
     }
     else {
+        ele = document.getElementById("myUL")
         ele.appendChild(root);
     }
     if (inp.value == false) {
@@ -163,14 +142,4 @@ function loadMainTree() {
         addEle(mainTreeData[i]);
     }
 }
-
-
-//var toggler = document.getElementsByClassName("caret");
-//console.log(toggler);
-//var i;
-//
-//for (i = 0; i < toggler.length; i++) {
-//    nodeOpenToggler(toggler[i]);
-//}
-
 
