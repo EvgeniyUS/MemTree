@@ -122,7 +122,12 @@ function addEle(value, ele = document.getElementById("myUL")) {
     root.appendChild(span);
 
     var inp = document.createElement('input');
-    setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)", "value": value['name']});
+    if (value['name']) {
+        setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)", "value": value['name']});
+    }
+    else {
+        setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)"});
+    }
     root.setAttribute('id', value['id']);
     root.id = value['id'];
     root.appendChild(inp);
@@ -146,6 +151,9 @@ function addEle(value, ele = document.getElementById("myUL")) {
     }
     else {
         ele.appendChild(root);
+    }
+    if (inp.value == false) {
+        inp.focus()
     }
 
 }
