@@ -17,10 +17,11 @@ def gorynych(request):
             elif values['type'] == "create":
                 if values['parent']:
                     v = {'name': None, 'parent': mainTreeDataBase.objects.get(id=values['parent'])}
+                    #return HttpResponse(json.dumps({'id': n.id, 'name': n.name, 'parent': n.parent.__dict__['id']}), content_type="application/json")
                 else:
                     v = {'name': None, 'parent': None}
                 n = mainTreeDataBase.objects.create(name=v['name'], parent=v['parent'])
-                return HttpResponse(json.dumps({'id': n.id, 'name': n.name, 'parent': n.parent.__dict__['id']}), content_type="application/json")
+                return HttpResponse(json.dumps({'id': n.id, 'name': v['name'], 'parent': values['parent']}), content_type="application/json")
             elif values['type'] == "delete":
                 mainTreeDataBase.objects.filter(id=values['id']).delete()
                 return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")
