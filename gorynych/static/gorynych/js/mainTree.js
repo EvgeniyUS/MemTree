@@ -108,13 +108,19 @@ function addEle(value) {
     root.id = value['id'];
     root.appendChild(inp);
 
-    var crBtn = document.createElement('img');
-    setAttributes(crBtn, {"onclick": "addNewEle(this.parentNode.id)", "src": "static/gorynych/img/Create.png"});
+    //var crBtn = document.createElement('img');
+    //setAttributes(crBtn, {"onclick": "addNewEle(this.parentNode.id)", "src": "static/gorynych/img/Create.png"});
+    var crBtn = document.createElement('button');
+    setAttributes(crBtn, {"class": "crBtn", "onclick": "addNewEle(this.parentNode.id)"});
+    crBtn.innerHTML = "+";
     openNode(crBtn);
     root.appendChild(crBtn);
 
-    var rmBtn = document.createElement('img');
-    setAttributes(rmBtn, {"onclick": "rmFunc(this.parentNode)", "src": "static/gorynych/img/Delete.png"});
+    //var rmBtn = document.createElement('img');
+    //setAttributes(rmBtn, {"onclick": "rmFunc(this.parentNode)", "src": "static/gorynych/img/Delete.png"});
+    var rmBtn = document.createElement('button');
+    setAttributes(rmBtn, {"class": "rmBtn", "onclick": "addNewEle(this.parentNode.id)"});
+    rmBtn.innerHTML = "-";
     root.appendChild(rmBtn);
     
     var ul = document.createElement('ul');
