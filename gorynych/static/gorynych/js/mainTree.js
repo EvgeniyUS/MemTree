@@ -119,7 +119,7 @@ function addEle(value) {
     //var rmBtn = document.createElement('img');
     //setAttributes(rmBtn, {"onclick": "rmFunc(this.parentNode)", "src": "static/gorynych/img/Delete.png"});
     var rmBtn = document.createElement('button');
-    setAttributes(rmBtn, {"class": "rmBtn", "onclick": "addNewEle(this.parentNode.id)"});
+    setAttributes(rmBtn, {"class": "rmBtn", "onclick": "rmFunc(this.parentNode)"});
     rmBtn.innerHTML = "-";
     root.appendChild(rmBtn);
     
