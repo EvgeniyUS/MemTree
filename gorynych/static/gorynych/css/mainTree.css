@@ -38,8 +38,11 @@ li {
 }
 
 .caret::before {
+    /*
     content: "\25B6";
-    color: black;
+    */
+    content: "\27A4";
+    color: rgba( 90, 90, 90, 0.7 );
     display: inline-block;
     margin-right: 6px;
     transition: 0.3s ease;
@@ -47,7 +50,7 @@ li {
 
 .caret-down::before {
     -ms-transform: rotate(90deg); /* IE 9 */
-    -webkit-transform: rotate(90deg); /* Safari */'
+    -webkit-transform: rotate(90deg); /* Safari */
     transform: rotate(90deg);  
 }
 
@@ -70,6 +73,13 @@ img:hover {
     opacity: 1.0;
 }
 
+input {
+    /*
+    */
+    color: grey;
+    border: 2px solid;
+    border-radius: 10px;
+}
 button {
     background: transparent;
     border: 0;
@@ -88,7 +98,7 @@ button {
     font-size: 18px;
     border-radius: 10px;
     font-family: "Open Sans", Helvetica;
-    background: rgba( 90, 90, 130, 0.4 );
+    background: rgba( 90, 90, 90, 0.1 );
     color: #fff;
     transition: 0.3s ease;
 }
