@@ -75,10 +75,24 @@ img:hover {
 
 input {
     /*
-    */
     color: grey;
-    border: 2px solid;
+    text-align: center;
+    */
+    background: rgba( 90, 90, 90, 0.1 );
+    width: 150px;
+    font-weight:bold;
+    color: grey;
+    border: 1px solid;
     border-radius: 10px;
+    transition: 0.5s ease;
+}
+
+input:hover {
+    /*
+    background: rgba( 90, 90, 90, 0.1 );
+    */
+    transition: 0.5s ease;
+    color: green;
 }
 button {
     background: transparent;

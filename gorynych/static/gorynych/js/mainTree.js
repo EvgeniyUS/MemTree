@@ -102,7 +102,8 @@ function addEle(value) {
         setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)", "value": value['name']});
     }
     else {
-        setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)"});
+        //setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)"});
+        setAttributes(inp, {"oninput": "nameChanged(this)"});
     }
     root.setAttribute('id', value['id']);
     root.id = value['id'];
