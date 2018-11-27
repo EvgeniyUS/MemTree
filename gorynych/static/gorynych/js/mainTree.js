@@ -99,7 +99,8 @@ function addEle(value) {
 
     var inp = document.createElement('input');
     if (value['name']) {
-        setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)", "value": value['name']});
+        //setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)", "value": value['name']});
+        setAttributes(inp, {"oninput": "nameChanged(this)", "value": value['name']});
     }
     else {
         //setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)"});
