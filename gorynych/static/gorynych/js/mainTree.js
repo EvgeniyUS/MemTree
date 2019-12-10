@@ -1,6 +1,6 @@
 window.onload = function() {
     loadMainTree();
-}
+};
 
 var csrftoken = $.cookie('csrftoken');
 
@@ -16,17 +16,28 @@ $.ajaxSetup({
     }
 });
 
-function nodeOpenToggler(node) {
-    node.addEventListener("click", function() {
-      this.parentElement.querySelector(".nested").classList.toggle("active");
-      this.classList.toggle("caret-down");
+function nodeOpenToggler(span) {
+    span.addEventListener("click", function() {
+        if (this.collapsed) {
+            this.collapsed = false;
+        }
+        else {
+            this.collapsed = true;
+        }
+        collapseChanged(span);
+        this.parentElement.querySelector(".nested").classList.toggle("active");
+        this.classList.toggle("caret-down");
     });
 }
 
-function openNode(node) {
-    node.addEventListener("click", function() {
-        this.parentNode.childNodes[0].classList.toggle("caret-down", true);
-        this.parentNode.childNodes[4].classList.toggle("active", true);
+function openNode(button) {
+    button.addEventListener("click", function() {
+        var span = this.parentNode.childNodes[0];
+        span.collapsed = false;
+        span.classList.toggle("caret-down", true);
+        var ul = this.parentNode.childNodes[4];
+        ul.classList.toggle("active", true);
+        collapseChanged(span);
     });
 }
 
@@ -43,6 +54,7 @@ function rmFunc(node) {
         },
     });
     if (node.parentNode.childNodes.length == 1) {
+        node.parentNode.parentNode.childNodes[0].collapsed = false;
         node.parentNode.parentNode.childNodes[0].style.display = 'none';
     }
     node.parentNode.removeChild(node);
@@ -62,8 +74,22 @@ function nameChanged(inputNode) {
         data: {
             'type': 'update',
             'id': inputNode.parentNode.id,
-            'name': inputNode.value,
-            'parent': null
+            'collapsed': inputNode.parentNode.childNodes[0].collapsed,
+            'name': inputNode.value
+        },
+    });
+}
+
+function collapseChanged(span) {
+    $.ajax({
+        type: 'POST',
+        url: '/gorynych/',
+        dataType: 'json',
+        data: {
+            'type': 'update',
+            'id': span.parentNode.id,
+            'collapsed': span.collapsed,
+            'name': span.parentNode.childNodes[1].value
         },
     });
 }
@@ -90,62 +116,68 @@ function addNewEle(parentId=null) {
 
 function addEle(value) {
     var root = document.createElement('li');
+    root.setAttribute('id', value['id']);
+    root.id = value['id'];
 
     var span = document.createElement('span');
-    span.className = "caret";
+    span.collapsed = value['collapsed'];
     span.style.display = "none";
     nodeOpenToggler(span);
     root.appendChild(span);
 
     var inp = document.createElement('input');
     if (value['name']) {
-        //setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)", "value": value['name']});
         setAttributes(inp, {"oninput": "nameChanged(this)", "value": value['name']});
     }
     else {
-        //setAttributes(inp, {"placeholder": "Наименование", "oninput": "nameChanged(this)"});
         setAttributes(inp, {"oninput": "nameChanged(this)"});
     }
-    root.setAttribute('id', value['id']);
-    root.id = value['id'];
     root.appendChild(inp);
 
-    //var crBtn = document.createElement('img');
-    //setAttributes(crBtn, {"onclick": "addNewEle(this.parentNode.id)", "src": "static/gorynych/img/Create.png"});
     var crBtn = document.createElement('button');
     setAttributes(crBtn, {"class": "crBtn", "onclick": "addNewEle(this.parentNode.id)"});
     crBtn.innerHTML = "+";
     openNode(crBtn);
     root.appendChild(crBtn);
 
-    //var rmBtn = document.createElement('img');
-    //setAttributes(rmBtn, {"onclick": "rmFunc(this.parentNode)", "src": "static/gorynych/img/Delete.png"});
     var rmBtn = document.createElement('button');
     setAttributes(rmBtn, {"class": "rmBtn", "onclick": "rmFunc(this.parentNode)"});
     rmBtn.innerHTML = "-";
     root.appendChild(rmBtn);
     
     var ul = document.createElement('ul');
-    ul.className = "nested";
+    if (span.collapsed) {
+        span.className = "caret";
+        ul.className = "nested";
+    }
+    else {
+        span.className = "caret caret-down";
+        ul.className = "nested active";
+    }
     root.appendChild(ul);
 
     if (value['parent']) {
-        ele = document.getElementById(value['parent']).childNodes[4]
-        parSpan = document.getElementById(value['parent']).childNodes[0]
+        var ele = document.getElementById(value['parent']).childNodes[4];
+        var parSpan = document.getElementById(value['parent']).childNodes[0];
         parSpan.style.display = 'inline-block';
-        ele.appendChild(root);
     }
     else {
-        ele = document.getElementById("myUL")
-        ele.appendChild(root);
+        var ele = document.getElementById("myUL");
     }
+    ele.appendChild(root);
+
     if (inp.value == false) {
         inp.focus()
     }
+}
 
+function description(items) {
+    var desc = document.getElementById('Desc');
+    desc.innerText = `Items count: ${items.length}`
 }
 
 function loadMainTree() {
+    description(mainTreeData);
     for (var i = 0; i < mainTreeData.length; i++) {
         addEle(mainTreeData[i]);
     }

@@ -7,32 +7,36 @@ import json
 
 from gorynych.models import mainTreeDataBase
 
+
 def gorynych(request):
     if request.method == "POST":
         if request.is_ajax():
             values = request.POST.dict()
+
             if values['type'] == "update":
-                mainTreeDataBase.objects.filter(id = values['id']).update(name = values['name'])
+                collapsed_value = True if values['collapsed'] == 'true' else False
+                mainTreeDataBase.objects.filter(id=values['id']).update(collapsed=collapsed_value,
+                                                                        name=values['name'])
                 return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")
+
             elif values['type'] == "create":
+                name = None
                 if values['parent']:
-                    v = {'name': None, 'parent': mainTreeDataBase.objects.get(id=values['parent'])}
-                    #return HttpResponse(json.dumps({'id': n.id, 'name': n.name, 'parent': n.parent.__dict__['id']}), content_type="application/json")
+                    parent = mainTreeDataBase.objects.get(id=values['parent'])
                 else:
-                    v = {'name': None, 'parent': None}
-                n = mainTreeDataBase.objects.create(name=v['name'], parent=v['parent'])
-                return HttpResponse(json.dumps({'id': n.id, 'name': v['name'], 'parent': values['parent']}), content_type="application/json")
+                    parent = None
+                new_item = mainTreeDataBase.objects.create(name=name, parent=parent)
+                return HttpResponse(json.dumps({'id': new_item.id,
+                                                'collapsed': new_item.collapsed,
+                                                'name': name,
+                                                'parent': parent.id if parent else None}),
+                                    content_type="application/json")
+
             elif values['type'] == "delete":
                 mainTreeDataBase.objects.filter(id=values['id']).delete()
                 return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")
+
     else:
-        objects = list(mainTreeDataBase.objects.values('id', 'name', 'parent'))
+        objects = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent'))
         context = {'object_list': json.dumps(objects)}
         return render(request, 'gorynych/mainTable.html', context)
-
-#def updateName(request):
-#    if request.is_ajax():
-#        values = request.POST.dict()
-#        mainTreeDataBase.objects.filter(id = values['id']).update(name = values['name'])
-#        return render(request, 'gorynych/mainTable.html')
-
