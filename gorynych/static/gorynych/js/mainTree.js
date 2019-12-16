@@ -138,6 +138,7 @@ function addEle(value, focus=false) {
     root.appendChild(span);
 
     var inp = document.createElement('input');
+    inp.style.background = "#F5F5F5";
     if (value['name']) {
         setAttributes(inp, {"oninput": "nameChanged(this)", "value": value['name']});
     }
@@ -173,6 +174,8 @@ function addEle(value, focus=false) {
         var ele = document.getElementById(value['parent']).childNodes[4];
         var parSpan = document.getElementById(value['parent']).childNodes[0];
         parSpan.style.display = 'inline-block';
+        var parInput = document.getElementById(value['parent']).childNodes[1];
+        parInput.style.background = "#FFF3CC";
     }
     else {
         var ele = document.getElementById("myUL");
@@ -218,4 +221,3 @@ function loadMainTree() {
         addEle(mainTreeData[i]);
     }
 }
-

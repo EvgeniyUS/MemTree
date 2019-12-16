@@ -12,17 +12,16 @@ var mainTreeData = {{ object_list|safe }};
 <script type="text/javascript" src="{% static 'gorynych/js/mainTree.js' %}"></script>
 <link rel='stylesheet' href="{% static 'gorynych/css/mainTree.css' %}" type='text/css'>
 
-<h2 id="Title">Dynamic element tree</h2>
+<h2 id="Title" style="font-family: monospace">Dynamic element tree</h2>
 
-<p id="Desc">no description yet...</p>
+<p id="Desc" style="font-family: monospace">no description yet...</p>
 
-{#<button class='btn btn-success btn-sm' onclick="refresh()" style="margin-bottom:10px">Refresh</button>#}
-<button class="refrBtn" onclick="refresh()" style="margin-bottom:10px">Обновить</button>
+<button class="refrBtn" onclick="refresh()" style="margin-bottom:20px">Обновить</button>
 
 <ul id="myUL">
 </ul>
 
-<button class="newBtn" onclick="addNewEle()" style="margin-top:10px">+</button>
+<button class="newBtn" onclick="addNewEle()" style="margin-top:20px">+</button>
 
 {% endblock %}
 
