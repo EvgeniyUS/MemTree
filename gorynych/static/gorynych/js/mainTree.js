@@ -3,6 +3,7 @@ window.onload = function() {
 };
 
 var csrftoken = $.cookie('csrftoken');
+var item_count = 0;
 
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -52,12 +53,10 @@ function rmFunc(node) {
             'name': null,
             'parent': null
         },
+        success: function (json) {
+            refresh();
+        },
     });
-    if (node.parentNode.childNodes.length == 1) {
-        node.parentNode.parentNode.childNodes[0].collapsed = false;
-        node.parentNode.parentNode.childNodes[0].style.display = 'none';
-    }
-    node.parentNode.removeChild(node);
 }
 
 function setAttributes(el, attrs) {
@@ -106,7 +105,9 @@ function addNewEle(parentId=null) {
             'parent': parentId
         },
         success: function (json) {
-            addEle(json);
+            item_count = item_count + 1;
+            description();
+            addEle(json, true);
         },
         error: function() { 
             alert('Got an error');
@@ -114,7 +115,7 @@ function addNewEle(parentId=null) {
     });
 }
 
-function addEle(value) {
+function addEle(value, focus=false) {
     var root = document.createElement('li');
     root.setAttribute('id', value['id']);
     root.id = value['id'];
@@ -166,18 +167,41 @@ function addEle(value) {
     }
     ele.appendChild(root);
 
-    if (inp.value == false) {
+    if (inp.value == false && focus) {
         inp.focus()
     }
 }
 
-function description(items) {
-    var desc = document.getElementById('Desc');
-    desc.innerText = `Items count: ${items.length}`
+function description() {
+    document.getElementById('Desc').innerText = `Items count: ${item_count}`;
+}
+
+function refresh() {
+    $.ajax({
+        type: 'GET',
+        url: '/gorynych/',
+        dataType: 'json',
+        data: {
+            'type': 'all'
+        },
+        success: function(json) {
+            var items = json['data'];
+            item_count = items.length;
+            description();
+            document.getElementById("myUL").innerHTML = "";
+            for (var i = 0; i < items.length; i++) {
+                addEle(items[i]);
+            }
+        },
+        error: function() {
+            alert('Got an error');
+        }
+    });
 }
 
 function loadMainTree() {
-    description(mainTreeData);
+    item_count = mainTreeData.length;
+    description();
     for (var i = 0; i < mainTreeData.length; i++) {
         addEle(mainTreeData[i]);
     }

@@ -16,10 +16,13 @@ var mainTreeData = {{ object_list|safe }};
 
 <p id="Desc">no description yet...</p>
 
-<button class='btn btn-success btn-sm' onclick="addNewEle()" style="margin-bottom:10px">Create new element</button>
+{#<button class='btn btn-success btn-sm' onclick="refresh()" style="margin-bottom:10px">Refresh</button>#}
+<button class="refrBtn" onclick="refresh()" style="margin-bottom:10px">Обновить</button>
 
 <ul id="myUL">
 </ul>
+
+<button class="newBtn" onclick="addNewEle()" style="margin-top:10px">+</button>
 
 {% endblock %}
 

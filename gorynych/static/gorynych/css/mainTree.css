@@ -119,16 +119,41 @@ button {
     transition: 0.3s ease;
 }
 
-button:hover {
-    -webkit-transform: rotateZ(360deg);
-       -moz-transform: rotateZ(360deg);
-        -ms-transform: rotateZ(360deg);
-            transform: rotateZ(360deg);
-}
+/*button:hover {*/
+/*    -webkit-transform: rotateZ(360deg);*/
+/*       -moz-transform: rotateZ(360deg);*/
+/*        -ms-transform: rotateZ(360deg);*/
+/*            transform: rotateZ(360deg);*/
+/*}*/
 
 .crBtn:hover {
+    -webkit-transform: rotateZ(360deg);
+    -moz-transform: rotateZ(360deg);
+    -ms-transform: rotateZ(360deg);
+    transform: rotateZ(360deg);
     background: rgba( 30, 230, 30, 0.9 );
 }
 .rmBtn:hover {
+    -webkit-transform: rotateZ(360deg);
+    -moz-transform: rotateZ(360deg);
+    -ms-transform: rotateZ(360deg);
+    transform: rotateZ(360deg);
     background: rgba( 230, 30, 30, 0.9 );
 }
+
+.refrBtn:hover {
+    letter-spacing: 1px;
+}
+.newBtn:hover {
+    -webkit-transform: rotateZ(360deg);
+    -moz-transform: rotateZ(360deg);
+    -ms-transform: rotateZ(360deg);
+    transform: rotateZ(360deg);
+}
+.refrBtn {
+    background: rgba( 30, 230, 230, 0.9 );
+}
+.newBtn {
+    background: rgba( 30, 230, 30, 0.9 );
+}
+

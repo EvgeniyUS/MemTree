@@ -37,6 +37,11 @@ def gorynych(request):
                 return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")
 
     else:
-        objects = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent'))
-        context = {'object_list': json.dumps(objects)}
-        return render(request, 'gorynych/mainTable.html', context)
+        if request.GET.dict().get('type') and request.GET.dict()['type'] == 'all':
+            items = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent'))
+            # items = list(mainTreeDataBase.objects.all())
+            return HttpResponse(json.dumps({'data': items}), content_type="application/json")
+        else:
+            objects = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent'))
+            context = {'object_list': json.dumps(objects)}
+            return render(request, 'gorynych/mainTable.html', context)
