@@ -74,12 +74,10 @@ img:hover {
 }
 
 input {
-    /*
-    color: grey;
+    font-family: monospace;
+    font-size: 18px;
     text-align: center;
-    */
     background: rgba( 90, 90, 90, 0.1 );
-    width: 150px;
     font-weight:bold;
     padding-left: 5px;
     padding-right: 5px;
@@ -90,9 +88,6 @@ input {
 }
 
 input:hover {
-    /*
-    background: rgba( 90, 90, 90, 0.1 );
-    */
     transition: 0.5s ease;
     color: green;
 }
@@ -113,18 +108,11 @@ button {
     top: 0;
     font-size: 18px;
     border-radius: 10px;
-    font-family: "Open Sans", Helvetica;
+    font-family: monospace;
     background: rgba( 90, 90, 90, 0.1 );
     color: #fff;
     transition: 0.3s ease;
 }
-
-/*button:hover {*/
-/*    -webkit-transform: rotateZ(360deg);*/
-/*       -moz-transform: rotateZ(360deg);*/
-/*        -ms-transform: rotateZ(360deg);*/
-/*            transform: rotateZ(360deg);*/
-/*}*/
 
 .crBtn:hover {
     -webkit-transform: rotateZ(360deg);
@@ -141,8 +129,19 @@ button {
     background: rgba( 230, 30, 30, 0.9 );
 }
 
+.refrBtn {
+    background: rgba( 30, 230, 230, 0.9 );
+}
 .refrBtn:hover {
-    letter-spacing: 1px;
+    transform: scale(1.1,1.1);
+}
+.refrBtn:active {
+    transform: scale(1.2,1.2);
+}
+
+.newBtn {
+    font-size: 28px;
+    background: rgba( 30, 230, 30, 0.9 );
 }
 .newBtn:hover {
     -webkit-transform: rotateZ(360deg);
@@ -150,10 +149,3 @@ button {
     -ms-transform: rotateZ(360deg);
     transform: rotateZ(360deg);
 }
-.refrBtn {
-    background: rgba( 30, 230, 230, 0.9 );
-}
-.newBtn {
-    background: rgba( 30, 230, 30, 0.9 );
-}
-

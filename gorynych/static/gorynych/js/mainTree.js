@@ -76,7 +76,18 @@ function nameChanged(inputNode) {
             'collapsed': inputNode.parentNode.childNodes[0].collapsed,
             'name': inputNode.value
         },
+        success: function (json) {
+            inputWidthChanger(inputNode);
+        },
     });
+}
+
+function inputWidthChanger(inp) {
+    if ($(inp).val()) {
+        $(inp).attr('size', $(inp).val().length);
+    } else {
+        $(inp).attr('size', 1);
+    }
 }
 
 function collapseChanged(span) {
@@ -133,6 +144,7 @@ function addEle(value, focus=false) {
     else {
         setAttributes(inp, {"oninput": "nameChanged(this)"});
     }
+    inputWidthChanger(inp);
     root.appendChild(inp);
 
     var crBtn = document.createElement('button');
