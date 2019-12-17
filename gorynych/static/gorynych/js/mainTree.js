@@ -4,6 +4,8 @@ window.onload = function() {
 
 var csrftoken = $.cookie('csrftoken');
 var item_count = 0;
+var crBtnToShow = false;
+var rmBtnToShow = false;
 
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -126,6 +128,25 @@ function addNewEle(parentId=null) {
     });
 }
 
+function onFocus(inp) {
+    hideButtons()
+    crBtnToShow = inp.parentNode.childNodes[2];
+    rmBtnToShow = inp.parentNode.childNodes[3];
+    showButtons()
+}
+
+function showButtons() {
+    crBtnToShow.style.display = "inline-block";
+    rmBtnToShow.style.display = "inline-block";
+}
+
+function hideButtons() {
+    if (crBtnToShow && rmBtnToShow) {
+        crBtnToShow.style.display = "none";
+        rmBtnToShow.style.display = "none";
+    }
+}
+
 function addEle(value, focus=false) {
     var root = document.createElement('li');
     root.setAttribute('id', value['id']);
@@ -140,10 +161,16 @@ function addEle(value, focus=false) {
     var inp = document.createElement('input');
     inp.style.background = "#F5F5F5";
     if (value['name']) {
-        setAttributes(inp, {"oninput": "nameChanged(this)", "value": value['name']});
+        setAttributes(inp, {
+            "oninput": "nameChanged(this)",
+            "onfocus": "onFocus(this)",
+            "value": value['name']});
     }
     else {
-        setAttributes(inp, {"oninput": "nameChanged(this)"});
+        setAttributes(inp, {
+            "oninput": "nameChanged(this)",
+            "onfocus": "onFocus(this)",
+        });
     }
     inputWidthChanger(inp);
     root.appendChild(inp);
@@ -152,11 +179,13 @@ function addEle(value, focus=false) {
     setAttributes(crBtn, {"class": "crBtn", "onclick": "addNewEle(this.parentNode.id)"});
     crBtn.innerHTML = "+";
     openNode(crBtn);
+    crBtn.style.display = "none";
     root.appendChild(crBtn);
 
     var rmBtn = document.createElement('button');
     setAttributes(rmBtn, {"class": "rmBtn", "onclick": "rmFunc(this.parentNode)"});
     rmBtn.innerHTML = "-";
+    rmBtn.style.display = "none";
     root.appendChild(rmBtn);
     
     var ul = document.createElement('ul');
