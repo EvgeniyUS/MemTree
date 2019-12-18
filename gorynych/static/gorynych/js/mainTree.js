@@ -5,7 +5,9 @@ window.onload = function() {
 var csrftoken = $.cookie('csrftoken');
 var item_count = 0;
 var crBtnToShow = false;
+var moveBtnToShow = false;
 var rmBtnToShow = false;
+var moveId = false;
 
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -38,7 +40,7 @@ function openNode(button) {
         var span = this.parentNode.childNodes[0];
         span.collapsed = false;
         span.classList.toggle("caret-down", true);
-        var ul = this.parentNode.childNodes[4];
+        var ul = this.parentNode.childNodes[5];
         ul.classList.toggle("active", true);
         collapseChanged(span);
     });
@@ -107,43 +109,70 @@ function collapseChanged(span) {
 }
 
 function addNewEle(parentId=null) {
-    $.ajax({
-        type: 'POST',
-        url: '/gorynych/',
-        dataType: 'json',
-        data: {
-            'type': 'create',
-            'id': null,
-            'name': null,
-            'parent': parentId
-        },
-        success: function (json) {
-            item_count = item_count + 1;
-            description();
-            addEle(json, true);
-        },
-        error: function() { 
-            alert('Got an error');
-        }
-    });
+    if (moveId) {
+        $.ajax({
+            type: 'POST',
+            url: '/gorynych/',
+            dataType: 'json',
+            data: {
+                'type': 'update',
+                'id': moveId,
+                'parent': parentId
+            },
+            success: function (json) {
+                refresh();
+            },
+            error: function () {
+                alert('Got an error');
+            }
+        });
+    }
+    else {
+        $.ajax({
+            type: 'POST',
+            url: '/gorynych/',
+            dataType: 'json',
+            data: {
+                'type': 'create',
+                'id': null,
+                'name': null,
+                'parent': parentId
+            },
+            success: function (json) {
+                item_count = item_count + 1;
+                description();
+                addEle(json, true);
+            },
+            error: function () {
+                alert('Got an error');
+            }
+        });
+    }
 }
 
 function onFocus(inp) {
-    hideButtons()
+    hideButtons();
     crBtnToShow = inp.parentNode.childNodes[2];
-    rmBtnToShow = inp.parentNode.childNodes[3];
-    showButtons()
+    moveBtnToShow = inp.parentNode.childNodes[3];
+    rmBtnToShow = inp.parentNode.childNodes[4];
+    showButtons();
 }
 
 function showButtons() {
-    crBtnToShow.style.display = "inline-block";
-    rmBtnToShow.style.display = "inline-block";
+    if (moveId != crBtnToShow.parentNode.id) {
+        crBtnToShow.style.display = "inline-block";
+    }
+    if (moveId == false) {
+        rmBtnToShow.style.display = "inline-block";
+    }
+    moveBtnToShow.style.display = "inline-block";
 }
 
 function hideButtons() {
     if (crBtnToShow && rmBtnToShow) {
         crBtnToShow.style.display = "none";
         rmBtnToShow.style.display = "none";
+        moveBtnToShow.style.display = "none";
     }
 }
 
@@ -180,14 +209,23 @@ function addEle(value, focus=false) {
     crBtn.innerHTML = "+";
     openNode(crBtn);
     crBtn.style.display = "none";
+    crBtn.title = "Добавить элемент в текущий";
     root.appendChild(crBtn);
+
+    var moveBtn = document.createElement('button');
+    setAttributes(moveBtn, {"class": "moveBtn", "onclick": "refresh(this.parentNode.id)"});
+    moveBtn.innerHTML = ">";
+    moveBtn.style.display = "none";
+    moveBtn.title = "Переместить текущий элемент";
+    root.appendChild(moveBtn);
 
     var rmBtn = document.createElement('button');
     setAttributes(rmBtn, {"class": "rmBtn", "onclick": "rmFunc(this.parentNode)"});
-    rmBtn.innerHTML = "-";
+    rmBtn.innerHTML = "x";
     rmBtn.style.display = "none";
+    rmBtn.title = "Удалить текущий элемент";
     root.appendChild(rmBtn);
-    
+
     var ul = document.createElement('ul');
     if (span.collapsed) {
         span.className = "caret";
@@ -200,7 +238,7 @@ function addEle(value, focus=false) {
     root.appendChild(ul);
 
     if (value['parent']) {
-        var ele = document.getElementById(value['parent']).childNodes[4];
+        var ele = document.getElementById(value['parent']).childNodes[5];
         var parSpan = document.getElementById(value['parent']).childNodes[0];
         parSpan.style.display = 'inline-block';
         var parInput = document.getElementById(value['parent']).childNodes[1];
@@ -220,7 +258,7 @@ function description() {
     document.getElementById('Desc').innerText = `Items count: ${item_count}`;
 }
 
-function refresh() {
+function refresh(move_id=false) {
     $.ajax({
         type: 'GET',
         url: '/gorynych/',
@@ -235,6 +273,16 @@ function refresh() {
             document.getElementById("myUL").innerHTML = "";
             for (var i = 0; i < items.length; i++) {
                 addEle(items[i]);
+            }
+            if (move_id) {
+                moveId = move_id;
+                var item = document.getElementById(move_id);
+                item.childNodes[0].style.display = "none";
+                item.childNodes[1].style.background = "#FA8072";
+                item.childNodes[5].style.display = "none";
+            }
+            else {
+                moveId = false;
             }
         },
         error: function() {

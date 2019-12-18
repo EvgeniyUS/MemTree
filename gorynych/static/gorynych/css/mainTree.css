@@ -135,6 +135,14 @@ button {
     background: rgba( 230, 30, 30, 0.9 );
 }
 
+.moveBtn {
+    background: rgba( 255, 211, 0, 0.2 );
+}
+.moveBtn:hover {
+    transform: scale(1.1,1.1);
+    background: rgba( 255, 211, 0, 0.9 );
+}
+
 .refrBtn {
     background: #00BFFF;
 }
