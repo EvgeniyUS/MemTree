@@ -16,16 +16,13 @@ def sorting(items):
 
     def rec(rec_item):
         sorted_ids = [i['id'] for i in sorted_items]
-        if rec_item['parent'] not in sorted_ids:
+        if rec_item['parent'] and rec_item['parent'] not in sorted_ids:
             rec(get_item(rec_item['parent']))
         if rec_item['id'] not in sorted_ids:
             sorted_items.append(rec_item)
 
     for item in items:
-        if not item['parent']:
-            sorted_items.append(item)
-        else:
-            rec(item)
+        rec(item)
 
     return sorted_items
 
@@ -63,11 +60,9 @@ def gorynych(request):
 
     else:
         if request.GET.dict().get('type') and request.GET.dict()['type'] == 'all':
-            items = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent').order_by('parent'))
-            items = sorting(items)
+            items = sorting(list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent')))
             return HttpResponse(json.dumps({'data': items}), content_type="application/json")
         else:
-            objects = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent').order_by('parent'))
-            objects = sorting(objects)
+            objects = sorting(list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent')))
             context = {'object_list': json.dumps(objects)}
             return render(request, 'gorynych/mainTable.html', context)
