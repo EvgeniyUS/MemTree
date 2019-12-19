@@ -63,11 +63,11 @@ def gorynych(request):
 
     else:
         if request.GET.dict().get('type') and request.GET.dict()['type'] == 'all':
-            items = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent'))
+            items = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent').order_by('parent'))
             items = sorting(items)
             return HttpResponse(json.dumps({'data': items}), content_type="application/json")
         else:
-            objects = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent'))
+            objects = list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent').order_by('parent'))
             objects = sorting(objects)
             context = {'object_list': json.dumps(objects)}
             return render(request, 'gorynych/mainTable.html', context)
