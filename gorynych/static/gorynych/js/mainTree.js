@@ -209,7 +209,7 @@ function addEle(value, focus=false) {
     crBtn.innerHTML = "+";
     openNode(crBtn);
     crBtn.style.display = "none";
-    crBtn.title = "Добавить элемент в текущий";
+    crBtn.title = "Добавить/вставить элемент в текущий";
     root.appendChild(crBtn);
 
     var moveBtn = document.createElement('button');
@@ -278,7 +278,8 @@ function refresh(move_id=false) {
                 moveId = move_id;
                 var item = document.getElementById(move_id);
                 item.childNodes[0].style.display = "none";
-                item.childNodes[1].style.background = "#FA8072";
+                item.childNodes[1].style.background = "#FFE4E1";
+                item.childNodes[1].disabled = true;
                 item.childNodes[5].style.display = "none";
             }
             else {
