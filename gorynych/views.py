@@ -27,18 +27,26 @@ def sorting(items):
     return sorted_items
 
 
+def all_items_sorted():
+    return sorting(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent'))
+
+
 def gorynych(request):
     if request.method == "POST":
         if request.is_ajax():
             values = request.POST.dict()
 
             if values['type'] == "update":
+                item = mainTreeDataBase.objects.get(id=values['id'])
                 if 'parent' in values.keys():
-                    mainTreeDataBase.objects.filter(id=values['id']).update(parent=values['parent'])
+                    if values['parent']:
+                        item.parent = mainTreeDataBase.objects.get(id=values['parent'])
+                    else:
+                        item.parent = None
                 else:
-                    collapsed_value = True if values['collapsed'] == 'true' else False
-                    mainTreeDataBase.objects.filter(id=values['id']).update(collapsed=collapsed_value,
-                                                                            name=values['name'])
+                    item.collapsed = True if values['collapsed'] == 'true' else False
+                    item.name = values['name']
+                item.save()
                 return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")
 
             elif values['type'] == "create":
@@ -55,14 +63,12 @@ def gorynych(request):
                                     content_type="application/json")
 
             elif values['type'] == "delete":
-                mainTreeDataBase.objects.filter(id=values['id']).delete()
+                mainTreeDataBase.objects.get(id=values['id']).delete()
                 return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")
 
     else:
         if request.GET.dict().get('type') and request.GET.dict()['type'] == 'all':
-            items = sorting(list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent')))
-            return HttpResponse(json.dumps({'data': items}), content_type="application/json")
+            return HttpResponse(json.dumps({'data': all_items_sorted()}), content_type="application/json")
         else:
-            objects = sorting(list(mainTreeDataBase.objects.values('id', 'collapsed', 'name', 'parent')))
-            context = {'object_list': json.dumps(objects)}
+            context = {'object_list': json.dumps(all_items_sorted())}
             return render(request, 'gorynych/mainTable.html', context)
