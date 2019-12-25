@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Experiment</title>
+    {% load staticfiles %}
+    <link rel='stylesheet' href="{% static 'MySite/css/bootstrap.min.css' %}" type='text/css'>
+    <link rel="shortcut icon" href="{% static 'MySite/img/favicon.ico' %}" type="image/x-icon">
+</head>
+<body>
+    <div style='padding:20px'>
+        <a href='/' class='btn btn-primary btn-sm'>&#127968; Home</a>
+        <a href='/calc' class='btn btn-danger btn-sm'>&#9889; Calc</a>
+        <a href='/memtree' class='btn btn-success btn-sm'>&#127795; MemTree</a>
+    </div>
+    <div style='margin-left:20px'>
+        {% block content %}
+        {% endblock %}
+    </div>
+    <div style='margin-left:20px'>
+        <hr>&copy; Все права защищены, 2019</hr>
+    </div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{% extends 'MySite/wrapper.html' %}
+
+{% block content %}
+
+    {% load staticfiles %}
+    <script type="text/javascript" src="{% static 'MemTree/js/jquery-3.3.1.js' %}"></script>
+    <script type="text/javascript" src="{% static 'MemTree/js/MemTree.js' %}"></script>
+    <link rel='stylesheet' href="{% static 'MemTree/css/MemTree.css' %}" type='text/css'>
+
+    <p id="Desc" style="font-family: monospace"></p>
+
+    <button class="refrBtn" onclick="refresh()" title="Обновить">&#8635;</button>
+
+    <ul id="myUL">
+    </ul>
+
+    <script type="text/javascript">
+        var csrftoken = '{{ csrf_token }}';
+        refresh();
+    </script>
+
+    <button class="newBtn" onclick="addNewEle()" title="Добавить/вставить корневой элемент">+</button>
+
+{% endblock %}
+
