@@ -7,19 +7,20 @@
     <script type="text/javascript" src="{% static 'MemTree/js/MemTree.js' %}"></script>
     <link rel='stylesheet' href="{% static 'MemTree/css/MemTree.css' %}" type='text/css'>
 
-    <p id="Desc" style="font-family: monospace"></p>
-
-    <button class="refrBtn" onclick="refresh()" title="Обновить">&#8635;</button>
-
-    <ul id="myUL">
-    </ul>
+    <div style='margin-left: 20px;'>
+        <ul id="myUL"></ul>
+    </div>
 
     <script type="text/javascript">
         var csrftoken = '{{ csrf_token }}';
         refresh();
     </script>
 
-    <button class="newBtn" onclick="addNewEle()" title="Добавить/вставить корневой элемент">+</button>
+    <div style='text-align: center;'>
+        <button class="newBtn" onclick="addNewEle()" title="Добавить/вставить корневой элемент">+</button>
+        <button class="refrBtn" onclick="refresh()" title="Обновить">&#8635;</button>
+        <p id="Desc"></p>
+    </div>
 
 {% endblock %}
 

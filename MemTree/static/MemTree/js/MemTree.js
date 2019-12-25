@@ -1,4 +1,3 @@
-// var csrftoken = $.cookie('csrftoken');
 var item_count = 0;
 var crBtnToShow = false;
 var moveBtnToShow = false;
@@ -184,7 +183,6 @@ function addEle(value, focus=false) {
     root.appendChild(span);
 
     var inp = document.createElement('input');
-    inp.style.background = "#F5F5F5";
     if (value['name']) {
         setAttributes(inp, {
             "oninput": "nameChanged(this)",
@@ -239,7 +237,8 @@ function addEle(value, focus=false) {
         var parSpan = parEle.childNodes[0];
         parSpan.style.display = 'inline-block';
         var parInput = parEle.childNodes[1];
-        parInput.style.background = "#FFF3CC";
+        parInput.style.background = "#1b1e21";
+        parInput.style.fontWeight = "bold";
     }
     else {
         var ele = document.getElementById("myUL");
@@ -272,12 +271,17 @@ function refresh(move_id=false) {
                 addEle(items[i]);
             }
             if (move_id) {
-                moveId = move_id;
-                var item = document.getElementById(move_id);
-                item.childNodes[0].style.display = "none";
-                item.childNodes[1].style.background = "#FFE4E1";
-                item.childNodes[1].disabled = true;
-                item.childNodes[5].style.display = "none";
+                if (move_id != moveId) {
+                    moveId = move_id;
+                    var item = document.getElementById(move_id);
+                    item.childNodes[0].style.display = "none";
+                    item.childNodes[1].style.border = "2px dotted rgba( 230, 30, 30, 0.9 )";
+                    // item.childNodes[1].disabled = true;
+                    item.childNodes[5].style.display = "none";
+                }
+                else {
+                    moveId = false;
+                }
             }
             else {
                 moveId = false;
