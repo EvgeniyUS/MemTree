@@ -17,7 +17,7 @@ li {
 
 .caret {
     color: #adb5bd;
-    font-size: 20px;
+    font-size: 18px;
     cursor: pointer;
     -webkit-user-select: none; /* Safari 3.1+ */
     -moz-user-select: none; /* Firefox 2+ */
@@ -100,27 +100,27 @@ button {
     transition: 0.3s ease;
 }
 
-.crBtn {
+.add_button {
     background: rgba( 90, 290, 90, 0.5 );
 }
-.crBtn:hover {
+.add_button:hover {
     -webkit-transform: rotateZ(360deg);
     -moz-transform: rotateZ(360deg);
     -ms-transform: rotateZ(360deg);
     transform: rotateZ(360deg);
     background: rgba( 30, 230, 30, 0.9 );
 }
-.rmBtn{
+.remove_button{
     background: rgba( 230, 30, 30, 0.5 );
 }
-.rmBtn:hover {
+.remove_button:hover {
     background: rgba( 230, 30, 30, 0.9 );
 }
 
-.moveBtn {
+.move_button {
     background: rgba( 255, 211, 0, 0.5 );
 }
-.moveBtn:hover {
+.move_button:hover {
     transform: scale(1.1,1.1);
     background: rgba( 255, 211, 0, 0.9 );
 }
@@ -147,4 +147,8 @@ button {
     -moz-transform: rotateZ(360deg);
     -ms-transform: rotateZ(360deg);
     transform: rotateZ(360deg) scale(1.1, 1.1);
+}
+
+.root_buttons {
+    text-align: center;
 }

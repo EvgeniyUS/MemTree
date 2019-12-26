@@ -33,34 +33,39 @@ def index(request):
         if request.is_ajax():
             values = request.POST.dict()
 
-            if values['type'] == "update":
-                item = Item.objects.get(id=values['id'])
-                if 'parent' in values.keys():
-                    if values['parent']:
-                        item.parent = Item.objects.get(id=values['parent'])
-                    else:
-                        item.parent = None
-                else:
-                    item.collapsed = True if values['collapsed'] == 'true' else False
-                    item.name = values['name']
-                item.save()
-                return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")
-
-            elif values['type'] == "create":
-                name = None
+            if values['type'] == "create":
                 if values['parent']:
                     parent = Item.objects.get(id=values['parent'])
                 else:
                     parent = None
-                new_item = Item.objects.create(name=name, parent=parent)
+                new_item = Item.objects.create(parent=parent)
                 return HttpResponse(json.dumps({'id': new_item.id,
                                                 'collapsed': new_item.collapsed,
-                                                'name': name,
+                                                'name': new_item.name,
                                                 'parent': parent.id if parent else None}),
                                     content_type="application/json")
 
-            elif values['type'] == "delete":
-                Item.objects.get(id=values['id']).delete()
+            else:
+                item = Item.objects.get(id=values['id'])
+
+                if values['type'] == "name":
+                    item.name = values['name']
+                    item.save()
+
+                elif values['type'] == "collapse":
+                    item.collapsed = True if values['collapsed'] == 'true' else False
+                    item.save()
+
+                elif values['type'] == "move":
+                    if values['parent']:
+                        item.parent = Item.objects.get(id=values['parent'])
+                    else:
+                        item.parent = None
+                    item.save()
+
+                elif values['type'] == "delete":
+                    item.delete()
+
                 return HttpResponse(json.dumps({'result': 'ok'}), content_type="application/json")
 
     elif request.method == "GET":
