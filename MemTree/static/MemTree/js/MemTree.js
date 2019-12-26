@@ -14,20 +14,36 @@ $.ajaxSetup({
 });
 
 var add_button = document.createElement('button');
-setAttributes(add_button, {"class": "add_button"});
+setAttributes(add_button, {
+    "class": "add_button",
+    "title": "Добавить/Вставить",
+});
 add_button.innerHTML = "+";
-add_button.title = "Добавить/Вставить";
 addItemButtonEvent(add_button);
 
 var move_button = document.createElement('button');
-setAttributes(move_button, {"class": "move_button", "onclick": "refresh(this.parentNode.parentNode.id)"});
+setAttributes(move_button, {
+    "class": "move_button",
+    "onclick": "refresh(this.parentNode.parentNode.id)",
+    "title": "Переместить",
+});
 move_button.innerHTML = ">";
-move_button.title = "Переместить";
 
 var remove_button = document.createElement('button');
-setAttributes(remove_button, {"class": "remove_button", "onclick": "rmFunc(this.parentNode.parentNode)"});
+setAttributes(remove_button, {
+    "class": "remove_button",
+    "onclick": "rmFunc(this.parentNode.parentNode)",
+    "title": "Удалить",
+});
 remove_button.innerHTML = "x";
-remove_button.title = "Удалить";
+
+var edit_button = document.createElement('button');
+setAttributes(edit_button, {
+    "class": "edit_button",
+    "onclick": "editFunc(this.parentNode.parentNode.id)",
+    "title": "Редактировать"
+});
+edit_button.innerHTML = "&#9998;";
 
 function spanToggler(span) {
     span.addEventListener("click", function() {
@@ -69,6 +85,12 @@ function rmFunc(node) {
             refresh();
         },
     });
+}
+
+function editFunc(item_id) {
+    var item_input = find(item_id, "input");
+    item_input.readOnly = false;
+    item_input.focus();
 }
 
 function setAttributes(el, attrs) {
@@ -156,6 +178,7 @@ function addItem(parent_id=null) {
 
 function inputFocus(item_id) {
     var btn_cont = find(item_id, "btn_cont");
+    btn_cont.appendChild(edit_button);
     btn_cont.appendChild(add_button);
     btn_cont.appendChild(move_button);
     btn_cont.appendChild(remove_button);
@@ -186,19 +209,16 @@ function itemBuilder(item, focus=false) {
     root.appendChild(span);
 
     var input = document.createElement('input');
+    setAttributes(input, {
+        "id": `${item['id']}_input`,
+        "oninput": "nameChanged(this)",
+        "onfocus": "inputFocus(this.parentNode.id)",
+        "readOnly": "true",
+        // "ondblclick": "this.readOnly=false",
+        "onfocusout": "this.readOnly=true"
+    });
     if (item['name']) {
-        setAttributes(input, {
-            "id": `${item['id']}_input`,
-            "oninput": "nameChanged(this)",
-            "onfocus": "inputFocus(this.parentNode.id)",
-            "value": item['name']});
-    }
-    else {
-        setAttributes(input, {
-            "id": `${item['id']}_input`,
-            "oninput": "nameChanged(this)",
-            "onfocus": "inputFocus(this.parentNode.id)",
-        });
+        input.setAttribute("value", item['name']);
     }
     inputWidthChanger(input);
     root.appendChild(input);
@@ -234,7 +254,8 @@ function itemBuilder(item, focus=false) {
     parent_ul.appendChild(root);
 
     if (input.value == false && focus) {
-        input.focus()
+        input.readOnly = false;
+        input.focus();
     }
 }
 
