@@ -102,6 +102,7 @@ button {
     background: rgba( 30, 130, 230, 0.5 );
 }
 .edit_button:hover {
+    transform: scale(1.1,1.1);
     background: rgba( 30, 130, 230, 0.9 );
 }
 
@@ -109,16 +110,14 @@ button {
     background: rgba( 90, 290, 90, 0.5 );
 }
 .add_button:hover {
-    -webkit-transform: rotateZ(360deg);
-    -moz-transform: rotateZ(360deg);
-    -ms-transform: rotateZ(360deg);
-    transform: rotateZ(360deg);
+    transform: scale(1.1,1.1);
     background: rgba( 30, 230, 30, 0.9 );
 }
 .remove_button{
     background: rgba( 230, 30, 30, 0.5 );
 }
 .remove_button:hover {
+    transform: scale(1.1,1.1);
     background: rgba( 230, 30, 30, 0.9 );
 }
 

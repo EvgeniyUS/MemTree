@@ -18,16 +18,16 @@ setAttributes(add_button, {
     "class": "add_button",
     "title": "Добавить/Вставить",
 });
-add_button.innerHTML = "+";
+add_button.innerHTML = "&#8626;";
 addItemButtonEvent(add_button);
 
 var move_button = document.createElement('button');
 setAttributes(move_button, {
     "class": "move_button",
     "onclick": "refresh(this.parentNode.parentNode.id)",
-    "title": "Переместить",
+    "title": "Вырезать",
 });
-move_button.innerHTML = ">";
+move_button.innerHTML = "&#9986;";
 
 var remove_button = document.createElement('button');
 setAttributes(remove_button, {
@@ -35,7 +35,7 @@ setAttributes(remove_button, {
     "onclick": "rmFunc(this.parentNode.parentNode)",
     "title": "Удалить",
 });
-remove_button.innerHTML = "x";
+remove_button.innerHTML = "&times;";
 
 var edit_button = document.createElement('button');
 setAttributes(edit_button, {
@@ -73,18 +73,26 @@ function addItemButtonEvent(button) {
 }
 
 function rmFunc(node) {
-    $.ajax({
-        type: 'POST',
-        url: '/memtree/',
-        dataType: 'json',
-        data: {
-            'type': 'delete',
-            'id': node.id
-        },
-        success: function (json) {
-            refresh();
-        },
-    });
+    var result = true;
+    var ul = find(node.id, "ul");
+    if (ul.childNodes.length > 0) {
+        var value = find(node.id, "input").value;
+        result = confirm(`Удалить "${value}"?`);
+    }
+    if (result) {
+        $.ajax({
+            type: 'POST',
+            url: '/memtree/',
+            dataType: 'json',
+            data: {
+                'type': 'delete',
+                'id': node.id
+            },
+            success: function (json) {
+                refresh();
+            },
+        });
+    }
 }
 
 function editFunc(item_id) {
@@ -178,8 +186,8 @@ function addItem(parent_id=null) {
 
 function inputFocus(item_id) {
     var btn_cont = find(item_id, "btn_cont");
-    btn_cont.appendChild(edit_button);
     btn_cont.appendChild(add_button);
+    btn_cont.appendChild(edit_button);
     btn_cont.appendChild(move_button);
     btn_cont.appendChild(remove_button);
 
@@ -207,6 +215,10 @@ function itemBuilder(item, focus=false) {
     span.style.display = "none";
     spanToggler(span);
     root.appendChild(span);
+
+    // var checkbox = document.createElement('input');
+    // checkbox.type = "checkbox";
+    // root.appendChild(checkbox);
 
     var input = document.createElement('input');
     setAttributes(input, {
