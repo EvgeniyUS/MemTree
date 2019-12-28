@@ -46,17 +46,6 @@ li {
     display: block;
 }
 
-img {
-    padding: 0px 0px 5px 10px;
-    cursor: pointer;
-    opacity: 0.2;
-}
-
-img:hover {
-    transform: scale(1.2, 1.2);
-    opacity: 1.0;
-}
-
 input {
     font-size: 18px;
     text-align: center;
@@ -155,4 +144,8 @@ button {
 
 .root_buttons {
     text-align: center;
+}
+
+.counter {
+    color: #b21f2d;
 }

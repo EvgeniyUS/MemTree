@@ -18,7 +18,7 @@ setAttributes(add_button, {
     "class": "add_button",
     "title": "Добавить/Вставить",
 });
-add_button.innerHTML = "&#8626;";
+add_button.innerHTML = "+";
 addItemButtonEvent(add_button);
 
 var move_button = document.createElement('button');
@@ -185,11 +185,11 @@ function addItem(parent_id=null) {
 }
 
 function inputFocus(item_id) {
-    var btn_cont = find(item_id, "btn_cont");
-    btn_cont.appendChild(add_button);
-    btn_cont.appendChild(edit_button);
-    btn_cont.appendChild(move_button);
-    btn_cont.appendChild(remove_button);
+    var button_container = find(item_id, "button_container");
+    button_container.appendChild(add_button);
+    button_container.appendChild(edit_button);
+    button_container.appendChild(move_button);
+    button_container.appendChild(remove_button);
 
     if (MOVE_ITEM_ID != item_id) {
         add_button.style.display = "inline-block";
@@ -214,7 +214,6 @@ function itemBuilder(item, focus=false) {
     span.collapsed = item['collapsed'];
     span.style.display = "none";
     spanToggler(span);
-    root.appendChild(span);
 
     // var checkbox = document.createElement('input');
     // checkbox.type = "checkbox";
@@ -233,14 +232,13 @@ function itemBuilder(item, focus=false) {
         input.setAttribute("value", item['name']);
     }
     inputWidthChanger(input);
-    root.appendChild(input);
 
-    var btn_cont = document.createElement('a');
-    btn_cont.setAttribute("id", `${item['id']}_btn_cont`);
-    root.appendChild(btn_cont);
+    var button_container = document.createElement('button_container');
+    button_container.setAttribute("id", `${item['id']}_button_container`);
 
     var ul = document.createElement('ul');
     ul.setAttribute("id", `${item['id']}_ul`);
+
     if (span.collapsed) {
         span.className = "caret";
         ul.className = "nested";
@@ -249,21 +247,38 @@ function itemBuilder(item, focus=false) {
         span.className = "caret caret-down";
         ul.className = "nested active";
     }
+
+    var counter = document.createElement('sup');
+    setAttributes(counter, {
+        "id": `${item['id']}_counter`,
+        "class": "counter",
+    });
+
+    root.appendChild(span);
+    root.appendChild(input);
+    root.appendChild(counter);
+    root.appendChild(button_container);
     root.appendChild(ul);
 
-    var parent_ul = false;
     if (item['parent']) {
-        parent_ul = find(item['parent'], "ul");
+        var parent_ul = find(item['parent'], "ul");
+
         var parent_span = find(item['parent'], "span");
         parent_span.style.display = 'inline-block';
+
         var parent_input = find(item['parent'], "input");
         parent_input.style.background = "#1b1e21";
         parent_input.style.fontWeight = "bold";
+
+        parent_ul.appendChild(root);
+
+        var parent_counter = find(item['parent'], "counter");
+        parent_counter.innerHTML = ` ${parent_ul.childNodes.length}`;
     }
     else {
-        parent_ul = document.getElementById("myUL");
+        var meta_root = document.getElementById("myUL");
+        meta_root.appendChild(root);
     }
-    parent_ul.appendChild(root);
 
     if (input.value == false && focus) {
         input.readOnly = false;
