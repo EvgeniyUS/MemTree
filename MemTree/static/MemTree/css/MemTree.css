@@ -88,22 +88,27 @@ button {
 }
 
 .edit_button{
-    background: rgba( 30, 130, 230, 0.5 );
+    background: rgba( 30, 130, 230, 0.1 );
 }
 .edit_button:hover {
     transform: scale(1.1,1.1);
     background: rgba( 30, 130, 230, 0.9 );
 }
 
-.add_button {
-    background: rgba( 90, 290, 90, 0.5 );
+.insert_button {
+    background: rgba( 90, 290, 90, 0.1 );
 }
-.add_button:hover {
+.insert_button:hover {
     transform: scale(1.1,1.1);
     background: rgba( 30, 230, 30, 0.9 );
 }
+.append_button {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    background: rgba( 90, 290, 90, 0.5 );
+}
 .remove_button{
-    background: rgba( 230, 30, 30, 0.5 );
+    background: rgba( 230, 30, 30, 0.1 );
 }
 .remove_button:hover {
     transform: scale(1.1,1.1);
@@ -111,7 +116,7 @@ button {
 }
 
 .move_button {
-    background: rgba( 255, 211, 0, 0.5 );
+    background: rgba( 255, 211, 0, 0.1 );
 }
 .move_button:hover {
     transform: scale(1.1,1.1);
@@ -130,12 +135,12 @@ button {
     transform: scale(1.2,1.2);
 }
 
-.add_root_button {
+.create_button {
     margin-top:20px;
     font-size: 28px;
     background: rgba( 30, 230, 30, 0.9 );
 }
-.add_root_button:hover {
+.create_button:hover {
     -webkit-transform: rotateZ(360deg);
     -moz-transform: rotateZ(360deg);
     -ms-transform: rotateZ(360deg);

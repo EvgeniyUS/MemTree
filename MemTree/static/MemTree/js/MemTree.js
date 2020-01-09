@@ -13,13 +13,13 @@ $.ajaxSetup({
     }
 });
 
-var add_button = document.createElement('button');
-setAttributes(add_button, {
-    "class": "add_button",
+var insert_button = document.createElement('button');
+setAttributes(insert_button, {
+    "class": "insert_button",
     "title": "Добавить/Вставить",
 });
-add_button.innerHTML = "+";
-addItemButtonEvent(add_button);
+insert_button.innerHTML = "&#8592;";
+addItemButtonEvent(insert_button);
 
 var move_button = document.createElement('button');
 setAttributes(move_button, {
@@ -75,11 +75,19 @@ function addItemButtonEvent(button) {
 function rmFunc(node) {
     var result = true;
     var ul = find(node.id, "ul");
-    if (ul.childNodes.length > 0) {
+    if (ul.childNodes.length > 1) {
         var value = find(node.id, "input").value;
         result = confirm(`Удалить "${value}"?`);
     }
     if (result) {
+        if (node.parent) {
+            var parent_ul = find(node.parent, "ul");
+            if (parent_ul.childNodes.length <= 2) {
+                var span = find(node.parent, "span");
+                span.collapsed = true;
+                collapseChanged(span);
+            }
+        }
         $.ajax({
             type: 'POST',
             url: '/memtree/',
@@ -186,16 +194,16 @@ function addItem(parent_id=null) {
 
 function inputFocus(item_id) {
     var button_container = find(item_id, "button_container");
-    button_container.appendChild(add_button);
+    button_container.appendChild(insert_button);
     button_container.appendChild(edit_button);
     button_container.appendChild(move_button);
     button_container.appendChild(remove_button);
 
     if (MOVE_ITEM_ID != item_id) {
-        add_button.style.display = "inline-block";
+        insert_button.style.display = "inline-block";
     }
     else {
-        add_button.style.display = "none";
+        insert_button.style.display = "none";
     }
     if (MOVE_ITEM_ID == false) {
         remove_button.style.display = "inline-block";
@@ -207,6 +215,7 @@ function inputFocus(item_id) {
 
 function itemBuilder(item, focus=false) {
     var root = document.createElement('li');
+    root.parent = item['parent'];
     root.setAttribute('id', item['id']);
 
     var span = document.createElement('span');
@@ -217,7 +226,6 @@ function itemBuilder(item, focus=false) {
 
     // var checkbox = document.createElement('input');
     // checkbox.type = "checkbox";
-    // root.appendChild(checkbox);
 
     var input = document.createElement('input');
     setAttributes(input, {
@@ -254,7 +262,19 @@ function itemBuilder(item, focus=false) {
         "class": "counter",
     });
 
+    var append_button = document.createElement('button');
+    setAttributes(append_button, {
+        "id": `${item['id']}_append_button`,
+        "class": "append_button",
+        "title": `Добавить/Вставить в "${input.value}"`,
+    });
+    append_button.innerHTML = "+";
+    addItemButtonEvent(append_button);
+    ul.appendChild(append_button);
+
+
     root.appendChild(span);
+    // root.appendChild(checkbox);
     root.appendChild(input);
     root.appendChild(counter);
     root.appendChild(button_container);
@@ -273,7 +293,10 @@ function itemBuilder(item, focus=false) {
         parent_ul.appendChild(root);
 
         var parent_counter = find(item['parent'], "counter");
-        parent_counter.innerHTML = ` ${parent_ul.childNodes.length}`;
+        parent_counter.innerHTML = ` ${parent_ul.childNodes.length - 1}`;
+
+        var parent_append_button = find(item['parent'], "append_button");
+        parent_ul.appendChild(parent_append_button);
     }
     else {
         var meta_root = document.getElementById("myUL");
