@@ -2,7 +2,6 @@
 ul, #myUL {
     position: relative;
     display: grid;
-    /*list-style-type: none;*/
     list-style: none;
     overflow: auto;
 }
@@ -21,14 +20,16 @@ li::before, li::after {
 li::before {
     border-top: 1px solid #721c24;
     top: 20px;
-    width: 8px;
+    width: 25px;
     height: 0;
+    left: -31px;
 }
 li::after {
     border-left: 1px solid #721c24;
     height: 100%;
     width: 0;
     top: 5px;
+    left: -31px;
 }
 
 ul > li:last-child::after {
@@ -41,8 +42,8 @@ ul > li:last-child::after {
 }
 
 .caret {
-    color: #adb5bd;
-    font-size: 18px;
+    color: #721c24;
+    font-size: 20px;
     cursor: pointer;
     -webkit-user-select: none; /* Safari 3.1+ */
     -moz-user-select: none; /* Firefox 2+ */
@@ -51,7 +52,8 @@ ul > li:last-child::after {
 }
 
 .caret::before {
-    content: "\27A4";
+    /*content: "\27A4";*/
+    content: "\2B9E";
     display: inline-block;
     margin-right: 6px;
     transition: 0.3s ease;
@@ -74,6 +76,8 @@ ul > li:last-child::after {
 input {
     font-size: 18px;
     text-align: center;
+    padding-left: 5px;
+    padding-right: 5px;
     color: #adb5bd;
     border: 2px solid #16181b;
     border-radius: 10px;

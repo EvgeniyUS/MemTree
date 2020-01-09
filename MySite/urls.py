@@ -20,6 +20,6 @@ from . import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.home),
-    url(r'^calc', include('Calc.urls')),
+    url(r'^Calc', include('Calc.urls')),
     url(r'^memtree', include('MemTree.urls')),
 ]
