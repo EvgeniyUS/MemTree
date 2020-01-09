@@ -1,13 +1,38 @@
 
 ul, #myUL {
+    position: relative;
     display: grid;
-    list-style-type: none;
+    /*list-style-type: none;*/
+    list-style: none;
     overflow: auto;
 }
 
 li {
+    position: relative;
     white-space: nowrap;
     padding-top: 5px;
+    /*margin: 5px;*/
+}
+li::before, li::after {
+    content: "";
+    position: absolute;
+    left: -12px;
+}
+li::before {
+    border-top: 1px solid #bd2130;
+    top: 20px;
+    width: 8px;
+    height: 0;
+}
+li::after {
+    border-left: 1px solid #bd2130;
+    height: 100%;
+    width: 0;
+    top: 5px;
+}
+
+ul > li:last-child::after {
+    height: 16px;
 }
 
 #myUL {
@@ -49,8 +74,8 @@ li {
 input {
     font-size: 18px;
     text-align: center;
-    padding-left: 5px;
-    padding-right: 5px;
+    /*padding-left: 5px;*/
+    /*padding-right: 5px;*/
     color: #adb5bd;
     border: 2px solid #16181b;
     border-radius: 10px;
@@ -65,7 +90,7 @@ input:hover {
 button {
     background: transparent;
     border: 0;
-    padding: 0;
+    /*padding: 0;*/
     cursor: pointer;
     outline: 0;
     -webkit-appearance: none;
@@ -80,7 +105,7 @@ button {
     display: inline-block;
     position: relative;
     padding: 0px 10px;
-    top: 0;
+    /*top: 0;*/
     font-size: 18px;
     border-radius: 10px;
     color: #fff;
@@ -102,11 +127,11 @@ button {
     transform: scale(1.1,1.1);
     background: rgba( 30, 230, 30, 0.9 );
 }
-.append_button {
-    margin-top: 5px;
-    margin-bottom: 15px;
-    background: rgba( 90, 290, 90, 0.5 );
-}
+/*.append_button {*/
+/*    margin-top: 5px;*/
+/*    margin-bottom: 15px;*/
+/*    background: rgba( 90, 290, 90, 0.5 );*/
+/*}*/
 .remove_button{
     background: rgba( 230, 30, 30, 0.1 );
 }
@@ -124,7 +149,7 @@ button {
 }
 
 .refresh_button {
-    margin-bottom:20px;
+    /*margin-bottom:20px;*/
     font-size: 28px;
     background: #00BFFF;
 }

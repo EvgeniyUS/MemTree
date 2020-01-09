@@ -262,15 +262,15 @@ function itemBuilder(item, focus=false) {
         "class": "counter",
     });
 
-    var append_button = document.createElement('button');
-    setAttributes(append_button, {
-        "id": `${item['id']}_append_button`,
-        "class": "append_button",
-        "title": `Добавить/Вставить в "${input.value}"`,
-    });
-    append_button.innerHTML = "+";
-    addItemButtonEvent(append_button);
-    ul.appendChild(append_button);
+    // var append_button = document.createElement('button');
+    // setAttributes(append_button, {
+    //     "id": `${item['id']}_append_button`,
+    //     "class": "append_button",
+    //     "title": `Добавить/Вставить в "${input.value}"`,
+    // });
+    // append_button.innerHTML = "+";
+    // addItemButtonEvent(append_button);
+    // ul.appendChild(append_button);
 
 
     root.appendChild(span);
@@ -293,10 +293,10 @@ function itemBuilder(item, focus=false) {
         parent_ul.appendChild(root);
 
         var parent_counter = find(item['parent'], "counter");
-        parent_counter.innerHTML = ` ${parent_ul.childNodes.length - 1}`;
+        parent_counter.innerHTML = ` ${parent_ul.childNodes.length}`;
 
-        var parent_append_button = find(item['parent'], "append_button");
-        parent_ul.appendChild(parent_append_button);
+        // var parent_append_button = find(item['parent'], "append_button");
+        // parent_ul.appendChild(parent_append_button);
     }
     else {
         var meta_root = document.getElementById("myUL");
