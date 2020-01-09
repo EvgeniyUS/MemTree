@@ -18,7 +18,7 @@ setAttributes(insert_button, {
     "class": "insert_button",
     "title": "Добавить/Вставить",
 });
-insert_button.innerHTML = "&#8592;";
+insert_button.innerHTML = "+";
 addItemButtonEvent(insert_button);
 
 var move_button = document.createElement('button');
