@@ -19,13 +19,13 @@ li::before, li::after {
     left: -12px;
 }
 li::before {
-    border-top: 1px solid #bd2130;
+    border-top: 1px solid #721c24;
     top: 20px;
     width: 8px;
     height: 0;
 }
 li::after {
-    border-left: 1px solid #bd2130;
+    border-left: 1px solid #721c24;
     height: 100%;
     width: 0;
     top: 5px;
@@ -74,8 +74,6 @@ ul > li:last-child::after {
 input {
     font-size: 18px;
     text-align: center;
-    /*padding-left: 5px;*/
-    /*padding-right: 5px;*/
     color: #adb5bd;
     border: 2px solid #16181b;
     border-radius: 10px;
@@ -90,7 +88,6 @@ input:hover {
 button {
     background: transparent;
     border: 0;
-    /*padding: 0;*/
     cursor: pointer;
     outline: 0;
     -webkit-appearance: none;
@@ -105,7 +102,6 @@ button {
     display: inline-block;
     position: relative;
     padding: 0px 10px;
-    /*top: 0;*/
     font-size: 18px;
     border-radius: 10px;
     color: #fff;
@@ -149,7 +145,6 @@ button {
 }
 
 .refresh_button {
-    /*margin-bottom:20px;*/
     font-size: 28px;
     background: #00BFFF;
 }

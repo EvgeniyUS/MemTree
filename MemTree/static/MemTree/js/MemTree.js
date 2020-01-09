@@ -75,14 +75,14 @@ function addItemButtonEvent(button) {
 function rmFunc(node) {
     var result = true;
     var ul = find(node.id, "ul");
-    if (ul.childNodes.length > 1) {
+    if (ul.childNodes.length > 0) {
         var value = find(node.id, "input").value;
         result = confirm(`Удалить "${value}"?`);
     }
     if (result) {
         if (node.parent) {
             var parent_ul = find(node.parent, "ul");
-            if (parent_ul.childNodes.length <= 2) {
+            if (parent_ul.childNodes.length < 2) {
                 var span = find(node.parent, "span");
                 span.collapsed = true;
                 collapseChanged(span);
