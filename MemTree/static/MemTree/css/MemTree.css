@@ -1,6 +1,5 @@
 
 ul, #myUL {
-    position: relative;
     display: grid;
     list-style: none;
     overflow: auto;
@@ -10,30 +9,26 @@ li {
     position: relative;
     white-space: nowrap;
     padding-top: 5px;
-    /*margin: 5px;*/
 }
 li::before, li::after {
     content: "";
     position: absolute;
-    left: -12px;
 }
 li::before {
-    border-top: 1px solid #721c24;
+    border-top: 1px dashed #040505;
     top: 20px;
-    width: 25px;
-    height: 0;
+    width: 27px;
     left: -34px;
 }
 li::after {
-    border-left: 1px solid #721c24;
-    height: 100%;
-    width: 0;
+    border-left: 1px dashed #040505;
+    height: 97%;
     top: 5px;
     left: -34px;
 }
 
 ul > li:last-child::after {
-    height: 16px;
+    height: 15px;
 }
 
 #myUL {
@@ -42,6 +37,7 @@ ul > li:last-child::after {
 }
 
 .caret {
+    /*position: absolute;*/
     color: #721c24;
     font-size: 20px;
     cursor: pointer;
@@ -52,17 +48,17 @@ ul > li:last-child::after {
 }
 
 .caret::before {
-    /*content: "\27A4";*/
     content: ">";
     display: inline-block;
-    margin-right: 6px;
+    margin-right: 5px;
     transition: 0.3s ease;
 }
 
 .caret-down::before {
-    -ms-transform: rotate(90deg); /* IE 9 */
     -webkit-transform: rotate(90deg); /* Safari */
-    transform: rotate(90deg);  
+    -moz-transform: rotate(90deg); /* Firefox 2+ */
+    -ms-transform: rotate(90deg); /* IE 9 */
+    transform: rotate(90deg);
 }
 
 .nested {
@@ -74,6 +70,7 @@ ul > li:last-child::after {
 }
 
 input {
+    /*margin-left: 17px;*/
     font-size: 18px;
     text-align: center;
     padding-left: 5px;
