@@ -15,14 +15,14 @@ li::before, li::after {
     position: absolute;
 }
 li::before {
-    border-top: 1px dashed #040505;
+    border-top: 1px solid #040505;
     top: 20px;
     width: 27px;
     left: -34px;
 }
 li::after {
-    border-left: 1px dashed #040505;
-    height: 97%;
+    border-left: 1px solid #040505;
+    height: 100%;
     top: 5px;
     left: -34px;
 }
@@ -38,7 +38,7 @@ ul > li:last-child::after {
 
 .caret {
     /*position: absolute;*/
-    color: #721c24;
+    color: red;
     font-size: 20px;
     cursor: pointer;
     -webkit-user-select: none; /* Safari 3.1+ */
