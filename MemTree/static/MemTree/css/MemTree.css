@@ -92,7 +92,8 @@ button {
     cursor: pointer;
     outline: 0;
     -webkit-appearance: none;
-    margin-left: 5px;
+    margin-left: 2px;
+    margin-right: 2px;
     -webkit-user-select: none; /* Safari 3.1+ */
     -moz-user-select: none; /* Firefox 2+ */
     -ms-user-select: none; /* IE 10+ */
@@ -157,7 +158,7 @@ button {
 }
 
 .create_button {
-    margin-top:20px;
+    margin-top:15px;
     font-size: 28px;
     background: rgba( 30, 230, 30, 0.9 );
 }
@@ -168,10 +169,7 @@ button {
     transform: rotateZ(360deg) scale(1.1, 1.1);
 }
 
-.root_buttons {
-    text-align: center;
-}
-
 .counter {
+    padding-right: 2px;
     color: red;
 }

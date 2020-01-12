@@ -1,5 +1,33 @@
 body {
     font-family: monospace;
-    background: #1b1e21;
     color: #adb5bd;
+    background: #1b1e21;
 }
+
+.header {
+    position: fixed;
+    top: 0;
+    text-align: center;
+    height: 60px;
+    width: 100%;
+    background: #171a1d;
+    z-index: 10;
+}
+
+.content {
+    margin-top: 60px;
+    margin-bottom: 150px;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #171a1d;
+    z-index: 10;
+}
+
+.root_buttons {
+    text-align: center;
+}
+
