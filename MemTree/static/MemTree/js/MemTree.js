@@ -192,7 +192,7 @@ function addItem(parent_id=null) {
     }
 }
 
-function inputFocus(item_id) {
+function inputMouseOver(item_id) {
     var button_container = find(item_id, "button_container");
     button_container.appendChild(insert_button);
     button_container.appendChild(edit_button);
@@ -231,7 +231,7 @@ function itemBuilder(item, focus=false) {
     setAttributes(input, {
         "id": `${item['id']}_input`,
         "oninput": "nameChanged(this)",
-        "onfocus": "inputFocus(this.parentNode.id)",
+        "onmouseover": "inputMouseOver(this.parentNode.id)",
         "readOnly": "true",
         // "ondblclick": "this.readOnly=false",
         "onfocusout": "this.readOnly=true"
