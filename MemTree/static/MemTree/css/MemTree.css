@@ -37,7 +37,6 @@ ul > li:last-child::after {
 }
 
 .caret {
-    /*position: absolute;*/
     color: red;
     font-size: 18px;
     cursor: pointer;
@@ -70,21 +69,20 @@ ul > li:last-child::after {
 }
 
 input {
-    /*margin-left: 17px;*/
     font-size: 16px;
     text-align: center;
     padding-left: 5px;
     padding-right: 5px;
-    color: #adb5bd;
-    border: 2px solid #16181b;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    background: #16181b;
+    background: rgba(0, 0, 0, 0.2);
     transition: 0.5s ease;
 }
 
 input:hover {
     transition: 0.5s ease;
-    color: white;
+    color: rgb(255, 255, 255);
 }
 button {
     background: transparent;
@@ -104,9 +102,9 @@ button {
     display: inline-block;
     position: relative;
     padding: 0px 10px;
-    font-size: 18px;
+    font-size: 16px;
     border-radius: 10px;
-    color: #fff;
+    color: rgb(255, 255, 255);
     transition: 0.3s ease;
 }
 
@@ -143,11 +141,13 @@ button {
 }
 .move_button:hover {
     transform: scale(1.1,1.1);
-    background: rgba( 255, 211, 0, 0.9 );
+    background: rgba( 255, 211, 0, 0.7 );
 }
 
 .refresh_button {
-    font-size: 28px;
+    margin-top:10px;
+    margin-bottom:10px;
+    font-size: 20px;
     background: #00BFFF;
 }
 .refresh_button:hover {
@@ -158,8 +158,9 @@ button {
 }
 
 .create_button {
-    margin-top:15px;
-    font-size: 28px;
+    margin-top:10px;
+    margin-bottom:10px;
+    font-size: 20px;
     background: rgba( 30, 230, 30, 0.9 );
 }
 .create_button:hover {
@@ -175,5 +176,5 @@ button {
 }
 
 .content {
-    margin-bottom: 150px;
+    margin-bottom: 56px;
 }
