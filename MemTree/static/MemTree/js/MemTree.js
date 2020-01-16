@@ -198,18 +198,27 @@ function inputMouseOver(item_id) {
     button_container.appendChild(edit_button);
     button_container.appendChild(move_button);
     button_container.appendChild(remove_button);
+    insert_button.style.display = "inline-block";
+    // edit_button.style.display = "inline-block";
+    move_button.style.display = "inline-block";
+    remove_button.style.display = "inline-block";
 
-    if (MOVE_ITEM_ID != item_id) {
-        insert_button.style.display = "inline-block";
-    }
-    else {
+    // что бы не вставить себя в себя
+    if (MOVE_ITEM_ID == item_id) {
         insert_button.style.display = "none";
     }
-    if (MOVE_ITEM_ID == false) {
-        remove_button.style.display = "inline-block";
-    }
-    else {
+
+    var input = find(item_id, "input");
+
+    // при вырезании или если значение инпута начинается с "_" скрываем кнопку remove
+    // (при удалении элемента обновляется все дерево и сбрасывается вырезание)
+    if (MOVE_ITEM_ID != false || input.value.charAt(0) == '_') {
         remove_button.style.display = "none";
+    }
+
+    // если значение инпута начинается с "_" скрываем кнопку move
+    if (input.value.charAt(0) == '_') {
+        move_button.style.display = "none";
     }
 }
 

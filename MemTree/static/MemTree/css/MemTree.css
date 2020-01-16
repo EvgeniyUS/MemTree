@@ -16,14 +16,14 @@ li::before, li::after {
 }
 li::before {
     border-top: 1px solid #040505;
-    top: 19px;
+    top: 18px;
     width: 27px;
     left: -35px;
 }
 li::after {
     border-left: 1px solid #040505;
     height: 100%;
-    top: 5px;
+    top: 4px;
     left: -35px;
 }
 
