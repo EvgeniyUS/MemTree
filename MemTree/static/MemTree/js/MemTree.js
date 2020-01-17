@@ -247,6 +247,10 @@ function itemBuilder(item, focus=false) {
     });
     if (item['name']) {
         input.setAttribute("value", item['name']);
+        if (item['name'].charAt(0) == '_') {
+            input.style.color = "rgba(255, 255, 100, 0.8)";
+            input.style.fontWeight = "bold";
+        }
     }
     inputWidthChanger(input);
 
@@ -296,8 +300,9 @@ function itemBuilder(item, focus=false) {
         parent_span.style.display = 'inline-block';
 
         var parent_input = find(item['parent'], "input");
-        parent_input.style.background = "rgba(0, 0, 0, 0.0)";
-        parent_input.style.fontWeight = "bold";
+        parent_input.style.background = "rgba(255, 255, 255, 0.05)";
+        // parent_input.style.background = "rgba(255, 255, 255, 0)";
+        // parent_input.style.fontWeight = "bold";
 
         parent_ul.appendChild(root);
 

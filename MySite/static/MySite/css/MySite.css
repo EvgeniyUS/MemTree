@@ -1,21 +1,21 @@
 body {
     font-family: monospace;
     color: rgba(255, 255, 255, 0.8);
-    background: rgba(0, 0, 0, 0.88);
+    background: rgba(0, 0, 0, 0.8);
 }
 
 .header {
     position: fixed;
     top: 0;
     text-align: center;
-    height: 60px;
+    height: 52px;
     width: 100%;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
     z-index: 10;
 }
 
 .content {
-    margin-top: 60px;
+    margin-top: 52px;
     margin-bottom: 10px;
 }
 
@@ -23,7 +23,7 @@ body {
     position: fixed;
     bottom: 0;
     width: 100%;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
     z-index: 10;
 }
 
