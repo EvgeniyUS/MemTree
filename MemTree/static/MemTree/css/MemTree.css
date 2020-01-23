@@ -3,6 +3,7 @@ ul, #myUL {
     display: grid;
     list-style: none;
     overflow: auto;
+    padding-top: 5px;
 }
 
 li {
@@ -69,9 +70,11 @@ ul > li:last-child::after {
 }
 
 textarea {
+    overflow: hidden;
     resize: none;
     font-size: 16px;
-    padding-right: 5px;
+    /*padding-right: 5px;*/
+    padding-right: 0;
     color: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.6);
     border-radius: 10px;
@@ -105,8 +108,8 @@ button {
     cursor: pointer;
     outline: 0;
     -webkit-appearance: none;
-    margin-left: 2px;
-    margin-right: 2px;
+    /*margin-left: 2px;*/
+    /*margin-right: 2px;*/
     -webkit-user-select: none; /* Safari 3.1+ */
     -moz-user-select: none; /* Firefox 2+ */
     -ms-user-select: none; /* IE 10+ */
@@ -123,40 +126,61 @@ button {
 }
 
 .edit_button{
-    background: rgba( 30, 130, 230, 0.1 );
+    font-size: 25px;
+    /*position: absolute;*/
+    /*margin-left: 35px;*/
+    /*margin-top: 4px;*/
+    /*background: rgba( 30, 130, 230, 0.1 );*/
+    color: rgb(30, 130, 230);
 }
-.edit_button:hover {
-    transform: scale(1.1,1.1);
-    background: rgba( 30, 130, 230, 0.9 );
-}
+/*.edit_button:hover {*/
+/*    transform: scale(1.1,1.1);*/
+/*    background: rgba( 30, 130, 230, 0.9 );*/
+/*}*/
 
 .insert_button {
-    background: rgba( 90, 290, 90, 0.1 );
+    font-size: 25px;
+    /*position: absolute;*/
+    /*margin-top: 4px;*/
+    /*background: rgba( 90, 290, 90, 0.1 );*/
+    color: rgb(90, 290, 90);
 }
-.insert_button:hover {
-    transform: scale(1.1,1.1);
-    background: rgba( 30, 230, 30, 0.9 );
-}
+/*.insert_button:hover {*/
+/*    transform: scale(1.1,1.1);*/
+/*    background: rgba( 30, 230, 30, 0.9 );*/
+/*}*/
+
 /*.append_button {*/
 /*    margin-top: 5px;*/
 /*    margin-bottom: 15px;*/
 /*    background: rgba( 90, 290, 90, 0.5 );*/
 /*}*/
+
 .remove_button{
-    background: rgba( 230, 30, 30, 0.1 );
+    font-size: 25px;
+    /*position: absolute;*/
+    /*margin-left: 105px;*/
+    /*margin-top: 4px;*/
+    /*background: rgba( 230, 30, 30, 0.1 );*/
+    color: rgb(230, 30, 30);
 }
-.remove_button:hover {
-    transform: scale(1.1,1.1);
-    background: rgba( 230, 30, 30, 0.9 );
-}
+/*.remove_button:hover {*/
+/*    transform: scale(1.1,1.1);*/
+/*    background: rgba( 230, 30, 30, 0.9 );*/
+/*}*/
 
 .move_button {
-    background: rgba( 255, 211, 0, 0.1 );
+    font-size: 25px;
+    /*position: absolute;*/
+    /*margin-left: 70px;*/
+    /*margin-top: 4px;*/
+    /*background: rgba( 255, 211, 0, 0.1 );*/
+    color: rgb(255, 211, 0);
 }
-.move_button:hover {
-    transform: scale(1.1,1.1);
-    background: rgba( 255, 211, 0, 0.7 );
-}
+/*.move_button:hover {*/
+/*    transform: scale(1.1,1.1);*/
+/*    background: rgba( 255, 211, 0, 0.7 );*/
+/*}*/
 
 .refresh_button {
     margin-top:10px;
@@ -197,7 +221,7 @@ button {
 }
 
 .button_container {
-    position: absolute;
-    margin-top: 3px;
-    margin-left: 5px;
+    /*position: relative;*/
+    /*margin-bottom: 3px;*/
+    margin-left: 10px;
 }
