@@ -267,7 +267,6 @@ function itemBuilder(item, focus=false) {
         "id": `${item['id']}_input`,
         "rows": 1,
         "wrap": "off",
-        "text-align": "center",
         "oninput": "nameChanged(this)",
         "onmouseover": "inputMouseOver(this.parentNode.id)",
         "readOnly": "true",
@@ -337,18 +336,6 @@ function itemBuilder(item, focus=false) {
 
         var parent_counter = find(item['parent'], "counter");
         parent_counter.innerHTML = ` ${parent_ul.childNodes.length}`;
-
-        // var parent_button_container = find(item['parent'], "button_container");
-        //
-        // if (parent_ul.childNodes.length <= 9) {
-        //     parent_button_container.style.marginLeft = '10px';
-        // }
-        // else if (9 < parent_ul.childNodes.length <= 99) {
-        //     parent_button_container.style.marginLeft = '15px';
-        // }
-        // else {
-        //     parent_button_container.style.paddingLeft = '20px';
-        // }
 
         // var parent_append_button = find(item['parent'], "append_button");
         // parent_ul.appendChild(parent_append_button);
