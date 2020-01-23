@@ -15,14 +15,14 @@ li::before, li::after {
 }
 li::before {
     border-top: 1px solid #040505;
-    top: 18px;
+    top: 15px;
     width: 10px;
     left: -15px;
 }
 li::after {
     border-left: 1px solid #040505;
     height: 100%;
-    top: 3px;
+    top: 0;
     left: -15px;
 }
 
@@ -44,7 +44,7 @@ ul > li:last-child::after {
     -ms-user-select: none; /* IE 10+ */
     user-select: none;
     position: absolute;
-    top: 4px;
+    top: 3px;
 }
 
 .caret::before {
