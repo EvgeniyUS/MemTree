@@ -150,14 +150,14 @@ function inputWidthChanger(inp) {
 
         $(inp).attr('cols', lgth);
 
-        if (value_rows.length == 1) {
-            inp.style.textAlign = 'center';
-            inp.style.paddingLeft = '0';
-        }
-        else {
-            inp.style.paddingLeft = '5px';
-            inp.style.textAlign = 'left';
-        }
+        // if (value_rows.length == 1) {
+        //     inp.style.textAlign = 'center';
+        //     inp.style.paddingLeft = '0';
+        // }
+        // else {
+        //     inp.style.paddingLeft = '5px';
+        //     inp.style.textAlign = 'left';
+        // }
 
     } else {
         // $(inp).attr('size', 1);
@@ -263,7 +263,7 @@ function itemBuilder(item, focus=false) {
     // checkbox.type = "checkbox";
 
     var input = document.createElement('textarea');
-    input.style.textAlign = 'center';
+    // input.style.textAlign = 'center';
     setAttributes(input, {
         "id": `${item['id']}_input`,
         "rows": 1,
@@ -331,7 +331,7 @@ function itemBuilder(item, focus=false) {
         parent_span.style.display = 'inline-block';
 
         var parent_input = find(item['parent'], "input");
-        parent_input.style.background = "rgba(255, 255, 255, 0.05)";
+        // parent_input.style.background = "rgba(255, 255, 255, 0.05)";
         parent_input.style.marginLeft = '15px';
 
         parent_ul.appendChild(root);
