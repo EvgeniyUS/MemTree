@@ -133,9 +133,35 @@ function nameChanged(inputNode) {
 
 function inputWidthChanger(inp) {
     if ($(inp).val()) {
-        $(inp).attr('size', $(inp).val().length);
+        // $(inp).attr('size', $(inp).val().length);
+        var value_rows = $(inp).val().split('\n');
+
+        $(inp).attr('rows', value_rows.length);
+
+        var lgth = 0;
+        var longest;
+
+        for(var i=0; i < value_rows.length; i++){
+            if(value_rows[i].length > lgth){
+                lgth = value_rows[i].length;
+                longest = value_rows[i];
+            }
+        }
+
+        $(inp).attr('cols', lgth);
+
+        if (value_rows.length == 1) {
+            inp.style.textAlign = 'center';
+            inp.style.paddingLeft = '5px';
+        }
+        else {
+            inp.style.textAlign = 'left';
+            inp.style.paddingLeft = '20px';
+        }
+
     } else {
-        $(inp).attr('size', 1);
+        // $(inp).attr('size', 1);
+        $(inp).attr('cols', 1);
     }
 }
 
@@ -236,9 +262,11 @@ function itemBuilder(item, focus=false) {
     // var checkbox = document.createElement('input');
     // checkbox.type = "checkbox";
 
-    var input = document.createElement('input');
+    var input = document.createElement('textarea');
+    input.style.marginLeft = '1px';
     setAttributes(input, {
         "id": `${item['id']}_input`,
+        "rows": 1,
         "oninput": "nameChanged(this)",
         "onmouseover": "inputMouseOver(this.parentNode.id)",
         "readOnly": "true",
@@ -246,7 +274,7 @@ function itemBuilder(item, focus=false) {
         "onfocusout": "this.readOnly=true"
     });
     if (item['name']) {
-        input.setAttribute("value", item['name']);
+        input.value = item['name'];
         if (item['name'].charAt(0) == '_') {
             input.style.color = "rgba(255, 255, 100, 0.8)";
             input.style.fontWeight = "bold";
@@ -256,6 +284,7 @@ function itemBuilder(item, focus=false) {
 
     var button_container = document.createElement('button_container');
     button_container.setAttribute("id", `${item['id']}_button_container`);
+    button_container.className = "button_container";
 
     var ul = document.createElement('ul');
     ul.setAttribute("id", `${item['id']}_ul`);
@@ -303,6 +332,7 @@ function itemBuilder(item, focus=false) {
         parent_input.style.background = "rgba(255, 255, 255, 0.05)";
         // parent_input.style.background = "rgba(255, 255, 255, 0)";
         // parent_input.style.fontWeight = "bold";
+        parent_input.style.marginLeft = '15px';
 
         parent_ul.appendChild(root);
 

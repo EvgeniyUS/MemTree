@@ -17,14 +17,14 @@ li::before, li::after {
 li::before {
     border-top: 1px solid #040505;
     top: 18px;
-    width: 27px;
-    left: -35px;
+    width: 10px;
+    left: -15px;
 }
 li::after {
     border-left: 1px solid #040505;
     height: 100%;
     top: 4px;
-    left: -35px;
+    left: -15px;
 }
 
 ul > li:last-child::after {
@@ -44,13 +44,14 @@ ul > li:last-child::after {
     -moz-user-select: none; /* Firefox 2+ */
     -ms-user-select: none; /* IE 10+ */
     user-select: none;
+    position: absolute;
 }
 
 .caret::before {
     content: ">";
     /*font-weight: bold;*/
     display: inline-block;
-    margin-right: 5px;
+    /*margin-right: 5px;*/
     transition: 0.3s ease;
 }
 
@@ -67,6 +68,23 @@ ul > li:last-child::after {
 
 .active {
     display: block;
+}
+
+textarea {
+    resize: none;
+    font-size: 16px;
+    /*text-align: center;*/
+    /*padding-left: 5px;*/
+    padding-right: 5px;
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.05);
+    transition: 0.5s ease;
+}
+textarea:hover {
+    transition: 0.5s ease;
+    color: rgb(155, 255, 155);
 }
 
 input {
@@ -101,8 +119,7 @@ button {
 
 button {
     display: inline-block;
-    position: relative;
-    padding: 0px 10px;
+    padding: 0 10px;
     font-size: 16px;
     border-radius: 10px;
     color: rgb(255, 255, 255);
@@ -146,6 +163,7 @@ button {
 }
 
 .refresh_button {
+    /*position: relative;*/
     margin-top:10px;
     margin-bottom:10px;
     font-size: 20px;
@@ -159,6 +177,7 @@ button {
 }
 
 .create_button {
+    /*position: relative;*/
     margin-top:10px;
     margin-bottom:10px;
     font-size: 20px;
@@ -172,10 +191,20 @@ button {
 }
 
 .counter {
+    position: absolute;
+    margin-top: 15px;
+    margin-left: 3px;
     padding-right: 2px;
     color: red;
 }
 
 .content {
     margin-bottom: 56px;
+}
+
+.button_container {
+    position: absolute;
+    margin-top: 3px;
+    margin-left: 10px;
+    /*border: 1px solid rgba(0, 0, 0, 0.6);*/
 }
