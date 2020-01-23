@@ -263,11 +263,10 @@ function itemBuilder(item, focus=false) {
     // checkbox.type = "checkbox";
 
     var input = document.createElement('textarea');
-    // input.style.textAlign = 'center';
     setAttributes(input, {
         "id": `${item['id']}_input`,
         "rows": 1,
-        // "wrap": "off",
+        "wrap": "off",
         "text-align": "center",
         "oninput": "nameChanged(this)",
         "onmouseover": "inputMouseOver(this.parentNode.id)",
