@@ -138,7 +138,7 @@ function inputWidthChanger(inp) {
 
         $(inp).attr('rows', value_rows.length);
 
-        var lgth = 0;
+        var lgth = 1;
         var longest;
 
         for(var i=0; i < value_rows.length; i++){
@@ -263,10 +263,11 @@ function itemBuilder(item, focus=false) {
     // checkbox.type = "checkbox";
 
     var input = document.createElement('textarea');
-    input.style.marginLeft = '1px';
+    input.style.textAlign = 'center';
     setAttributes(input, {
         "id": `${item['id']}_input`,
         "rows": 1,
+        "text-align": "center",
         "oninput": "nameChanged(this)",
         "onmouseover": "inputMouseOver(this.parentNode.id)",
         "readOnly": "true",
@@ -330,14 +331,24 @@ function itemBuilder(item, focus=false) {
 
         var parent_input = find(item['parent'], "input");
         parent_input.style.background = "rgba(255, 255, 255, 0.05)";
-        // parent_input.style.background = "rgba(255, 255, 255, 0)";
-        // parent_input.style.fontWeight = "bold";
         parent_input.style.marginLeft = '15px';
 
         parent_ul.appendChild(root);
 
         var parent_counter = find(item['parent'], "counter");
         parent_counter.innerHTML = ` ${parent_ul.childNodes.length}`;
+
+        var parent_button_container = find(item['parent'], "button_container");
+
+        if (parent_ul.childNodes.length <= 9) {
+            parent_button_container.style.marginLeft = '10px';
+        }
+        else if (9 < parent_ul.childNodes.length <= 99) {
+            parent_button_container.style.marginLeft = '15px';
+        }
+        else {
+            parent_button_container.style.paddingLeft = '20px';
+        }
 
         // var parent_append_button = find(item['parent'], "append_button");
         // parent_ul.appendChild(parent_append_button);

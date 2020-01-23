@@ -49,9 +49,7 @@ ul > li:last-child::after {
 
 .caret::before {
     content: ">";
-    /*font-weight: bold;*/
     display: inline-block;
-    /*margin-right: 5px;*/
     transition: 0.3s ease;
 }
 
@@ -73,8 +71,6 @@ ul > li:last-child::after {
 textarea {
     resize: none;
     font-size: 16px;
-    /*text-align: center;*/
-    /*padding-left: 5px;*/
     padding-right: 5px;
     color: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.6);
@@ -163,7 +159,6 @@ button {
 }
 
 .refresh_button {
-    /*position: relative;*/
     margin-top:10px;
     margin-bottom:10px;
     font-size: 20px;
@@ -177,7 +172,6 @@ button {
 }
 
 .create_button {
-    /*position: relative;*/
     margin-top:10px;
     margin-bottom:10px;
     font-size: 20px;
@@ -205,6 +199,5 @@ button {
 .button_container {
     position: absolute;
     margin-top: 3px;
-    margin-left: 10px;
-    /*border: 1px solid rgba(0, 0, 0, 0.6);*/
+    margin-left: 5px;
 }
