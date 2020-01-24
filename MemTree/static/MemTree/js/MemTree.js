@@ -27,7 +27,6 @@ setAttributes(move_button, {
     "onclick": "refresh(this.parentNode.parentNode.id)",
     "title": "Вырезать",
 });
-move_button.innerHTML = "&#9986;";
 move_button.innerHTML = "&#8854;";
 
 var remove_button = document.createElement('button');
@@ -36,7 +35,6 @@ setAttributes(remove_button, {
     "onclick": "rmFunc(this.parentNode.parentNode)",
     "title": "Удалить",
 });
-remove_button.innerHTML = "&times;";
 remove_button.innerHTML = "&#8855;";
 
 var edit_button = document.createElement('button');
@@ -45,7 +43,6 @@ setAttributes(edit_button, {
     "onclick": "editFunc(this.parentNode.parentNode.id)",
     "title": "Редактировать"
 });
-edit_button.innerHTML = "&#9998;";
 edit_button.innerHTML = "&#8857;";
 
 function spanToggler(span) {
