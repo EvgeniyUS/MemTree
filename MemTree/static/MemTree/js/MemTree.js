@@ -18,7 +18,7 @@ setAttributes(insert_button, {
     "class": "insert_button",
     "title": "Добавить/Вставить",
 });
-insert_button.innerHTML = "+";
+insert_button.innerHTML = "&#8853;";
 addItemButtonEvent(insert_button);
 
 var move_button = document.createElement('button');
@@ -28,6 +28,7 @@ setAttributes(move_button, {
     "title": "Вырезать",
 });
 move_button.innerHTML = "&#9986;";
+move_button.innerHTML = "&#8854;";
 
 var remove_button = document.createElement('button');
 setAttributes(remove_button, {
@@ -36,6 +37,7 @@ setAttributes(remove_button, {
     "title": "Удалить",
 });
 remove_button.innerHTML = "&times;";
+remove_button.innerHTML = "&#8855;";
 
 var edit_button = document.createElement('button');
 setAttributes(edit_button, {
@@ -44,6 +46,7 @@ setAttributes(edit_button, {
     "title": "Редактировать"
 });
 edit_button.innerHTML = "&#9998;";
+edit_button.innerHTML = "&#8857;";
 
 function spanToggler(span) {
     span.addEventListener("click", function() {

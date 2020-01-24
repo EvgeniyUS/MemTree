@@ -79,9 +79,15 @@ textarea {
     background: transparent;
     transition: 0.5s ease;
 }
-textarea:hover {
-    transition: 0.5s ease;
-    color: rgb(155, 255, 155);
+/*textarea:hover {*/
+/*    transition: 0.5s ease;*/
+/*    color: rgb(155, 255, 155);*/
+/*}*/
+textarea:focus {
+    outline: none !important;
+    /*color: rgb(155, 255, 155);*/
+    border: 1px solid rgb(155, 255, 155);
+    border-radius: 10px;
 }
 
 input {
@@ -101,7 +107,7 @@ input:hover {
     color: rgb(255, 255, 255);
 }
 button {
-    background: transparent;
+    /*background: transparent;*/
     border: 0;
     cursor: pointer;
     outline: 0;
@@ -115,29 +121,25 @@ button {
 button {
     display: inline-block;
     padding: 0 10px;
-    font-size: 16px;
+    font-size: 25px;
     border-radius: 10px;
     color: rgb(255, 255, 255);
     transition: 0.3s ease;
 }
 
 .edit_button{
-    font-size: 20px;
     color: rgb(30, 130, 230);
 }
 
 .insert_button {
-    font-size: 28px;
     color: rgb(90, 290, 90);
 }
 
 .remove_button{
-    font-size: 28px;
     color: rgb(230, 30, 30);
 }
 
 .move_button {
-    font-size: 20px;
     color: rgb(255, 211, 0);
 }
 
