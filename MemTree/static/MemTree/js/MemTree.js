@@ -243,9 +243,9 @@ function inputMouseOver(item_id) {
     }
 
     // если значение инпута начинается с "_" скрываем кнопку move
-    if (input.value.charAt(0) == '_') {
-        move_button.style.display = "none";
-    }
+    // if (input.value.charAt(0) == '_') {
+    //     move_button.style.display = "none";
+    // }
 }
 
 function itemBuilder(item, focus=false) {
