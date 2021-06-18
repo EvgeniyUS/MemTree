@@ -176,5 +176,6 @@ button {
 }
 
 .button_container {
+    display: inline-block;
     margin-left: 10px;
 }
