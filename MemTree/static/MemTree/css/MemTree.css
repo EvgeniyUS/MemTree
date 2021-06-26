@@ -121,22 +121,6 @@ button {
     transition: 0.3s ease;
 }
 
-.edit_button{
-    color: rgb(30, 130, 230);
-}
-
-.insert_button {
-    color: rgb(90, 290, 90);
-}
-
-.remove_button{
-    color: rgb(230, 30, 30);
-}
-
-.move_button {
-    color: rgb(255, 211, 0);
-}
-
 .refresh_button {
     margin-top:10px;
     margin-bottom:10px;
@@ -144,7 +128,7 @@ button {
     background: #00BFFF;
 }
 .refresh_button:hover {
-    transform: scale(1.1,1.1);
+    transform: rotateZ(360deg) scale(1.1, 1.1);
 }
 .refresh_button:active {
     transform: scale(1.2,1.2);
@@ -157,10 +141,52 @@ button {
     background: rgba( 30, 230, 30, 0.9 );
 }
 .create_button:hover {
-    -webkit-transform: rotateZ(360deg);
-    -moz-transform: rotateZ(360deg);
-    -ms-transform: rotateZ(360deg);
-    transform: rotateZ(360deg) scale(1.1, 1.1);
+    transform: scale(1.1, 1.1);
+}
+.create_button:active {
+    transform: scale(1.2,1.2);
+}
+
+.edit_button {
+    margin-top:10px;
+    margin-bottom:10px;
+    font-size: 20px;
+    /*color: rgb(30, 130, 230);*/
+    background: rgba(30, 130, 230, 0.9 );
+}
+.edit_button:hover {
+    transform: scale(1.1,1.1);
+}
+.edit_button:active {
+    transform: scale(1.2,1.2);
+}
+
+.move_button {
+    margin-top:10px;
+    margin-bottom:10px;
+    font-size: 20px;
+    /*color: rgb(255, 211, 0);*/
+    background: rgba(255, 211, 0, 0.9 );
+}
+.move_button:hover {
+    transform: scale(1.1,1.1);
+}
+.move_button:active {
+    transform: scale(1.2,1.2);
+}
+
+.remove_button {
+    margin-top:10px;
+    margin-bottom:10px;
+    font-size: 20px;
+    /*color: rgb(230, 30, 30);*/
+    background: rgba(230, 30, 30, 0.9 );
+}
+.remove_button:hover {
+    transform: scale(1.1,1.1);
+}
+.remove_button:active {
+    transform: scale(1.2,1.2);
 }
 
 .counter {

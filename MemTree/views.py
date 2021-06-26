@@ -34,7 +34,7 @@ def index(request):
             values = request.POST.dict()
 
             if values['type'] == "create":
-                if values['parent']:
+                if values['parent'] and values['parent'] != 'false':
                     parent = Item.objects.get(id=values['parent'])
                 else:
                     parent = None

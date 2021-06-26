@@ -20,8 +20,10 @@
 
 {% block footer_content %}
 
-    <button class="create_button" onclick="addItem()" title="Добавить/вставить корневой элемент">+</button>
-    <button class="refresh_button" onclick="refresh()" title="Обновить">&#8635;</button>
-{#    <p id="Desc" style="margin-top: 15px;">Items count: 0</p>#}
+    <button id="create_button" class="create_button" onclick="addItem()" title="Добавить/вставить">&#8853;</button>
+    <button id="edit_button" class="edit_button" onclick="editFunc()" title="Изменить">&#8857;</button>
+    <button id="move_button" class="move_button" onclick="move()" title="Вырезать">&#8854;</button>
+    <button id="refresh_button" class="refresh_button" onclick="refresh()" title="Обновить">&#8635;</button>
+    <button id="remove_button" class="remove_button" onclick="rmFunc()" title="Удалить">&#8855;</button>
 
 {% endblock %}

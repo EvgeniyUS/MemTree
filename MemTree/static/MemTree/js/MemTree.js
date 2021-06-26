@@ -1,5 +1,6 @@
-var ITEM_COUNT = 0;
+// var ITEM_COUNT = 0;
 var MOVE_ITEM_ID = false;
+var SELECTED_ITEM_ID = false;
 
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -12,38 +13,6 @@ $.ajaxSetup({
         }
     }
 });
-
-var insert_button = document.createElement('button');
-setAttributes(insert_button, {
-    "class": "insert_button",
-    "title": "Добавить/Вставить",
-});
-insert_button.innerHTML = "&#8853;";
-addItemButtonEvent(insert_button);
-
-var move_button = document.createElement('button');
-setAttributes(move_button, {
-    "class": "move_button",
-    "onclick": "refresh(this.parentNode.parentNode.id)",
-    "title": "Вырезать",
-});
-move_button.innerHTML = "&#8854;";
-
-var remove_button = document.createElement('button');
-setAttributes(remove_button, {
-    "class": "remove_button",
-    "onclick": "rmFunc(this.parentNode.parentNode)",
-    "title": "Удалить",
-});
-remove_button.innerHTML = "&#8855;";
-
-var edit_button = document.createElement('button');
-setAttributes(edit_button, {
-    "class": "edit_button",
-    "onclick": "editFunc(this.parentNode.parentNode.id)",
-    "title": "Редактировать"
-});
-edit_button.innerHTML = "&#8857;";
 
 function spanToggler(span) {
     span.addEventListener("click", function() {
@@ -59,31 +28,19 @@ function spanToggler(span) {
     });
 }
 
-function addItemButtonEvent(button) {
-    button.addEventListener("click", function() {
-        var parent_id = this.parentNode.id.split("_")[0];
-        var span = find(parent_id, "span");
-        span.collapsed = false;
-        span.classList.toggle("caret-down", true);
-        var ul = find(parent_id, "ul");
-        ul.classList.toggle("active", true);
-        collapseChanged(span);
-        addItem(parent_id);
-    });
-}
-
 function rmFunc(node) {
     var result = true;
-    var ul = find(node.id, "ul");
+    var li = document.getElementById(SELECTED_ITEM_ID);
+    var ul = find(SELECTED_ITEM_ID, "ul");
     if (ul.childNodes.length > 0) {
-        var value = find(node.id, "input").value;
+        var value = find(li.id, "input").value;
         result = confirm(`Удалить "${value}"?`);
     }
     if (result) {
-        if (node.parent) {
-            var parent_ul = find(node.parent, "ul");
+        if (li.parent) {
+            var parent_ul = find(li.parent, "ul");
             if (parent_ul.childNodes.length < 2) {
-                var span = find(node.parent, "span");
+                var span = find(li.parent, "span");
                 span.collapsed = true;
                 collapseChanged(span);
             }
@@ -94,7 +51,7 @@ function rmFunc(node) {
             dataType: 'json',
             data: {
                 'type': 'delete',
-                'id': node.id
+                'id': li.id
             },
             success: function (json) {
                 refresh();
@@ -104,9 +61,11 @@ function rmFunc(node) {
 }
 
 function editFunc(item_id) {
-    var item_input = find(item_id, "input");
-    item_input.readOnly = false;
-    item_input.focus();
+    var item_input = find(SELECTED_ITEM_ID, "input");
+    if (item_input) {
+        item_input.readOnly = false;
+        item_input.focus();
+    }
 }
 
 function setAttributes(el, attrs) {
@@ -133,7 +92,6 @@ function nameChanged(inputNode) {
 
 function inputWidthChanger(inp) {
     if ($(inp).val()) {
-        // $(inp).attr('size', $(inp).val().length);
         var value_rows = $(inp).val().split('\n');
 
         $(inp).attr('rows', value_rows.length);
@@ -150,17 +108,7 @@ function inputWidthChanger(inp) {
 
         $(inp).attr('cols', lgth);
 
-        // if (value_rows.length == 1) {
-        //     inp.style.textAlign = 'center';
-        //     inp.style.paddingLeft = '0';
-        // }
-        // else {
-        //     inp.style.paddingLeft = '5px';
-        //     inp.style.textAlign = 'left';
-        // }
-
     } else {
-        // $(inp).attr('size', 1);
         $(inp).attr('cols', 1);
     }
 }
@@ -179,7 +127,7 @@ function collapseChanged(span) {
 }
 
 function addItem(parent_id=null) {
-    if (MOVE_ITEM_ID) {
+    if (MOVE_ITEM_ID && SELECTED_ITEM_ID) {
         $.ajax({
             type: 'POST',
             url: '/memtree/',
@@ -187,7 +135,7 @@ function addItem(parent_id=null) {
             data: {
                 'type': 'move',
                 'id': MOVE_ITEM_ID,
-                'parent': parent_id
+                'parent': SELECTED_ITEM_ID
             },
             success: function (json) {
                 refresh();
@@ -204,11 +152,19 @@ function addItem(parent_id=null) {
             dataType: 'json',
             data: {
                 'type': 'create',
-                'parent': parent_id
+                'parent': SELECTED_ITEM_ID
             },
             success: function (json) {
                 // ITEM_COUNT = ITEM_COUNT + 1;
                 // description();
+                var span = find(SELECTED_ITEM_ID, "span");
+                if (span) {
+                    span.collapsed = false;
+                    span.classList.toggle("caret-down", true);
+                    var ul = find(SELECTED_ITEM_ID, "ul");
+                    ul.classList.toggle("active", true);
+                    collapseChanged(span);
+                }
                 itemBuilder(json, true);
             },
             error: function () {
@@ -219,19 +175,17 @@ function addItem(parent_id=null) {
 }
 
 function inputMouseOver(item_id) {
-    var button_container = find(item_id, "button_container");
-    button_container.appendChild(insert_button);
-    button_container.appendChild(edit_button);
-    button_container.appendChild(move_button);
-    button_container.appendChild(remove_button);
-    insert_button.style.display = "inline-block";
-    // edit_button.style.display = "inline-block";
-    move_button.style.display = "inline-block";
+    SELECTED_ITEM_ID = item_id
+
+    var create_button = document.getElementById("create_button");
+    var remove_button = document.getElementById("remove_button");
+
+    create_button.style.display = "inline-block";
     remove_button.style.display = "inline-block";
 
     // что бы не вставить себя в себя
     if (MOVE_ITEM_ID == item_id) {
-        insert_button.style.display = "none";
+        create_button.style.display = "none";
     }
 
     var input = find(item_id, "input");
@@ -241,11 +195,6 @@ function inputMouseOver(item_id) {
     if (MOVE_ITEM_ID != false || input.value.charAt(0) == '_') {
         remove_button.style.display = "none";
     }
-
-    // если значение инпута начинается с "_" скрываем кнопку move
-    // if (input.value.charAt(0) == '_') {
-    //     move_button.style.display = "none";
-    // }
 }
 
 function itemBuilder(item, focus=false) {
@@ -268,10 +217,10 @@ function itemBuilder(item, focus=false) {
         "rows": 1,
         "wrap": "off",
         "oninput": "nameChanged(this)",
-        "onmouseover": "inputMouseOver(this.parentNode.id)",
+        // "onmouseover": "inputMouseOver(this.parentNode.id)",
+        "onfocus": "inputMouseOver(this.parentNode.id)",
         "readOnly": "true",
-        // "ondblclick": "this.readOnly=false",
-        "onfocusout": "this.readOnly=true"
+        "onfocusout": "this.readOnly=true",
     });
     if (item['name']) {
         input.value = item['name'];
@@ -304,17 +253,6 @@ function itemBuilder(item, focus=false) {
         "class": "counter",
     });
 
-    // var append_button = document.createElement('button');
-    // setAttributes(append_button, {
-    //     "id": `${item['id']}_append_button`,
-    //     "class": "append_button",
-    //     "title": `Добавить/Вставить в "${input.value}"`,
-    // });
-    // append_button.innerHTML = "+";
-    // addItemButtonEvent(append_button);
-    // ul.appendChild(append_button);
-
-
     root.appendChild(span);
     // root.appendChild(checkbox);
     root.appendChild(input);
@@ -329,23 +267,20 @@ function itemBuilder(item, focus=false) {
         parent_span.style.display = 'inline-block';
 
         var parent_input = find(item['parent'], "input");
-        // parent_input.style.background = "rgba(255, 255, 255, 0.05)";
         parent_input.style.marginLeft = '15px';
 
         parent_ul.appendChild(root);
 
         var parent_counter = find(item['parent'], "counter");
         parent_counter.innerHTML = ` ${parent_ul.childNodes.length}`;
-
-        // var parent_append_button = find(item['parent'], "append_button");
-        // parent_ul.appendChild(parent_append_button);
     }
     else {
         var meta_root = document.getElementById("myUL");
         meta_root.appendChild(root);
     }
 
-    if (input.value == false && focus) {
+    // if (input.value == false && focus) {
+    if (focus) {
         input.readOnly = false;
         input.focus();
     }
@@ -354,6 +289,13 @@ function itemBuilder(item, focus=false) {
 // function description() {
 //     document.getElementById('Desc').innerText = `Items count: ${ITEM_COUNT}`;
 // }
+
+function move() {
+    MOVE_ITEM_ID = SELECTED_ITEM_ID;
+    find(SELECTED_ITEM_ID, "span").style.display = "none";
+    find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba( 255, 211, 0, 0.4 )";
+    find(SELECTED_ITEM_ID, "ul").style.display = "none";
+}
 
 function refresh(move_id=false) {
     $.ajax({
@@ -380,10 +322,12 @@ function refresh(move_id=false) {
                 }
                 else {
                     MOVE_ITEM_ID = false;
+                    SELECTED_ITEM_ID = false;
                 }
             }
             else {
                 MOVE_ITEM_ID = false;
+                SELECTED_ITEM_ID = false;
             }
         },
         error: function() {

@@ -15,7 +15,7 @@
     <div class="header">
         <div style="padding-top: 10px">
             <a href='/' class='btn btn-primary btn-sm'>&#127968; Home</a>
-            <a href='/Calc' class='btn btn-danger btn-sm'>&#9889; Calc</a>
+{#            <a href='/Calc' class='btn btn-danger btn-sm'>&#9889; Calc</a>#}
             <a href='/memtree' class='btn btn-success btn-sm'>&#127795; MemTree</a>
 {#            <hr style="border-top: 3px dotted black;">#}
         </div>
@@ -28,10 +28,11 @@
 
     <div class="footer">
 {#        <hr style="border-top: 3px dotted black;">#}
-        <div class="root_buttons">
+        <div class="root_buttons" id="root_buttons">
             {% block footer_content %}
             {% endblock %}
         </div>
+{#        <p id="Desc">Items count: 0</p>#}
 {#        <p style="margin-left: 20px; margin-top: 15px;">&copy; Все права защищены, 2019</p>#}
     </div>
 
