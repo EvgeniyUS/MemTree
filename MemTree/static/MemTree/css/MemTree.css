@@ -151,7 +151,6 @@ button {
     margin-top:10px;
     margin-bottom:10px;
     font-size: 20px;
-    /*color: rgb(30, 130, 230);*/
     background: rgba(30, 130, 230, 0.9 );
 }
 .edit_button:hover {
@@ -165,7 +164,6 @@ button {
     margin-top:10px;
     margin-bottom:10px;
     font-size: 20px;
-    /*color: rgb(255, 211, 0);*/
     background: rgba(255, 211, 0, 0.9 );
 }
 .move_button:hover {
@@ -179,7 +177,6 @@ button {
     margin-top:10px;
     margin-bottom:10px;
     font-size: 20px;
-    /*color: rgb(230, 30, 30);*/
     background: rgba(230, 30, 30, 0.9 );
 }
 .remove_button:hover {
