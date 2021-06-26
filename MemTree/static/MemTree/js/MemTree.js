@@ -127,7 +127,7 @@ function collapseChanged(span) {
 }
 
 function addItem(parent_id=null) {
-    if (MOVE_ITEM_ID && SELECTED_ITEM_ID) {
+    if (MOVE_ITEM_ID) {
         $.ajax({
             type: 'POST',
             url: '/memtree/',
@@ -178,10 +178,14 @@ function inputMouseOver(item_id) {
     SELECTED_ITEM_ID = item_id
 
     var create_button = document.getElementById("create_button");
-    var remove_button = document.getElementById("remove_button");
-
     create_button.style.display = "inline-block";
+
+    var remove_button = document.getElementById("remove_button");
     remove_button.style.display = "inline-block";
+
+    document.getElementById("edit_button").style.display = 'inline-block';
+    document.getElementById("move_button").style.display = 'inline-block';
+
 
     // что бы не вставить себя в себя
     if (MOVE_ITEM_ID == item_id) {
@@ -295,6 +299,7 @@ function move() {
     find(SELECTED_ITEM_ID, "span").style.display = "none";
     find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba( 255, 211, 0, 0.4 )";
     find(SELECTED_ITEM_ID, "ul").style.display = "none";
+    SELECTED_ITEM_ID = false;
 }
 
 function refresh(move_id=false) {
@@ -313,22 +318,14 @@ function refresh(move_id=false) {
             for (var i = 0; i < items.length; i++) {
                 itemBuilder(items[i]);
             }
-            if (move_id) {
-                if (move_id != MOVE_ITEM_ID) {
-                    MOVE_ITEM_ID = move_id;
-                    find(move_id, "span").style.display = "none";
-                    find(move_id, "input").style.border = "1px solid rgba( 255, 211, 0, 0.4 )";
-                    find(move_id, "ul").style.display = "none";
-                }
-                else {
-                    MOVE_ITEM_ID = false;
-                    SELECTED_ITEM_ID = false;
-                }
-            }
-            else {
-                MOVE_ITEM_ID = false;
-                SELECTED_ITEM_ID = false;
-            }
+            MOVE_ITEM_ID = false;
+            SELECTED_ITEM_ID = false;
+
+            document.getElementById("edit_button").style.display = 'none';
+            document.getElementById("remove_button").style.display = 'none';
+            document.getElementById("move_button").style.display = 'none';
+            document.getElementById("remove_button").style.display = 'none';
+
         },
         error: function() {
             alert('Got an error');

@@ -57,7 +57,7 @@ def index(request):
                     item.save()
 
                 elif values['type'] == "move":
-                    if values['parent']:
+                    if values['parent'] and values['parent'] != 'false':
                         item.parent = Item.objects.get(id=values['parent'])
                     else:
                         item.parent = None
