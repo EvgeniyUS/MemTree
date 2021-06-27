@@ -39,9 +39,6 @@ ul > li:last-child::after {
     color: red;
     font-size: 18px;
     cursor: pointer;
-    /*-webkit-user-select: none; !* Safari 3.1+ *!*/
-    /*-moz-user-select: none; !* Firefox 2+ *!*/
-    /*-ms-user-select: none; !* IE 10+ *!*/
     user-select: none;
     position: absolute;
     top: 3px;
@@ -54,9 +51,6 @@ ul > li:last-child::after {
 }
 
 .caret-down::before {
-    /*-webkit-transform: rotate(90deg); !* Safari *!*/
-    /*-moz-transform: rotate(90deg); !* Firefox 2+ *!*/
-    /*-ms-transform: rotate(90deg); !* IE 9 *!*/
     transform: rotate(90deg);
 }
 
@@ -69,61 +63,39 @@ ul > li:last-child::after {
 }
 
 textarea {
+    outline: none !important;
     overflow: visible;
     resize: none;
     font-size: 16px;
     text-align: left;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.7);
     border: 1px solid rgba(0, 0, 0, 0.8);
     border-radius: 10px;
     background: transparent;
-    transition: 0.5s ease;
+    transition: 0.3s ease;
 }
 textarea:focus {
-    outline: none !important;
-    border: 1px solid rgb(155, 255, 155);
-    border-radius: 10px;
-}
-
-input {
-    font-size: 16px;
-    text-align: center;
-    padding-left: 5px;
-    padding-right: 5px;
-    color: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.05);
-    transition: 0.5s ease;
-}
-input:hover {
-    transition: 0.5s ease;
-    color: rgb(255, 255, 255);
+    border: 1px solid rgba(155, 255, 155, 0.5);
+    color: rgba(255, 255, 255, 1.0);
 }
 
 button {
     border: 0;
-    border-radius: 10px;
+    border-radius: 16px;
     cursor: pointer;
-    outline: 0;
-    /*-webkit-appearance: none;*/
-    /*-webkit-user-select: none; !* Safari 3.1+ *!*/
-    /*-moz-user-select: none; !* Firefox 2+ *!*/
-    /*-ms-user-select: none; !* IE 10+ *!*/
+    outline: none !important;
     user-select: none;
     display: inline-block;
-    padding: 0 10px;
-    margin-top:10px;
-    margin-bottom:10px;
-    font-size: 20px;
+    margin: 10px;
+    font-size: 22px;
     color: rgb(255, 255, 255);
-    transition: 0.3s ease;
+    transition: 0.1s ease;
 }
 button:hover {
     transform: scale(1.1,1.1);
 }
 button:active {
-    transform: scale(1.2,1.2);
+    transform: scale(1.0, 1.0);
 }
 button:disabled,
 button[disabled]{
@@ -136,9 +108,6 @@ button:disabled:hover {
 
 .refresh_button {
     background: rgba(0, 190, 255, 0.9);
-}
-.refresh_button:hover {
-    transform: rotateZ(360deg) scale(1.1, 1.1);
 }
 .refresh_button:disabled,
 .refresh_button[disabled]{
@@ -178,6 +147,7 @@ button:disabled:hover {
 }
 
 .counter {
+    user-select: none;
     position: absolute;
     margin-top: 15px;
     margin-left: 3px;
