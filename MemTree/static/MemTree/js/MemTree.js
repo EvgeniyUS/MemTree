@@ -178,18 +178,18 @@ function inputMouseOver(item_id) {
     SELECTED_ITEM_ID = item_id
 
     var create_button = document.getElementById("create_button");
-    create_button.style.display = "inline-block";
+    create_button.disabled = false;
 
     var remove_button = document.getElementById("remove_button");
-    remove_button.style.display = "inline-block";
+    remove_button.disabled = false;
 
-    document.getElementById("edit_button").style.display = 'inline-block';
-    document.getElementById("move_button").style.display = 'inline-block';
+    document.getElementById("edit_button").disabled  = false;
+    document.getElementById("move_button").disabled  = false;
 
 
     // что бы не вставить себя в себя
     if (MOVE_ITEM_ID == item_id) {
-        create_button.style.display = "none";
+        create_button.disabled = true;
     }
 
     var input = find(item_id, "input");
@@ -197,7 +197,7 @@ function inputMouseOver(item_id) {
     // при вырезании или если значение инпута начинается с "_" скрываем кнопку remove
     // (при удалении элемента обновляется все дерево и сбрасывается вырезание)
     if (MOVE_ITEM_ID != false || input.value.charAt(0) == '_') {
-        remove_button.style.display = "none";
+        remove_button.disabled = true;
     }
 }
 
@@ -235,10 +235,6 @@ function itemBuilder(item, focus=false) {
     }
     inputWidthChanger(input);
 
-    var button_container = document.createElement('sup');
-    button_container.setAttribute("id", `${item['id']}_button_container`);
-    button_container.className = "button_container";
-
     var ul = document.createElement('ul');
     ul.setAttribute("id", `${item['id']}_ul`);
 
@@ -261,7 +257,6 @@ function itemBuilder(item, focus=false) {
     // root.appendChild(checkbox);
     root.appendChild(input);
     root.appendChild(counter);
-    root.appendChild(button_container);
     root.appendChild(ul);
 
     if (item['parent']) {
@@ -321,10 +316,11 @@ function refresh(move_id=false) {
             MOVE_ITEM_ID = false;
             SELECTED_ITEM_ID = false;
 
-            document.getElementById("edit_button").style.display = 'none';
-            document.getElementById("remove_button").style.display = 'none';
-            document.getElementById("move_button").style.display = 'none';
-            document.getElementById("remove_button").style.display = 'none';
+            document.getElementById("create_button").disabled  = false;
+            document.getElementById("edit_button").disabled  = true;
+            document.getElementById("remove_button").disabled  = true;
+            document.getElementById("move_button").disabled  = true;
+            document.getElementById("remove_button").disabled  = true;
 
         },
         error: function() {

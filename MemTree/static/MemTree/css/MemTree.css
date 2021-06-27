@@ -39,9 +39,9 @@ ul > li:last-child::after {
     color: red;
     font-size: 18px;
     cursor: pointer;
-    -webkit-user-select: none; /* Safari 3.1+ */
-    -moz-user-select: none; /* Firefox 2+ */
-    -ms-user-select: none; /* IE 10+ */
+    /*-webkit-user-select: none; !* Safari 3.1+ *!*/
+    /*-moz-user-select: none; !* Firefox 2+ *!*/
+    /*-ms-user-select: none; !* IE 10+ *!*/
     user-select: none;
     position: absolute;
     top: 3px;
@@ -54,9 +54,9 @@ ul > li:last-child::after {
 }
 
 .caret-down::before {
-    -webkit-transform: rotate(90deg); /* Safari */
-    -moz-transform: rotate(90deg); /* Firefox 2+ */
-    -ms-transform: rotate(90deg); /* IE 9 */
+    /*-webkit-transform: rotate(90deg); !* Safari *!*/
+    /*-moz-transform: rotate(90deg); !* Firefox 2+ *!*/
+    /*-ms-transform: rotate(90deg); !* IE 9 *!*/
     transform: rotate(90deg);
 }
 
@@ -96,94 +96,85 @@ input {
     background: rgba(0, 0, 0, 0.05);
     transition: 0.5s ease;
 }
-
 input:hover {
     transition: 0.5s ease;
     color: rgb(255, 255, 255);
 }
+
 button {
     border: 0;
+    border-radius: 10px;
     cursor: pointer;
     outline: 0;
-    -webkit-appearance: none;
-    -webkit-user-select: none; /* Safari 3.1+ */
-    -moz-user-select: none; /* Firefox 2+ */
-    -ms-user-select: none; /* IE 10+ */
+    /*-webkit-appearance: none;*/
+    /*-webkit-user-select: none; !* Safari 3.1+ *!*/
+    /*-moz-user-select: none; !* Firefox 2+ *!*/
+    /*-ms-user-select: none; !* IE 10+ *!*/
     user-select: none;
-}
-
-button {
     display: inline-block;
     padding: 0 10px;
-    font-size: 25px;
-    border-radius: 10px;
-    color: rgb(255, 255, 255);
-    transition: 0.3s ease;
-}
-
-.refresh_button {
     margin-top:10px;
     margin-bottom:10px;
     font-size: 20px;
-    background: #00BFFF;
+    color: rgb(255, 255, 255);
+    transition: 0.3s ease;
+}
+button:hover {
+    transform: scale(1.1,1.1);
+}
+button:active {
+    transform: scale(1.2,1.2);
+}
+button:disabled,
+button[disabled]{
+    cursor: default;
+    color: rgba(0, 0, 0, 0.9);
+}
+button:disabled:hover {
+    transform: scale(1.0,1.0);
+}
+
+.refresh_button {
+    background: rgba(0, 190, 255, 0.9);
 }
 .refresh_button:hover {
     transform: rotateZ(360deg) scale(1.1, 1.1);
 }
-.refresh_button:active {
-    transform: scale(1.2,1.2);
+.refresh_button:disabled,
+.refresh_button[disabled]{
+    background: rgba(0, 190, 255, 0.4);
 }
 
 .create_button {
-    margin-top:10px;
-    margin-bottom:10px;
-    font-size: 20px;
-    background: rgba( 30, 230, 30, 0.9 );
+    background: rgba(30, 230, 30, 0.9);
 }
-.create_button:hover {
-    transform: scale(1.1, 1.1);
-}
-.create_button:active {
-    transform: scale(1.2,1.2);
+.create_button:disabled,
+.create_button[disabled]{
+    background: rgba(30, 230, 30, 0.4);
 }
 
 .edit_button {
-    margin-top:10px;
-    margin-bottom:10px;
-    font-size: 20px;
-    background: rgba(30, 130, 230, 0.9 );
+    background: rgba(30, 130, 230, 0.9);
 }
-.edit_button:hover {
-    transform: scale(1.1,1.1);
-}
-.edit_button:active {
-    transform: scale(1.2,1.2);
+.edit_button:disabled,
+.edit_button[disabled]{
+    background: rgba(30, 130, 230, 0.4);
 }
 
 .move_button {
-    margin-top:10px;
-    margin-bottom:10px;
-    font-size: 20px;
-    background: rgba(255, 211, 0, 0.9 );
+    background: rgba(255, 211, 0, 0.9);
 }
-.move_button:hover {
-    transform: scale(1.1,1.1);
-}
-.move_button:active {
-    transform: scale(1.2,1.2);
+.move_button:disabled,
+.move_button[disabled]{
+    background: rgba(255, 211, 0, 0.4);
 }
 
 .remove_button {
-    margin-top:10px;
-    margin-bottom:10px;
-    font-size: 20px;
-    background: rgba(230, 30, 30, 0.9 );
+    background: rgba(230, 30, 30, 0.9);
 }
-.remove_button:hover {
-    transform: scale(1.1,1.1);
-}
-.remove_button:active {
-    transform: scale(1.2,1.2);
+.remove_button:disabled,
+.remove_button[disabled]{
+    background: rgba(230, 30, 30, 0.4);
 }
 
 .counter {
@@ -196,9 +187,4 @@ button {
 
 .content {
     margin-bottom: 56px;
-}
-
-.button_container {
-    display: inline-block;
-    margin-left: 10px;
 }
