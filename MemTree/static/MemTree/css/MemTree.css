@@ -68,7 +68,7 @@ textarea {
     resize: none;
     font-size: 16px;
     text-align: left;
-    color: rgba(255, 255, 255, 0.7);
+    /*color: rgba(255, 255, 255, 0.7);*/
     border: 1px solid rgba(0, 0, 0, 0.8);
     border-radius: 10px;
     background: transparent;
@@ -76,12 +76,12 @@ textarea {
 }
 textarea:focus {
     border: 1px solid rgba(155, 255, 155, 0.5);
-    color: rgba(255, 255, 255, 1.0);
+    /*color: rgba(255, 255, 255, 1.0);*/
 }
 
 button {
     border: 0;
-    border-radius: 16px;
+    border-radius: 4px;
     cursor: pointer;
     outline: none !important;
     user-select: none;
@@ -89,13 +89,10 @@ button {
     margin: 10px;
     font-size: 22px;
     color: rgb(255, 255, 255);
-    transition: 0.1s ease;
-}
-button:hover {
-    transform: scale(1.1,1.1);
+    transition: 0.2s ease;
 }
 button:active {
-    transform: scale(1.0, 1.0);
+    transform: scale(0.6, 0.6) rotateZ(30deg);
 }
 button:disabled,
 button[disabled]{

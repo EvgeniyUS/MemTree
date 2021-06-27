@@ -226,11 +226,13 @@ function itemBuilder(item, focus=false) {
         "readOnly": "true",
         "onfocusout": "this.readOnly=true",
     });
+    input.style.color = "rgba(255,255,255,0.8)";
     if (item['name']) {
         input.value = item['name'];
         if (item['name'].charAt(0) == '_') {
-            input.style.color = "rgba(255, 255, 100, 0.8)";
+            // input.style.color = "rgba(238,212,99,0.8)";
             input.style.fontWeight = "bold";
+            input.style.fontSize = "20px";
         }
     }
     inputWidthChanger(input);
@@ -266,6 +268,7 @@ function itemBuilder(item, focus=false) {
         parent_span.style.display = 'inline-block';
 
         var parent_input = find(item['parent'], "input");
+        parent_input.style.color = "rgba(255,98,70,0.8)";
         parent_input.style.marginLeft = '15px';
 
         parent_ul.appendChild(root);
