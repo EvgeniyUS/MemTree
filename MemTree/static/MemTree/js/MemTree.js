@@ -1,6 +1,6 @@
 // var ITEM_COUNT = 0;
-var MOVE_ITEM_ID = false;
-var SELECTED_ITEM_ID = false;
+let MOVE_ITEM_ID = false;
+let SELECTED_ITEM_ID = false;
 
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -16,31 +16,26 @@ $.ajaxSetup({
 
 function spanToggler(span) {
     span.addEventListener("click", function() {
-        if (this.collapsed) {
-            this.collapsed = false;
-        }
-        else {
-            this.collapsed = true;
-        }
+        this.collapsed = !this.collapsed;
         collapseChanged(this);
         this.parentElement.querySelector(".nested").classList.toggle("active");
         this.classList.toggle("caret-down");
     });
 }
 
-function rmFunc(node) {
-    var result = true;
-    var li = document.getElementById(SELECTED_ITEM_ID);
-    var ul = find(SELECTED_ITEM_ID, "ul");
+function rmFunc() {
+    let result = true;
+    const li = document.getElementById(SELECTED_ITEM_ID);
+    const ul = find(SELECTED_ITEM_ID, "ul");
     if (ul.childNodes.length > 0) {
-        var value = find(li.id, "input").value;
+        const value = find(li.id, "input").value;
         result = confirm(`Удалить "${value}"?`);
     }
     if (result) {
         if (li.parent) {
-            var parent_ul = find(li.parent, "ul");
+            const parent_ul = find(li.parent, "ul");
             if (parent_ul.childNodes.length < 2) {
-                var span = find(li.parent, "span");
+                const span = find(li.parent, "span");
                 span.collapsed = true;
                 collapseChanged(span);
             }
@@ -60,8 +55,8 @@ function rmFunc(node) {
     }
 }
 
-function editFunc(item_id) {
-    var item_input = find(SELECTED_ITEM_ID, "input");
+function editFunc() {
+    const item_input = find(SELECTED_ITEM_ID, "input");
     if (item_input) {
         item_input.readOnly = false;
         item_input.focus();
@@ -69,7 +64,7 @@ function editFunc(item_id) {
 }
 
 function setAttributes(el, attrs) {
-    for (var key in attrs) {
+    for (const key in attrs) {
         el.setAttribute(key, attrs[key]);
     }
 }
@@ -92,14 +87,14 @@ function nameChanged(inputNode) {
 
 function inputWidthChanger(inp) {
     if ($(inp).val()) {
-        var value_rows = $(inp).val().split('\n');
+        const value_rows = $(inp).val().split('\n');
 
         $(inp).attr('rows', value_rows.length);
 
-        var lgth = 1;
-        var longest;
+        let lgth = 1;
+        let longest;
 
-        for(var i=0; i < value_rows.length; i++){
+        for(let i=0; i < value_rows.length; i++){
             if(value_rows[i].length > lgth){
                 lgth = value_rows[i].length;
                 longest = value_rows[i];
@@ -126,7 +121,7 @@ function collapseChanged(span) {
     });
 }
 
-function addItem(parent_id=null) {
+function addItem() {
     if (MOVE_ITEM_ID) {
         $.ajax({
             type: 'POST',
@@ -157,11 +152,11 @@ function addItem(parent_id=null) {
             success: function (json) {
                 // ITEM_COUNT = ITEM_COUNT + 1;
                 // description();
-                var span = find(SELECTED_ITEM_ID, "span");
+                const span = find(SELECTED_ITEM_ID, "span");
                 if (span) {
                     span.collapsed = false;
                     span.classList.toggle("caret-down", true);
-                    var ul = find(SELECTED_ITEM_ID, "ul");
+                    const ul = find(SELECTED_ITEM_ID, "ul");
                     ul.classList.toggle("active", true);
                     collapseChanged(span);
                 }
@@ -174,39 +169,29 @@ function addItem(parent_id=null) {
     }
 }
 
-function inputMouseOver(item_id) {
+function selection(item_id) {
+    if (SELECTED_ITEM_ID) {
+        find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
+    }
     SELECTED_ITEM_ID = item_id
+    let input = find(item_id, "input");
+    input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
 
-    var create_button = document.getElementById("create_button");
-    create_button.disabled = false;
-
-    var remove_button = document.getElementById("remove_button");
-    remove_button.disabled = false;
-
+    document.getElementById("create_button").disabled = false;
     document.getElementById("edit_button").disabled  = false;
     document.getElementById("move_button").disabled  = false;
 
-
-    // что бы не вставить себя в себя
-    if (MOVE_ITEM_ID == item_id) {
-        create_button.disabled = true;
-    }
-
-    var input = find(item_id, "input");
-
     // при вырезании или если значение инпута начинается с "_" скрываем кнопку remove
     // (при удалении элемента обновляется все дерево и сбрасывается вырезание)
-    if (MOVE_ITEM_ID != false || input.value.charAt(0) == '_') {
-        remove_button.disabled = true;
-    }
+    document.getElementById("remove_button").disabled = MOVE_ITEM_ID !== false || input.value.charAt(0) === '_';
 }
 
 function itemBuilder(item, focus=false) {
-    var root = document.createElement('li');
+    const root = document.createElement('li');
     root.parent = item['parent'];
     root.setAttribute('id', item['id']);
 
-    var span = document.createElement('span');
+    const span = document.createElement('span');
     span.setAttribute('id', `${item['id']}_span`);
     span.collapsed = item['collapsed'];
     span.style.display = "none";
@@ -215,29 +200,27 @@ function itemBuilder(item, focus=false) {
     // var checkbox = document.createElement('input');
     // checkbox.type = "checkbox";
 
-    var input = document.createElement('textarea');
+    const input = document.createElement('textarea');
     setAttributes(input, {
         "id": `${item['id']}_input`,
         "rows": 1,
         "wrap": "off",
         "oninput": "nameChanged(this)",
-        // "onmouseover": "inputMouseOver(this.parentNode.id)",
-        "onfocus": "inputMouseOver(this.parentNode.id)",
+        "onfocus": "selection(this.parentNode.id)",
         "readOnly": "true",
         "onfocusout": "this.readOnly=true",
     });
     input.style.color = "rgba(255,255,255,0.8)";
     if (item['name']) {
         input.value = item['name'];
-        if (item['name'].charAt(0) == '_') {
-            // input.style.color = "rgba(238,212,99,0.8)";
+        if (item['name'].charAt(0) === '_') {
             input.style.fontWeight = "bold";
             input.style.fontSize = "20px";
         }
     }
     inputWidthChanger(input);
 
-    var ul = document.createElement('ul');
+    const ul = document.createElement('ul');
     ul.setAttribute("id", `${item['id']}_ul`);
 
     if (span.collapsed) {
@@ -249,7 +232,7 @@ function itemBuilder(item, focus=false) {
         ul.className = "nested active";
     }
 
-    var counter = document.createElement('sup');
+    const counter = document.createElement('sup');
     setAttributes(counter, {
         "id": `${item['id']}_counter`,
         "class": "counter",
@@ -262,22 +245,20 @@ function itemBuilder(item, focus=false) {
     root.appendChild(ul);
 
     if (item['parent']) {
-        var parent_ul = find(item['parent'], "ul");
 
-        var parent_span = find(item['parent'], "span");
-        parent_span.style.display = 'inline-block';
+        find(item['parent'], "span").style.display = 'inline-block';
 
-        var parent_input = find(item['parent'], "input");
+        const parent_input = find(item['parent'], "input");
         parent_input.style.color = "rgba(255,98,70,0.8)";
         parent_input.style.marginLeft = '15px';
 
+        const parent_ul = find(item['parent'], "ul");
         parent_ul.appendChild(root);
 
-        var parent_counter = find(item['parent'], "counter");
-        parent_counter.innerHTML = ` ${parent_ul.childNodes.length}`;
+        find(item['parent'], "counter").innerHTML = ` ${parent_ul.childNodes.length}`;
     }
     else {
-        var meta_root = document.getElementById("myUL");
+        const meta_root = document.getElementById("myUL");
         meta_root.appendChild(root);
     }
 
@@ -292,15 +273,7 @@ function itemBuilder(item, focus=false) {
 //     document.getElementById('Desc').innerText = `Items count: ${ITEM_COUNT}`;
 // }
 
-function move() {
-    MOVE_ITEM_ID = SELECTED_ITEM_ID;
-    find(SELECTED_ITEM_ID, "span").style.display = "none";
-    find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba( 255, 211, 0, 0.4 )";
-    find(SELECTED_ITEM_ID, "ul").style.display = "none";
-    SELECTED_ITEM_ID = false;
-}
-
-function refresh(move_id=false) {
+function refresh(move=false) {
     $.ajax({
         type: 'GET',
         url: '/memtree/',
@@ -309,15 +282,26 @@ function refresh(move_id=false) {
             'type': 'all'
         },
         success: function(json) {
-            var items = json['all'];
+            const items = json['all'];
             // ITEM_COUNT = items.length;
             // description();
             document.getElementById("myUL").innerHTML = "";
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 itemBuilder(items[i]);
             }
-            MOVE_ITEM_ID = false;
-            SELECTED_ITEM_ID = false;
+            if (move && SELECTED_ITEM_ID) {
+                MOVE_ITEM_ID = SELECTED_ITEM_ID;
+                find(MOVE_ITEM_ID, "span").style.display = "none";
+                let input = find(MOVE_ITEM_ID, "input");
+                input.style.border = "1px solid rgba(255, 211, 0, 0.4)";
+                input.disabled = true;
+                find(MOVE_ITEM_ID, "ul").style.display = "none";
+                SELECTED_ITEM_ID = false;
+            }
+            else {
+                MOVE_ITEM_ID = false;
+                SELECTED_ITEM_ID = false;
+            }
 
             document.getElementById("create_button").disabled  = false;
             document.getElementById("edit_button").disabled  = true;
