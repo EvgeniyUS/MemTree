@@ -277,12 +277,7 @@ function refresh(move=false) {
     $.ajax({
         type: 'GET',
         url: '/memtree/',
-        dataType: 'json',
-        data: {
-            'type': 'all'
-        },
-        success: function(json) {
-            const items = json['all'];
+        success: function(items) {
             // ITEM_COUNT = items.length;
             // description();
             document.getElementById("myUL").innerHTML = "";

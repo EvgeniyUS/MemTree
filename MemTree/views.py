@@ -1,31 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 from django.shortcuts import render
 from django.http import HttpResponse
-import json
-
 from MemTree.models import Item
-
-
-def all_items_sorted():
-    items = Item.objects.values('id', 'collapsed', 'name', 'parent')
-    sorted_items = list()
-
-    def get_item(i_id):
-        return [i for i in items if i['id'] == i_id][0]
-
-    def rec(rec_item):
-        sorted_ids = [i['id'] for i in sorted_items]
-        if rec_item['parent'] and rec_item['parent'] not in sorted_ids:
-            rec(get_item(rec_item['parent']))
-        if rec_item['id'] not in sorted_ids:
-            sorted_items.append(rec_item)
-
-    for item in items:
-        rec(item)
-
-    return sorted_items
 
 
 def index(request):
@@ -70,6 +49,6 @@ def index(request):
 
     elif request.method == "GET":
         if request.is_ajax():
-            return HttpResponse(json.dumps({'all': all_items_sorted()}), content_type="application/json")
+            return HttpResponse(json.dumps(Item.sorted_items()), content_type="application/json")
         else:
             return render(request, 'MemTree/MemTree.html')
