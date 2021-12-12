@@ -208,7 +208,7 @@ function itemBuilder(item, focus=false) {
         "oninput": "nameChanged(this)",
         "onfocus": "selection(this.parentNode.id)",
         "readOnly": "true",
-        "onfocusout": "this.readOnly=true",
+        // "onfocusout": "this.readOnly=true",
     });
     input.style.color = "rgba(255,255,255,0.8)";
     if (item['name']) {
