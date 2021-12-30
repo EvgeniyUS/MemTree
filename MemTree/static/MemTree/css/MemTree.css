@@ -15,14 +15,14 @@ li::before, li::after {
 }
 li::before {
     border-top: 1px solid #040505;
-    top: 15px;
+    top: 16px;
     width: 10px;
     left: -15px;
 }
 li::after {
     border-left: 1px solid #040505;
     height: 100%;
-    top: 0;
+    top: 1px;
     left: -15px;
 }
 
@@ -36,8 +36,9 @@ ul > li:last-child::after {
 }
 
 .caret {
-    color: red;
+    color: #040505;
     font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
     user-select: none;
     position: absolute;
@@ -144,12 +145,13 @@ button:disabled:hover {
 }
 
 .counter {
+    font-weight: bold;
     user-select: none;
     position: absolute;
     margin-top: 15px;
     margin-left: 3px;
     padding-right: 2px;
-    color: red;
+    color: dimgray;
 }
 
 .content {
