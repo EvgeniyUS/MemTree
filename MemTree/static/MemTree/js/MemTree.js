@@ -42,7 +42,7 @@ function rmFunc() {
         }
         $.ajax({
             type: 'POST',
-            url: '/memtree/',
+            url: '/',
             dataType: 'json',
             data: {
                 'type': 'delete',
@@ -72,7 +72,7 @@ function setAttributes(el, attrs) {
 function nameChanged(inputNode) {
     $.ajax({
         type: 'POST',
-        url: '/memtree/',
+        url: '/',
         dataType: 'json',
         data: {
             'type': 'name',
@@ -111,7 +111,7 @@ function inputWidthChanger(inp) {
 function collapseChanged(span) {
     $.ajax({
         type: 'POST',
-        url: '/memtree/',
+        url: '/',
         dataType: 'json',
         data: {
             'type': 'collapse',
@@ -125,7 +125,7 @@ function addItem() {
     if (MOVE_ITEM_ID) {
         $.ajax({
             type: 'POST',
-            url: '/memtree/',
+            url: '/',
             dataType: 'json',
             data: {
                 'type': 'move',
@@ -143,7 +143,7 @@ function addItem() {
     else {
         $.ajax({
             type: 'POST',
-            url: '/memtree/',
+            url: '/',
             dataType: 'json',
             data: {
                 'type': 'create',
@@ -276,7 +276,7 @@ function itemBuilder(item, focus=false) {
 function refresh(move=false) {
     $.ajax({
         type: 'GET',
-        url: '/memtree/',
+        url: '/',
         success: function(items) {
             // ITEM_COUNT = items.length;
             // description();

@@ -14,8 +14,13 @@
 
     <div class="header">
         <div style="padding-top: 10px">
-            <a href='/' class='btn btn-primary btn-sm'>&#127968;</a>
-            <a href='/memtree' class='btn btn-success btn-sm'>&#127795;</a>
+            {% if user.username %}
+                <nobr>{{ user.username }}</nobr>
+                <a href='logout' class='btn btn-warning btn-sm'>Log Out</a>
+                {% if not user.is_staff %}
+                    <a href='delete-account' class='btn btn-outline-danger btn-sm'>Delete Account</a>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
 
@@ -29,8 +34,8 @@
             {% block footer_content %}
             {% endblock %}
         </div>
-{#        <p id="Desc">Items count: 0</p>#}
-{#        <p style="margin-left: 20px; margin-top: 15px;">&copy; Все права защищены, 2019</p>#}
+        {#        <p id="Desc">Items count: 0</p>#}
+        {#        <p style="margin-left: 20px; margin-top: 15px;">&copy; Все права защищены, 2019</p>#}
     </div>
 
 </body>
