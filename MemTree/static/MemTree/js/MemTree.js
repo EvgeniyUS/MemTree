@@ -42,7 +42,7 @@ function rmFunc() {
         }
         $.ajax({
             type: 'POST',
-            url: '/',
+            url: '',
             dataType: 'json',
             data: {
                 'type': 'delete',
@@ -72,7 +72,7 @@ function setAttributes(el, attrs) {
 function nameChanged(inputNode) {
     $.ajax({
         type: 'POST',
-        url: '/',
+        url: '',
         dataType: 'json',
         data: {
             'type': 'name',
@@ -111,7 +111,7 @@ function inputWidthChanger(inp) {
 function collapseChanged(span) {
     $.ajax({
         type: 'POST',
-        url: '/',
+        url: '',
         dataType: 'json',
         data: {
             'type': 'collapse',
@@ -125,7 +125,7 @@ function addItem() {
     if (MOVE_ITEM_ID) {
         $.ajax({
             type: 'POST',
-            url: '/',
+            url: '',
             dataType: 'json',
             data: {
                 'type': 'move',
@@ -143,7 +143,7 @@ function addItem() {
     else {
         $.ajax({
             type: 'POST',
-            url: '/',
+            url: '',
             dataType: 'json',
             data: {
                 'type': 'create',
@@ -162,9 +162,25 @@ function addItem() {
                 }
                 itemBuilder(json, true);
             },
-            error: function () {
-                alert('Got an error');
-            }
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                $('#post').html(msg);
+            },
         });
     }
 }
@@ -276,7 +292,7 @@ function itemBuilder(item, focus=false) {
 function refresh(move=false) {
     $.ajax({
         type: 'GET',
-        url: '/',
+        url: '',
         success: function(items) {
             // ITEM_COUNT = items.length;
             // description();
