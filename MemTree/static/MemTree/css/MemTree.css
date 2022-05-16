@@ -48,19 +48,6 @@ ul > li:last-child::after {
 .caret::before {
     content: ">";
     display: inline-block;
-    transition: 0.3s ease;
-}
-
-.caret-down::before {
-    transform: rotate(90deg);
-}
-
-.nested {
-    display: none;
-}
-
-.active {
-    display: block;
 }
 
 textarea {

@@ -1,5 +1,5 @@
 // var ITEM_COUNT = 0;
-MOVE_ITEM_IDS = Array();
+CHECKED_ITEMS_IDS = Array();
 SELECTED_ITEM_ID = false;
 
 function csrfSafeMethod(method) {
@@ -18,34 +18,18 @@ function spanToggler(span) {
     span.addEventListener("click", function() {
         this.collapsed = !this.collapsed;
         collapseChanged(this);
-        this.parentElement.querySelector(".nested").classList.toggle("active");
-        this.classList.toggle("caret-down");
     });
 }
 
 function rmFunc() {
-    let result = true;
-    const li = document.getElementById(SELECTED_ITEM_ID);
-    const ul = find(SELECTED_ITEM_ID, "ul");
-    if (ul.childNodes.length > 0) {
-        const value = find(li.id, "input").value;
-        result = confirm(`Удалить "${value}"?`);
-    }
+    let result = confirm(`Удалить все выделенные элементы?`);
     if (result) {
-        if (li.parent) {
-            const parent_ul = find(li.parent, "ul");
-            if (parent_ul.childNodes.length < 2) {
-                const span = find(li.parent, "span");
-                span.collapsed = true;
-                collapseChanged(span);
-            }
-        }
         $.ajax({
             type: 'POST',
             url: 'delete/',
             dataType: 'json',
             data: {
-                'id': li.id
+                ids: JSON.stringify(CHECKED_ITEMS_IDS),
             },
             success: function (data) {
                 refresh();
@@ -115,17 +99,27 @@ function collapseChanged(span) {
             'id': span.parentNode.id,
             'collapsed': span.collapsed
         },
+        success: function () {
+            if (span.collapsed) {
+                span.style.transform = 'rotate(0deg)';
+                find(get_id(span), "ul").style.display = "none";
+            }
+            else {
+                span.style.transform = 'rotate(90deg)';
+                find(get_id(span), "ul").style.display = "block";
+            }
+        }
     });
 }
 
 function addItem() {
-    if (MOVE_ITEM_IDS.length > 0) {
+    if (CHECKED_ITEMS_IDS.length > 0) {
         $.ajax({
             type: 'POST',
             url: 'move/',
             dataType: 'json',
             data: {
-                ids: JSON.stringify(MOVE_ITEM_IDS),
+                ids: JSON.stringify(CHECKED_ITEMS_IDS),
                 parent: SELECTED_ITEM_ID
             },
             success: function (data) {
@@ -161,14 +155,9 @@ function addItem() {
                 'parent': SELECTED_ITEM_ID
             },
             success: function (data) {
-                // ITEM_COUNT = ITEM_COUNT + 1;
-                // description();
                 const span = find(SELECTED_ITEM_ID, "span");
                 if (span) {
                     span.collapsed = false;
-                    span.classList.toggle("caret-down", true);
-                    const ul = find(SELECTED_ITEM_ID, "ul");
-                    ul.classList.toggle("active", true);
                     collapseChanged(span);
                 }
                 itemBuilder(data, true);
@@ -197,18 +186,11 @@ function addItem() {
 }
 
 function selection(item_id) {
-    if (!(MOVE_ITEM_IDS.includes(item_id)) || SELECTED_ITEM_ID === item_id) {
+    if (!(CHECKED_ITEMS_IDS.includes(item_id)) || SELECTED_ITEM_ID === item_id) {
         let input = find(item_id, "input");
-        // при вырезании или если значение инпута начинается с "_" скрываем кнопку remove
-        // (при удалении элемента обновляется все дерево и сбрасывается вырезание)
-        document.getElementById("remove_button").disabled = MOVE_ITEM_IDS.length !== 0 || input.value.charAt(0) === '_';
         if (SELECTED_ITEM_ID === item_id) {
             SELECTED_ITEM_ID = false;
             input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
-
-            document.getElementById("edit_button").disabled = true;
-            document.getElementById("move_button").disabled = true;
-            document.getElementById("remove_button").disabled = true;
         } else {
             if (SELECTED_ITEM_ID) {
                 find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
@@ -217,10 +199,38 @@ function selection(item_id) {
             input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
 
             document.getElementById("create_button").disabled = false;
-            document.getElementById("edit_button").disabled = false;
-            document.getElementById("move_button").disabled = false;
-
         }
+    }
+}
+
+function check_item(item_id) {
+    if (item_id === SELECTED_ITEM_ID) {
+        selection(item_id)
+    }
+    if (CHECKED_ITEMS_IDS.includes(item_id)) {
+        CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
+        let span = find(item_id, "span");
+        span.hidden = false;
+        let input = find(item_id, "input");
+        input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
+        // input.disabled = false;
+        if (!(span.collapsed)) {
+            find(item_id, "ul").style.display = "block";
+        }
+        if (CHECKED_ITEMS_IDS.length > 0) {
+            document.getElementById("remove_button").disabled = false;
+        }
+        else {
+            document.getElementById("remove_button").disabled = true;
+        }
+    } else {
+        CHECKED_ITEMS_IDS.push(item_id);
+        find(item_id, "span").hidden = true;
+        let input = find(item_id, "input");
+        input.style.border = "1px solid rgba(255, 211, 0, 0.4)";
+        // input.disabled = true;
+        find(item_id, "ul").style.display = "none";
+        document.getElementById("remove_button").disabled = false;
     }
 }
 
@@ -231,6 +241,7 @@ function itemBuilder(item, focus=false) {
 
     const span = document.createElement('span');
     span.setAttribute('id', `${item['id']}_span`);
+    span.className = 'caret';
     span.collapsed = item['collapsed'];
     span.style.display = "none";
     spanToggler(span);
@@ -245,8 +256,8 @@ function itemBuilder(item, focus=false) {
         "wrap": "off",
         "oninput": "nameChanged(this)",
         "onclick": "selection(this.parentNode.id)",
-        "oncontextmenu": "move(this.parentNode.id)",
-        "readOnly": "true",
+        "oncontextmenu": "check_item(this.parentNode.id)",
+        // "readOnly": "true",
         // "onfocusout": "this.readOnly=true",
     });
     input.style.color = "rgba(255,255,255,0.8)";
@@ -263,12 +274,12 @@ function itemBuilder(item, focus=false) {
     ul.setAttribute("id", `${item['id']}_ul`);
 
     if (span.collapsed) {
-        span.className = "caret";
-        ul.className = "nested";
+        span.style.transform = 'rotate(0deg)';
+        ul.style.display = "none";
     }
     else {
-        span.className = "caret caret-down";
-        ul.className = "nested active";
+        span.style.transform = 'rotate(90deg)';
+        ul.style.display = "block";
     }
 
     const counter = document.createElement('sup');
@@ -312,25 +323,6 @@ function itemBuilder(item, focus=false) {
 //     document.getElementById('Desc').innerText = `Items count: ${ITEM_COUNT}`;
 // }
 
-
-function move(item_id) {
-    if (MOVE_ITEM_IDS.includes(item_id)) {
-        MOVE_ITEM_IDS = MOVE_ITEM_IDS.filter(val => val !== item_id);
-        // find(item_id, "span").style.display = "inline-block";
-        let input = find(item_id, "input");
-        input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
-        // input.disabled = false;
-        find(item_id, "ul").style.display = "grid";
-    } else {
-        MOVE_ITEM_IDS.push(item_id);
-        // find(item_id, "span").style.display = "none";
-        let input = find(item_id, "input");
-        input.style.border = "1px solid rgba(255, 211, 0, 0.4)";
-        // input.disabled = true;
-        find(item_id, "ul").style.display = "none";
-    }
-}
-
 function refresh() {
     $.ajax({
         type: 'GET',
@@ -343,17 +335,18 @@ function refresh() {
                 itemBuilder(data[i]);
             }
             document.getElementById("create_button").disabled  = false;
-            document.getElementById("edit_button").disabled  = true;
             document.getElementById("remove_button").disabled  = true;
-            document.getElementById("move_button").disabled  = true;
-            document.getElementById("remove_button").disabled  = true;
-            MOVE_ITEM_IDS = Array();
+            CHECKED_ITEMS_IDS = Array();
             SELECTED_ITEM_ID = false;
         },
         error: function() {
             alert('Got an error');
         }
     });
+}
+
+function get_id(item) {
+    return item.id.split('_')[0]
 }
 
 function find(item_id, item_type) {

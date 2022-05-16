@@ -111,8 +111,7 @@ def move(request):
 def delete(request):
     try:
         values = request.POST.dict()
-        item = request.user.items.get(id=values['id'])
-        item.delete()
+        request.user.items.filter(id__in=json.loads(values['ids'])).delete()
         return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:
