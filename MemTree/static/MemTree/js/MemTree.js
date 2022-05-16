@@ -1,6 +1,6 @@
 // var ITEM_COUNT = 0;
-let MOVE_ITEM_ID = false;
-let SELECTED_ITEM_ID = false;
+MOVE_ITEM_IDS = Array();
+SELECTED_ITEM_ID = false;
 
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -119,14 +119,14 @@ function collapseChanged(span) {
 }
 
 function addItem() {
-    if (MOVE_ITEM_ID) {
+    if (MOVE_ITEM_IDS.length > 0) {
         $.ajax({
             type: 'POST',
             url: 'move/',
             dataType: 'json',
             data: {
-                'id': MOVE_ITEM_ID,
-                'parent': SELECTED_ITEM_ID
+                ids: JSON.stringify(MOVE_ITEM_IDS),
+                parent: SELECTED_ITEM_ID
             },
             success: function (data) {
                 refresh();
@@ -197,20 +197,31 @@ function addItem() {
 }
 
 function selection(item_id) {
-    if (SELECTED_ITEM_ID) {
-        find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
+    if (!(MOVE_ITEM_IDS.includes(item_id)) || SELECTED_ITEM_ID === item_id) {
+        let input = find(item_id, "input");
+        // при вырезании или если значение инпута начинается с "_" скрываем кнопку remove
+        // (при удалении элемента обновляется все дерево и сбрасывается вырезание)
+        document.getElementById("remove_button").disabled = MOVE_ITEM_IDS.length !== 0 || input.value.charAt(0) === '_';
+        if (SELECTED_ITEM_ID === item_id) {
+            SELECTED_ITEM_ID = false;
+            input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
+
+            document.getElementById("edit_button").disabled = true;
+            document.getElementById("move_button").disabled = true;
+            document.getElementById("remove_button").disabled = true;
+        } else {
+            if (SELECTED_ITEM_ID) {
+                find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
+            }
+            SELECTED_ITEM_ID = item_id
+            input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
+
+            document.getElementById("create_button").disabled = false;
+            document.getElementById("edit_button").disabled = false;
+            document.getElementById("move_button").disabled = false;
+
+        }
     }
-    SELECTED_ITEM_ID = item_id
-    let input = find(item_id, "input");
-    input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
-
-    document.getElementById("create_button").disabled = false;
-    document.getElementById("edit_button").disabled  = false;
-    document.getElementById("move_button").disabled  = false;
-
-    // при вырезании или если значение инпута начинается с "_" скрываем кнопку remove
-    // (при удалении элемента обновляется все дерево и сбрасывается вырезание)
-    document.getElementById("remove_button").disabled = MOVE_ITEM_ID !== false || input.value.charAt(0) === '_';
 }
 
 function itemBuilder(item, focus=false) {
@@ -233,7 +244,8 @@ function itemBuilder(item, focus=false) {
         "rows": 1,
         "wrap": "off",
         "oninput": "nameChanged(this)",
-        "onfocus": "selection(this.parentNode.id)",
+        "onclick": "selection(this.parentNode.id)",
+        "oncontextmenu": "move(this.parentNode.id)",
         "readOnly": "true",
         // "onfocusout": "this.readOnly=true",
     });
@@ -300,7 +312,26 @@ function itemBuilder(item, focus=false) {
 //     document.getElementById('Desc').innerText = `Items count: ${ITEM_COUNT}`;
 // }
 
-function refresh(move=false) {
+
+function move(item_id) {
+    if (MOVE_ITEM_IDS.includes(item_id)) {
+        MOVE_ITEM_IDS = MOVE_ITEM_IDS.filter(val => val !== item_id);
+        // find(item_id, "span").style.display = "inline-block";
+        let input = find(item_id, "input");
+        input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
+        // input.disabled = false;
+        find(item_id, "ul").style.display = "grid";
+    } else {
+        MOVE_ITEM_IDS.push(item_id);
+        // find(item_id, "span").style.display = "none";
+        let input = find(item_id, "input");
+        input.style.border = "1px solid rgba(255, 211, 0, 0.4)";
+        // input.disabled = true;
+        find(item_id, "ul").style.display = "none";
+    }
+}
+
+function refresh() {
     $.ajax({
         type: 'GET',
         url: 'items/',
@@ -311,26 +342,13 @@ function refresh(move=false) {
             for (let i = 0; i < data.length; i++) {
                 itemBuilder(data[i]);
             }
-            if (move && SELECTED_ITEM_ID) {
-                MOVE_ITEM_ID = SELECTED_ITEM_ID;
-                find(MOVE_ITEM_ID, "span").style.display = "none";
-                let input = find(MOVE_ITEM_ID, "input");
-                input.style.border = "1px solid rgba(255, 211, 0, 0.4)";
-                input.disabled = true;
-                find(MOVE_ITEM_ID, "ul").style.display = "none";
-                SELECTED_ITEM_ID = false;
-            }
-            else {
-                MOVE_ITEM_ID = false;
-                SELECTED_ITEM_ID = false;
-            }
-
             document.getElementById("create_button").disabled  = false;
             document.getElementById("edit_button").disabled  = true;
             document.getElementById("remove_button").disabled  = true;
             document.getElementById("move_button").disabled  = true;
             document.getElementById("remove_button").disabled  = true;
-
+            MOVE_ITEM_IDS = Array();
+            SELECTED_ITEM_ID = false;
         },
         error: function() {
             alert('Got an error');

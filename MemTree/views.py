@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -34,7 +35,6 @@ def items(request):
     except Exception as e:
         return JsonResponse(data={'error': str(e)}, status=500,
                             content_type="application/json")
-
 
 
 @require_POST
@@ -93,12 +93,12 @@ def change_name(request):
 def move(request):
     try:
         values = request.POST.dict()
-        item = request.user.items.get(id=values['id'])
-        if values['parent'] and values['parent'] != 'false':
-            item.parent = request.user.items.get(id=values['parent'])
-        else:
-            item.parent = None
-        item.save()
+        for item in request.user.items.filter(id__in=json.loads(values['ids'])):
+            if values['parent'] and values['parent'] != 'false':
+                item.parent = request.user.items.get(id=values['parent'])
+            else:
+                item.parent = None
+            item.save()
         return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:
