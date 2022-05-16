@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
-from rest_framework import status
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import (
@@ -21,8 +20,7 @@ def index(request):
     try:
         return render(request, 'MemTree/MemTree.html')
     except Exception as e:
-        return JsonResponse(data={'error': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        return JsonResponse(data={'error': str(e)}, status=500,
                             content_type="application/json")
 
 
@@ -32,11 +30,9 @@ def items(request):
     try:
         return JsonResponse(data=Item.sorted_items(request.user.items),
                             safe=False,
-                            status=status.HTTP_200_OK,
                             content_type="application/json")
     except Exception as e:
-        return JsonResponse(data={'error': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        return JsonResponse(data={'error': str(e)}, status=500,
                             content_type="application/json")
 
 
@@ -55,11 +51,10 @@ def create(request):
                                   'collapsed': new_item.collapsed,
                                   'name': new_item.name,
                                   'parent': parent.id if parent else None},
-                            status=status.HTTP_201_CREATED,
+                            status=201,
                             content_type="application/json")
     except Exception as e:
-        return JsonResponse(data={'error': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        return JsonResponse(data={'error': str(e)}, status=500,
                             content_type="application/json")
 
 
@@ -71,12 +66,10 @@ def collapse(request):
         item = request.user.items.get(id=values['id'])
         item.collapsed = True if values['collapsed'] == 'true' else False
         item.save()
-        return JsonResponse(data={'result': 'OK'},
-                            status=status.HTTP_202_ACCEPTED,
+        return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:
-        return JsonResponse({'error': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        return JsonResponse({'error': str(e)}, status=500,
                             content_type="application/json")
 
 
@@ -88,12 +81,10 @@ def change_name(request):
         item = request.user.items.get(id=values['id'])
         item.name = values['name']
         item.save()
-        return JsonResponse(data={'result': 'OK'},
-                            status=status.HTTP_202_ACCEPTED,
+        return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:
-        return JsonResponse({'error': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        return JsonResponse({'error': str(e)}, status=500,
                             content_type="application/json")
 
 
@@ -108,12 +99,10 @@ def move(request):
         else:
             item.parent = None
         item.save()
-        return JsonResponse(data={'result': 'OK'},
-                            status=status.HTTP_202_ACCEPTED,
+        return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:
-        return JsonResponse({'error': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        return JsonResponse({'error': str(e)}, status=500,
                             content_type="application/json")
 
 
@@ -124,12 +113,10 @@ def delete(request):
         values = request.POST.dict()
         item = request.user.items.get(id=values['id'])
         item.delete()
-        return JsonResponse(data={'result': 'OK'},
-                            status=status.HTTP_202_ACCEPTED,
+        return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:
-        return JsonResponse(data={'error': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        return JsonResponse(data={'error': str(e)}, status=500,
                             content_type="application/json")
 
 

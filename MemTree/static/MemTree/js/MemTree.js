@@ -190,7 +190,7 @@ function addItem() {
                 } else {
                     msg = 'Uncaught Error.\n' + jqXHR.responseText;
                 }
-                $('#post').html(msg);
+                alert(msg);
             },
         });
     }
