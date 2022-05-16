@@ -42,13 +42,12 @@ function rmFunc() {
         }
         $.ajax({
             type: 'POST',
-            url: '',
+            url: 'delete/',
             dataType: 'json',
             data: {
-                'type': 'delete',
                 'id': li.id
             },
-            success: function (json) {
+            success: function (data) {
                 refresh();
             },
         });
@@ -72,14 +71,13 @@ function setAttributes(el, attrs) {
 function nameChanged(inputNode) {
     $.ajax({
         type: 'POST',
-        url: '',
+        url: 'change-name/',
         dataType: 'json',
         data: {
-            'type': 'name',
             'id': inputNode.parentNode.id,
             'name': inputNode.value
         },
-        success: function (json) {
+        success: function (data) {
             inputWidthChanger(inputNode);
         },
     });
@@ -111,10 +109,9 @@ function inputWidthChanger(inp) {
 function collapseChanged(span) {
     $.ajax({
         type: 'POST',
-        url: '',
+        url: 'collapse/',
         dataType: 'json',
         data: {
-            'type': 'collapse',
             'id': span.parentNode.id,
             'collapsed': span.collapsed
         },
@@ -125,31 +122,45 @@ function addItem() {
     if (MOVE_ITEM_ID) {
         $.ajax({
             type: 'POST',
-            url: '',
+            url: 'move/',
             dataType: 'json',
             data: {
-                'type': 'move',
                 'id': MOVE_ITEM_ID,
                 'parent': SELECTED_ITEM_ID
             },
-            success: function (json) {
+            success: function (data) {
                 refresh();
             },
-            error: function () {
-                alert('Got an error');
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                alert(msg);
             }
         });
     }
     else {
         $.ajax({
             type: 'POST',
-            url: '',
+            url: 'create/',
             dataType: 'json',
             data: {
-                'type': 'create',
                 'parent': SELECTED_ITEM_ID
             },
-            success: function (json) {
+            success: function (data) {
                 // ITEM_COUNT = ITEM_COUNT + 1;
                 // description();
                 const span = find(SELECTED_ITEM_ID, "span");
@@ -160,7 +171,7 @@ function addItem() {
                     ul.classList.toggle("active", true);
                     collapseChanged(span);
                 }
-                itemBuilder(json, true);
+                itemBuilder(data, true);
             },
             error: function (jqXHR, exception) {
                 var msg = '';
@@ -292,13 +303,13 @@ function itemBuilder(item, focus=false) {
 function refresh(move=false) {
     $.ajax({
         type: 'GET',
-        url: '',
-        success: function(items) {
+        url: 'items/',
+        success: function(data) {
             // ITEM_COUNT = items.length;
             // description();
             document.getElementById("myUL").innerHTML = "";
-            for (let i = 0; i < items.length; i++) {
-                itemBuilder(items[i]);
+            for (let i = 0; i < data.length; i++) {
+                itemBuilder(data[i]);
             }
             if (move && SELECTED_ITEM_ID) {
                 MOVE_ITEM_ID = SELECTED_ITEM_ID;
