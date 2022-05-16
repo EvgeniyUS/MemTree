@@ -191,6 +191,8 @@ function selection(item_id) {
         if (SELECTED_ITEM_ID === item_id) {
             SELECTED_ITEM_ID = false;
             input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
+            // document.getElementById("check_button").disabled = true;
+            check_item(item_id);
         } else {
             if (SELECTED_ITEM_ID) {
                 find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
@@ -199,7 +201,11 @@ function selection(item_id) {
             input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
 
             document.getElementById("create_button").disabled = false;
+            // document.getElementById("check_button").disabled = false;
         }
+    }
+    else {
+        check_item(item_id);
     }
 }
 
@@ -213,7 +219,6 @@ function check_item(item_id) {
         span.hidden = false;
         let input = find(item_id, "input");
         input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
-        // input.disabled = false;
         if (!(span.collapsed)) {
             find(item_id, "ul").style.display = "block";
         }
@@ -228,7 +233,6 @@ function check_item(item_id) {
         find(item_id, "span").hidden = true;
         let input = find(item_id, "input");
         input.style.border = "1px solid rgba(255, 211, 0, 0.4)";
-        // input.disabled = true;
         find(item_id, "ul").style.display = "none";
         document.getElementById("remove_button").disabled = false;
     }
@@ -256,7 +260,7 @@ function itemBuilder(item, focus=false) {
         "wrap": "off",
         "oninput": "nameChanged(this)",
         "onclick": "selection(this.parentNode.id)",
-        "oncontextmenu": "check_item(this.parentNode.id)",
+        // "oncontextmenu": "check_item(this.parentNode.id)",
         // "readOnly": "true",
         // "onfocusout": "this.readOnly=true",
     });

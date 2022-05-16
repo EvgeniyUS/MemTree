@@ -115,11 +115,11 @@ button:disabled:hover {
     background: rgba(30, 130, 230, 0.4);
 }
 
-.move_button {
+.check_button {
     background: rgba(255, 211, 0, 0.9);
 }
-.move_button:disabled,
-.move_button[disabled]{
+.check_button:disabled,
+.check_button[disabled]{
     background: rgba(255, 211, 0, 0.4);
 }
 
