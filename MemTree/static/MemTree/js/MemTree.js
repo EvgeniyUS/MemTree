@@ -22,7 +22,7 @@ function spanToggler(span) {
 }
 
 function rmFunc() {
-    let result = confirm(`Удалить все выделенные элементы?`);
+    let result = confirm('Delete all selected items?');
     if (result) {
         $.ajax({
             type: 'POST',
