@@ -191,7 +191,6 @@ function selection(item_id) {
         if (SELECTED_ITEM_ID === item_id) {
             SELECTED_ITEM_ID = false;
             input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
-            // document.getElementById("check_button").disabled = true;
             check_item(item_id);
         } else {
             if (SELECTED_ITEM_ID) {
@@ -199,9 +198,6 @@ function selection(item_id) {
             }
             SELECTED_ITEM_ID = item_id
             input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
-
-            document.getElementById("create_button").disabled = false;
-            // document.getElementById("check_button").disabled = false;
         }
     }
     else {
@@ -226,14 +222,16 @@ function check_item(item_id) {
             document.getElementById("remove_button").disabled = false;
         }
         else {
+            document.getElementById("create_button").innerHTML = 'Add';
             document.getElementById("remove_button").disabled = true;
         }
     } else {
         CHECKED_ITEMS_IDS.push(item_id);
         find(item_id, "span").hidden = true;
         let input = find(item_id, "input");
-        input.style.border = "1px solid rgba(255, 211, 0, 0.4)";
+        input.style.border = "1px solid rgba(255, 211, 0, 0.7)";
         find(item_id, "ul").style.display = "none";
+        document.getElementById("create_button").innerHTML = 'Move To...';
         document.getElementById("remove_button").disabled = false;
     }
 }
@@ -338,7 +336,7 @@ function refresh() {
             for (let i = 0; i < data.length; i++) {
                 itemBuilder(data[i]);
             }
-            document.getElementById("create_button").disabled  = false;
+            document.getElementById("create_button").innerHTML = 'Add';
             document.getElementById("remove_button").disabled  = true;
             CHECKED_ITEMS_IDS = Array();
             SELECTED_ITEM_ID = false;

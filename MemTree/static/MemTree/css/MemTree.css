@@ -75,7 +75,7 @@ button {
     user-select: none;
     display: inline-block;
     margin: 10px;
-    font-size: 22px;
+    /*font-size: 22px;*/
     color: rgb(255, 255, 255);
     transition: 0.2s ease;
 }
@@ -100,7 +100,7 @@ button:disabled:hover {
 }
 
 .create_button {
-    background: rgba(30, 230, 30, 0.9);
+    background: rgba(30, 230, 30, 0.7);
 }
 .create_button:disabled,
 .create_button[disabled]{
