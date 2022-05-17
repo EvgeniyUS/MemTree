@@ -231,7 +231,7 @@ function check_item(item_id) {
         let input = find(item_id, "input");
         input.style.border = "1px solid rgba(255, 211, 0, 0.7)";
         find(item_id, "ul").style.display = "none";
-        document.getElementById("create_button").innerHTML = 'Move To...';
+        document.getElementById("create_button").innerHTML = 'Move';
         document.getElementById("remove_button").disabled = false;
     }
 }
