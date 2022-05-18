@@ -18,7 +18,7 @@ class Item(models.Model):
     def sorted_items(items):
         sorted_items = list()
         def rec(_items):
-            sorted_items.extend(_items.values('id', 'collapsed', 'name', 'parent'))
+            sorted_items.extend(_items.values('id', 'collapsed', 'name', 'parent').order_by('name'))
             _children = items.filter(parent__in=_items)
             if _children:
                 rec(_children)

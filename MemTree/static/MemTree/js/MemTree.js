@@ -265,10 +265,10 @@ function itemBuilder(item, focus=false) {
     input.style.color = "rgba(255,255,255,0.8)";
     if (item['name']) {
         input.value = item['name'];
-        if (item['name'].charAt(0) === '_') {
-            input.style.fontWeight = "bold";
-            input.style.fontSize = "20px";
-        }
+        // if (item['name'].charAt(0) === '_') {
+        //     input.style.fontWeight = "bold";
+        //     input.style.fontSize = "20px";
+        // }
     }
     inputWidthChanger(input);
 
@@ -301,8 +301,10 @@ function itemBuilder(item, focus=false) {
         find(item['parent'], "span").style.display = 'inline-block';
 
         const parent_input = find(item['parent'], "input");
-        parent_input.style.color = "rgba(255,98,70,0.8)";
+        parent_input.style.color = "rgba(190,130,70,0.9)";
         parent_input.style.marginLeft = '15px';
+        parent_input.style.fontWeight = "bold";
+        parent_input.style.fontSize = "20px";
 
         const parent_ul = find(item['parent'], "ul");
         parent_ul.appendChild(root);
