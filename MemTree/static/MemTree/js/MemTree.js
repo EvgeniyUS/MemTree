@@ -21,7 +21,7 @@ function spanToggler(span) {
     });
 }
 
-function rmFunc() {
+function remove_item() {
     let result = confirm('Delete all selected items?');
     if (result) {
         $.ajax({
@@ -112,7 +112,7 @@ function collapseChanged(span) {
     });
 }
 
-function addItem() {
+function add_item() {
     if (CHECKED_ITEMS_IDS.length > 0) {
         $.ajax({
             type: 'POST',
@@ -190,7 +190,6 @@ function selection(item_id) {
         let input = find(item_id, "input");
         if (SELECTED_ITEM_ID === item_id) {
             SELECTED_ITEM_ID = false;
-            input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
             check_item(item_id);
         } else {
             if (SELECTED_ITEM_ID) {
@@ -211,13 +210,8 @@ function check_item(item_id) {
     }
     if (CHECKED_ITEMS_IDS.includes(item_id)) {
         CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
-        let span = find(item_id, "span");
-        span.hidden = false;
-        let input = find(item_id, "input");
-        input.style.border = "1px solid rgba(0, 0, 0, 0.8)";
-        if (!(span.collapsed)) {
-            find(item_id, "ul").style.display = "block";
-        }
+        find(item_id, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
+        find(item_id, "ul").className = null;
         if (CHECKED_ITEMS_IDS.length > 0) {
             document.getElementById("remove_button").disabled = false;
         }
@@ -227,10 +221,8 @@ function check_item(item_id) {
         }
     } else {
         CHECKED_ITEMS_IDS.push(item_id);
-        find(item_id, "span").hidden = true;
-        let input = find(item_id, "input");
-        input.style.border = "1px solid rgba(255, 211, 0, 0.7)";
-        find(item_id, "ul").style.display = "none";
+        find(item_id, "input").style.border = "1px solid rgba(255, 211, 0, 0.7)";
+        find(item_id, "ul").className = "disabled";
         document.getElementById("create_button").innerHTML = 'Move';
         document.getElementById("remove_button").disabled = false;
     }

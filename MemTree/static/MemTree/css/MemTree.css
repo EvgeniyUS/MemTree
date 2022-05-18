@@ -79,3 +79,8 @@ textarea {
 .content {
     margin-bottom: 56px;
 }
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
