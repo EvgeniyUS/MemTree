@@ -31,6 +31,7 @@ function remove_item() {
             {
                 text: "Yes",
                 class: "btn btn-danger btn-sm",
+                style: "margin-right:30px",
                 click:  function() {
                     $.ajax({
                         type: 'POST',

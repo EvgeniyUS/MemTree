@@ -12,7 +12,7 @@ class Item(models.Model):
     user = models.ForeignKey(User, default=1, on_delete=models.CASCADE, related_name='items')
 
     def __str__(self):
-        return ' - '.join([self.id, self.name])
+        return str(self.id)
 
     @staticmethod
     def sorted_items(items):
