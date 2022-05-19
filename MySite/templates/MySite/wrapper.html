@@ -5,9 +5,13 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <title>MemTree</title>
     {% load static %}
+    <link rel="icon" type="image/png" sizes="32x32" href={% static "MySite/img/favicon-32x32.png" %}>
+    <link rel="icon" type="image/png" sizes="16x16" href={% static "MySite/img/favicon-16x16.png" %}>
+    <script type="text/javascript" src="{% static 'MySite/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'MySite/js/jquery-ui.min.js' %}"></script>
+    <link rel='stylesheet' href="{% static 'MySite/css/jquery-ui.min.css' %}" type='text/css'>
     <link rel='stylesheet' href="{% static 'MySite/css/bootstrap.min.css' %}" type='text/css'>
     <link rel='stylesheet' href="{% static 'MySite/css/MySite.css' %}" type='text/css'>
-    <link rel="shortcut icon" href="{% static 'MySite/img/favicon.ico' %}" type="image/x-icon">
 </head>
 
 <body>
@@ -34,8 +38,9 @@
             {% block footer_content %}
             {% endblock %}
         </div>
-        {#        <p id="Desc">Items count: 0</p>#}
-        {#        <p style="margin-left: 20px; margin-top: 15px;">&copy; Все права защищены, 2019</p>#}
+    </div>
+    <div id="remove_item_confirm" title="Warning!" style="display: none">
+        <p>Delete all selected items?</p>
     </div>
 
 </body>

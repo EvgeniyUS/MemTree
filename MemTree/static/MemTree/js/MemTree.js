@@ -1,4 +1,3 @@
-// var ITEM_COUNT = 0;
 CHECKED_ITEMS_IDS = Array();
 SELECTED_ITEM_ID = false;
 
@@ -22,33 +21,45 @@ function spanToggler(span) {
 }
 
 function remove_item() {
-    let result = confirm('Delete all selected items?');
-    if (result) {
-        $.ajax({
-            type: 'POST',
-            url: 'delete/',
-            dataType: 'json',
-            data: {
-                ids: JSON.stringify(CHECKED_ITEMS_IDS),
+    $( "#remove_item_confirm" ).dialog({
+        draggable: false,
+        resizable: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        buttons: [
+            {
+                text: "Yes",
+                class: "btn btn-danger btn-sm",
+                click:  function() {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'delete/',
+                        dataType: 'json',
+                        data: {
+                            ids: JSON.stringify(CHECKED_ITEMS_IDS),
+                        },
+                        success: function (data) {
+                            refresh();
+                        }});
+                    $( this ).dialog( "close" );
+                }
             },
-            success: function (data) {
-                refresh();
+            {
+                text: "No",
+                class: "btn btn-success btn-sm",
+                click:  function() {
+                    $( this ).dialog( "close" );
+                }
             },
-        });
-    }
+
+        ],
+    });
 }
 
-function editFunc() {
-    const item_input = find(SELECTED_ITEM_ID, "input");
-    if (item_input) {
-        item_input.readOnly = false;
-        item_input.focus();
-    }
-}
-
-function setAttributes(el, attrs) {
+function setAttributes(element, attrs) {
     for (const key in attrs) {
-        el.setAttribute(key, attrs[key]);
+        element.setAttribute(key, attrs[key]);
     }
 }
 
@@ -240,9 +251,6 @@ function itemBuilder(item, focus=false) {
     span.style.display = "none";
     spanToggler(span);
 
-    // var checkbox = document.createElement('input');
-    // checkbox.type = "checkbox";
-
     const input = document.createElement('textarea');
     setAttributes(input, {
         "id": `${item['id']}_input`,
@@ -250,17 +258,10 @@ function itemBuilder(item, focus=false) {
         "wrap": "off",
         "oninput": "nameChanged(this)",
         "onclick": "selection(this.parentNode.id)",
-        // "oncontextmenu": "check_item(this.parentNode.id)",
-        // "readOnly": "true",
-        // "onfocusout": "this.readOnly=true",
     });
     input.style.color = "rgba(255,255,255,0.8)";
     if (item['name']) {
         input.value = item['name'];
-        // if (item['name'].charAt(0) === '_') {
-        //     input.style.fontWeight = "bold";
-        //     input.style.fontSize = "20px";
-        // }
     }
     inputWidthChanger(input);
 
@@ -283,7 +284,6 @@ function itemBuilder(item, focus=false) {
     });
 
     root.appendChild(span);
-    // root.appendChild(checkbox);
     root.appendChild(input);
     root.appendChild(counter);
     root.appendChild(ul);
@@ -308,24 +308,17 @@ function itemBuilder(item, focus=false) {
         meta_root.appendChild(root);
     }
 
-    // if (input.value == false && focus) {
     if (focus) {
         input.readOnly = false;
         input.focus();
     }
 }
 
-// function description() {
-//     document.getElementById('Desc').innerText = `Items count: ${ITEM_COUNT}`;
-// }
-
 function refresh() {
     $.ajax({
         type: 'GET',
         url: 'items/',
         success: function(data) {
-            // ITEM_COUNT = items.length;
-            // description();
             document.getElementById("myUL").innerHTML = "";
             for (let i = 0; i < data.length; i++) {
                 itemBuilder(data[i]);
