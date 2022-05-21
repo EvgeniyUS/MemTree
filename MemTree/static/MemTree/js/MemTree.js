@@ -1,5 +1,5 @@
-CHECKED_ITEMS_IDS = Array();
-SELECTED_ITEM_ID = false;
+let CHECKED_ITEMS_IDS = Array();
+let SELECTED_ITEM_ID = false;
 
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -20,42 +20,52 @@ function spanToggler(span) {
     });
 }
 
-function remove_item() {
-    $( "#remove_item_confirm" ).dialog({
-        draggable: false,
-        resizable: false,
-        height: "auto",
-        width: "auto",
-        modal: true,
-        buttons: [
-            {
-                text: "Yes",
-                class: "btn btn-danger btn-sm",
-                style: "margin-right:30px",
-                click:  function() {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'delete/',
-                        dataType: 'json',
-                        data: {
-                            ids: JSON.stringify(CHECKED_ITEMS_IDS),
-                        },
-                        success: function (data) {
-                            refresh();
-                        }});
-                    $( this ).dialog( "close" );
-                }
-            },
-            {
-                text: "No",
-                class: "btn btn-success btn-sm",
-                click:  function() {
-                    $( this ).dialog( "close" );
-                }
-            },
+function edit_remove_item() {
+    if (CHECKED_ITEMS_IDS.length > 0) {
+        $("#remove_item_confirm").dialog({
+            draggable: false,
+            resizable: false,
+            height: "auto",
+            width: "auto",
+            modal: true,
+            buttons: [
+                {
+                    text: "Yes",
+                    class: "btn btn-danger btn-sm",
+                    style: "margin-right:30px",
+                    click: function () {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'delete/',
+                            dataType: 'json',
+                            data: {
+                                ids: JSON.stringify(CHECKED_ITEMS_IDS),
+                            },
+                            success: function (data) {
+                                refresh();
+                            }
+                        });
+                        $(this).dialog("close");
+                    }
+                },
+                {
+                    text: "No",
+                    class: "btn btn-success btn-sm",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                },
 
-        ],
-    });
+            ],
+        });
+    }
+    if (SELECTED_ITEM_ID) {
+        const input = find(SELECTED_ITEM_ID, "input");
+        if (input) {
+            input.readOnly = false;
+            input.focus();
+        }
+    }
 }
 
 function setAttributes(element, attrs) {
@@ -124,7 +134,7 @@ function collapseChanged(span) {
     });
 }
 
-function add_item() {
+function add_move_item() {
     if (CHECKED_ITEMS_IDS.length > 0) {
         $.ajax({
             type: 'POST',
@@ -138,7 +148,7 @@ function add_item() {
                 refresh();
             },
             error: function (jqXHR, exception) {
-                var msg = '';
+                let msg = '';
                 if (jqXHR.status === 0) {
                     msg = 'Not connect.\n Verify Network.';
                 } else if (jqXHR.status == 404) {
@@ -157,8 +167,7 @@ function add_item() {
                 alert(msg);
             }
         });
-    }
-    else {
+    } else {
         $.ajax({
             type: 'POST',
             url: 'create/',
@@ -175,7 +184,7 @@ function add_item() {
                 itemBuilder(data, true);
             },
             error: function (jqXHR, exception) {
-                var msg = '';
+                let msg = '';
                 if (jqXHR.status === 0) {
                     msg = 'Not connect.\n Verify Network.';
                 } else if (jqXHR.status == 404) {
@@ -198,6 +207,7 @@ function add_item() {
 }
 
 function selection(item_id) {
+    let edit_remove_button = document.getElementById("edit_remove_button");
     if (!(CHECKED_ITEMS_IDS.includes(item_id)) || SELECTED_ITEM_ID === item_id) {
         let input = find(item_id, "input");
         if (SELECTED_ITEM_ID === item_id) {
@@ -209,9 +219,11 @@ function selection(item_id) {
             }
             SELECTED_ITEM_ID = item_id
             input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
+            edit_remove_button.className = "btn btn-info btn-sm";
+            edit_remove_button.disabled = false;
+            edit_remove_button.innerHTML = 'Edit'
         }
-    }
-    else {
+    } else {
         check_item(item_id);
     }
 }
@@ -220,23 +232,33 @@ function check_item(item_id) {
     if (item_id === SELECTED_ITEM_ID) {
         selection(item_id)
     }
+    let add_move_button = document.getElementById("add_move_button");
+    let edit_remove_button = document.getElementById("edit_remove_button");
     if (CHECKED_ITEMS_IDS.includes(item_id)) {
         CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
         find(item_id, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
         find(item_id, "ul").className = null;
         if (CHECKED_ITEMS_IDS.length > 0) {
-            document.getElementById("remove_button").disabled = false;
+            edit_remove_button.className = "btn btn-danger btn-sm";
+            edit_remove_button.disabled = false;
+            edit_remove_button.innerHTML = 'Del'
         }
         else {
-            document.getElementById("create_button").innerHTML = 'Add';
-            document.getElementById("remove_button").disabled = true;
+            add_move_button.innerHTML = 'Add';
+            add_move_button.className = 'btn btn-success btn-sm';
+            edit_remove_button.className = "btn btn-info btn-sm";
+            edit_remove_button.disabled = true;
+            edit_remove_button.innerHTML = 'Edit'
         }
     } else {
         CHECKED_ITEMS_IDS.push(item_id);
         find(item_id, "input").style.border = "1px solid rgba(255, 211, 0, 0.7)";
         find(item_id, "ul").className = "disabled";
-        document.getElementById("create_button").innerHTML = 'Move';
-        document.getElementById("remove_button").disabled = false;
+        add_move_button.innerHTML = 'Move';
+        add_move_button.className = 'btn btn-warning btn-sm';
+        edit_remove_button.className = "btn btn-danger btn-sm";
+        edit_remove_button.disabled = false;
+        edit_remove_button.innerHTML = 'Del'
     }
 }
 
@@ -259,6 +281,7 @@ function itemBuilder(item, focus=false) {
         "wrap": "off",
         "oninput": "nameChanged(this)",
         "onclick": "selection(this.parentNode.id)",
+        "readonly": true
     });
     input.style.color = "rgba(255,255,255,0.8)";
     if (item['name']) {
@@ -296,8 +319,6 @@ function itemBuilder(item, focus=false) {
         const parent_input = find(item['parent'], "input");
         parent_input.style.color = "rgba(190,130,70,0.9)";
         parent_input.style.marginLeft = '15px';
-        parent_input.style.fontWeight = "bold";
-        parent_input.style.fontSize = "20px";
 
         const parent_ul = find(item['parent'], "ul");
         parent_ul.appendChild(root);
@@ -324,8 +345,15 @@ function refresh() {
             for (let i = 0; i < data.length; i++) {
                 itemBuilder(data[i]);
             }
-            document.getElementById("create_button").innerHTML = 'Add';
-            document.getElementById("remove_button").disabled  = true;
+            let add_move_button = document.getElementById("add_move_button")
+            add_move_button.className = 'btn btn-success btn-sm';
+            add_move_button.innerHTML = 'Add';
+
+            let edit_remove_button = document.getElementById("edit_remove_button")
+            edit_remove_button.className = "btn btn-info btn-sm";
+            edit_remove_button.disabled  = true;
+            edit_remove_button.innerHTML = "Edit"
+
             CHECKED_ITEMS_IDS = Array();
             SELECTED_ITEM_ID = false;
         },
