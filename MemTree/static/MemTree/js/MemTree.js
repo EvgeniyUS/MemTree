@@ -58,12 +58,13 @@ function edit_remove_item() {
 
             ],
         });
-    }
-    if (SELECTED_ITEM_ID) {
-        const input = find(SELECTED_ITEM_ID, "input");
-        if (input) {
-            input.readOnly = false;
-            input.focus();
+    } else {
+        if (SELECTED_ITEM_ID) {
+            const input = find(SELECTED_ITEM_ID, "input");
+            if (input) {
+                input.readOnly = false;
+                input.focus();
+            }
         }
     }
 }
@@ -219,9 +220,7 @@ function selection(item_id) {
             }
             SELECTED_ITEM_ID = item_id
             input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
-            edit_remove_button.className = "btn btn-info btn-sm";
             edit_remove_button.disabled = false;
-            edit_remove_button.innerHTML = 'Edit'
         }
     } else {
         check_item(item_id);
