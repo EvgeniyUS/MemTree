@@ -5,7 +5,7 @@ ul, #root_ul {
 }
 
 li {
-    display: table;
+    white-space: nowrap;
 }
 
 #root_ul {
@@ -19,11 +19,11 @@ li {
     font-weight: bold;
     cursor: pointer;
     user-select: none;
+    margin-right: 5px;
 }
 
 .caret::before {
     content: ">";
-    display: inline-block;
 }
 
 .text {
@@ -37,7 +37,6 @@ li {
     padding-left: 10px;
     background: transparent;
     vertical-align: middle;
-    display: table-cell;
     margin: 5px;
 }
 

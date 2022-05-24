@@ -7,6 +7,7 @@
     {% load static %}
     <script type="text/javascript" src="{% static 'MySite/js/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'MySite/js/jquery-ui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'MySite/js/bootstrap.bundle.min.js' %}"></script>
     <link rel='stylesheet' href="{% static 'MySite/css/jquery-ui.min.css' %}" type='text/css'>
     <link rel='stylesheet' href="{% static 'MySite/css/bootstrap.min.css' %}" type='text/css'>
     <link rel='stylesheet' href="{% static 'MySite/css/MySite.css' %}" type='text/css'>
@@ -25,15 +26,25 @@
 <body>
 
     <div class="header">
-        <div class="buttons">
+        <div class="buttons btn-group">
             {% if user.username %}
-                <nobr>{{ user.username }}</nobr>
-                <a href='logout' class='btn btn-outline-warning btn-sm'>Log Out</a>
-                {% if not user.is_staff %}
-                    <a href='delete-account' class='btn btn-outline-danger btn-sm'>Delete Account</a>
-                {% else %}
-                    <a href='admin' class='btn btn-outline-info btn-sm'>A</a>
-                {% endif %}
+                <button class="btn btn-outline-light dropdown-toggle"
+                        type="button"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                >{{ user.username }}</button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    {% if user.is_staff %}
+                        <a href='admin/' class="dropdown-item">Admin</a>
+                        <div class="dropdown-divider"></div>
+                    {% endif %}
+                    <a class="dropdown-item" href="logout/">Log Out</a>
+                    {% if not user.is_staff %}
+                        <div class="dropdown-divider"></div>
+                        <a href='delete-account/' class="dropdown-item" style="color: red">Delete Account</a>
+                    {% endif %}
+                </div>
             {% endif %}
         </div>
     </div>

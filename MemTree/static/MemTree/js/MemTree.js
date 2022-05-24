@@ -30,9 +30,16 @@ function edit_remove_item() {
             modal: true,
             buttons: [
                 {
+                    text: "No",
+                    class: "btn btn-success btn-sm",
+                    style: "margin-right:30px",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                {
                     text: "Yes",
                     class: "btn btn-danger btn-sm",
-                    style: "margin-right:30px",
                     click: function () {
                         $.ajax({
                             type: 'POST',
@@ -48,14 +55,6 @@ function edit_remove_item() {
                         $(this).dialog("close");
                     }
                 },
-                {
-                    text: "No",
-                    class: "btn btn-success btn-sm",
-                    click: function () {
-                        $(this).dialog("close");
-                    }
-                },
-
             ],
         });
     } else {
@@ -93,27 +92,30 @@ function textChanged(text) {
 function inputWidthChanger(text) {
     if ($(text).val()) {
         const value_rows = $(text).val().split('\n');
-
         $(text).attr('rows', value_rows.length);
-
         let lgth = 1;
         let longest;
-
-        for(let i=0; i < value_rows.length; i++){
-            if(value_rows[i].length > lgth){
+        for (let i=0; i < value_rows.length; i++) {
+            if (value_rows[i].length > lgth) {
                 lgth = value_rows[i].length;
                 longest = value_rows[i];
             }
         }
-
         $(text).attr('cols', lgth);
-
     } else {
         $(text).attr('cols', 1);
     }
 }
 
 function collapseChanged(caret) {
+    if (caret.collapsed) {
+        caret.style.transform = 'rotate(0deg)';
+        find(get_id(caret), "ul").style.display = "none";
+    }
+    else {
+        caret.style.transform = 'rotate(90deg)';
+        find(get_id(caret), "ul").style.display = "block";
+    }
     $.ajax({
         type: 'POST',
         url: 'collapse/',
@@ -122,16 +124,6 @@ function collapseChanged(caret) {
             'id': caret.parentNode.id,
             'collapsed': caret.collapsed
         },
-        success: function () {
-            if (caret.collapsed) {
-                caret.style.transform = 'rotate(0deg)';
-                find(get_id(caret), "ul").style.display = "none";
-            }
-            else {
-                caret.style.transform = 'rotate(90deg)';
-                find(get_id(caret), "ul").style.display = "block";
-            }
-        }
     });
 }
 
@@ -152,9 +144,9 @@ function add_move_item() {
                 let msg = '';
                 if (jqXHR.status === 0) {
                     msg = 'Not connect.\n Verify Network.';
-                } else if (jqXHR.status == 404) {
+                } else if (jqXHR.status === 404) {
                     msg = 'Requested page not found. [404]';
-                } else if (jqXHR.status == 500) {
+                } else if (jqXHR.status === 500) {
                     msg = 'Internal Server Error [500].';
                 } else if (exception === 'parsererror') {
                     msg = 'Requested JSON parse failed.';
@@ -188,9 +180,9 @@ function add_move_item() {
                 let msg = '';
                 if (jqXHR.status === 0) {
                     msg = 'Not connect.\n Verify Network.';
-                } else if (jqXHR.status == 404) {
+                } else if (jqXHR.status === 404) {
                     msg = 'Requested page not found. [404]';
-                } else if (jqXHR.status == 500) {
+                } else if (jqXHR.status === 500) {
                     msg = 'Internal Server Error [500].';
                 } else if (exception === 'parsererror') {
                     msg = 'Requested JSON parse failed.';
@@ -246,8 +238,8 @@ function check_item(item_id) {
             add_move_button.innerHTML = 'Add';
             add_move_button.className = 'btn btn-success btn-sm';
             edit_remove_button.className = "btn btn-info btn-sm";
-            edit_remove_button.disabled = true;
-            edit_remove_button.innerHTML = 'Edit'
+            edit_remove_button.innerHTML = 'Edit';
+            edit_remove_button.disabled = !SELECTED_ITEM_ID;
         }
     } else {
         CHECKED_ITEMS_IDS.push(item_id);
