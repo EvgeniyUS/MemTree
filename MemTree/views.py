@@ -49,7 +49,7 @@ def create(request):
         new_item = Item.objects.create(parent=parent, user=request.user)
         return JsonResponse(data={'id': new_item.id,
                                   'collapsed': new_item.collapsed,
-                                  'name': new_item.name,
+                                  'text': new_item.text,
                                   'parent': parent.id if parent else None},
                             status=201,
                             content_type="application/json")
@@ -65,7 +65,7 @@ def collapse(request):
         values = request.POST.dict()
         item = request.user.items.get(id=values['id'])
         item.collapsed = True if values['collapsed'] == 'true' else False
-        item.save()
+        item.save(update_fields=['collapsed'])
         return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:
@@ -75,12 +75,12 @@ def collapse(request):
 
 @require_POST
 @login_required
-def change_name(request):
+def change_text(request):
     try:
         values = request.POST.dict()
         item = request.user.items.get(id=values['id'])
-        item.name = values['name']
-        item.save()
+        item.text = values['text']
+        item.save(update_fields=['text'])
         return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:
@@ -98,7 +98,7 @@ def move(request):
                 item.parent = request.user.items.get(id=values['parent'])
             else:
                 item.parent = None
-            item.save()
+            item.save(update_fields=['parent'])
         return JsonResponse(data={'result': 'OK'}, status=202,
                             content_type="application/json")
     except Exception as e:

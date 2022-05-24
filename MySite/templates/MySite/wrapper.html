@@ -25,13 +25,12 @@
 <body>
 
     <div class="header">
-        <div style="padding-top: 10px;">
-            {% if user.username %}
-                <nobr>{{ user.username }}</nobr>
-                <a href='logout' class='btn btn-outline-warning btn-sm'>Log Out</a>
-                {% if not user.is_staff %}
-                    <a href='delete-account' class='btn btn-outline-danger btn-sm'>Delete Account</a>
-                {% endif %}
+        <div class="buttons">
+            <nobr>{{ user.username }}</nobr>
+            <a href='logout' class='btn btn-outline-warning btn-sm'>Log Out</a>
+            {% if not user.is_staff %}
+                &nbsp;
+                <a href='delete-account' class='btn btn-outline-danger btn-sm'>Delete Account</a>
             {% endif %}
         </div>
     </div>
@@ -42,7 +41,7 @@
     </div>
 
     <div class="footer">
-        <div class="root_buttons" id="root_buttons">
+        <div class="buttons">
             {% block footer_content %}
             {% endblock %}
         </div>

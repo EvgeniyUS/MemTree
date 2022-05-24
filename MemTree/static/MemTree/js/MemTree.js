@@ -13,8 +13,8 @@ $.ajaxSetup({
     }
 });
 
-function spanToggler(span) {
-    span.addEventListener("click", function() {
+function caretToggler(caret) {
+    caret.addEventListener("click", function() {
         this.collapsed = !this.collapsed;
         collapseChanged(this);
     });
@@ -60,10 +60,10 @@ function edit_remove_item() {
         });
     } else {
         if (SELECTED_ITEM_ID) {
-            const input = find(SELECTED_ITEM_ID, "input");
-            if (input) {
-                input.readOnly = false;
-                input.focus();
+            const text = find(SELECTED_ITEM_ID, "text");
+            if (text) {
+                text.readOnly = false;
+                text.focus();
             }
         }
     }
@@ -75,26 +75,26 @@ function setAttributes(element, attrs) {
     }
 }
 
-function nameChanged(inputNode) {
+function textChanged(text) {
     $.ajax({
         type: 'POST',
-        url: 'change-name/',
+        url: 'change-text/',
         dataType: 'json',
         data: {
-            'id': inputNode.parentNode.id,
-            'name': inputNode.value
+            'id': text.parentNode.id,
+            'text': text.value
         },
         success: function (data) {
-            inputWidthChanger(inputNode);
+            inputWidthChanger(text);
         },
     });
 }
 
-function inputWidthChanger(inp) {
-    if ($(inp).val()) {
-        const value_rows = $(inp).val().split('\n');
+function inputWidthChanger(text) {
+    if ($(text).val()) {
+        const value_rows = $(text).val().split('\n');
 
-        $(inp).attr('rows', value_rows.length);
+        $(text).attr('rows', value_rows.length);
 
         let lgth = 1;
         let longest;
@@ -106,30 +106,30 @@ function inputWidthChanger(inp) {
             }
         }
 
-        $(inp).attr('cols', lgth);
+        $(text).attr('cols', lgth);
 
     } else {
-        $(inp).attr('cols', 1);
+        $(text).attr('cols', 1);
     }
 }
 
-function collapseChanged(span) {
+function collapseChanged(caret) {
     $.ajax({
         type: 'POST',
         url: 'collapse/',
         dataType: 'json',
         data: {
-            'id': span.parentNode.id,
-            'collapsed': span.collapsed
+            'id': caret.parentNode.id,
+            'collapsed': caret.collapsed
         },
         success: function () {
-            if (span.collapsed) {
-                span.style.transform = 'rotate(0deg)';
-                find(get_id(span), "ul").style.display = "none";
+            if (caret.collapsed) {
+                caret.style.transform = 'rotate(0deg)';
+                find(get_id(caret), "ul").style.display = "none";
             }
             else {
-                span.style.transform = 'rotate(90deg)';
-                find(get_id(span), "ul").style.display = "block";
+                caret.style.transform = 'rotate(90deg)';
+                find(get_id(caret), "ul").style.display = "block";
             }
         }
     });
@@ -177,10 +177,10 @@ function add_move_item() {
                 'parent': SELECTED_ITEM_ID
             },
             success: function (data) {
-                const span = find(SELECTED_ITEM_ID, "span");
-                if (span) {
-                    span.collapsed = false;
-                    collapseChanged(span);
+                const caret = find(SELECTED_ITEM_ID, "caret");
+                if (caret) {
+                    caret.collapsed = false;
+                    collapseChanged(caret);
                 }
                 itemBuilder(data, true);
             },
@@ -210,16 +210,16 @@ function add_move_item() {
 function selection(item_id) {
     let edit_remove_button = document.getElementById("edit_remove_button");
     if (!(CHECKED_ITEMS_IDS.includes(item_id)) || SELECTED_ITEM_ID === item_id) {
-        let input = find(item_id, "input");
+        let text = find(item_id, "text");
         if (SELECTED_ITEM_ID === item_id) {
             SELECTED_ITEM_ID = false;
             check_item(item_id);
         } else {
             if (SELECTED_ITEM_ID) {
-                find(SELECTED_ITEM_ID, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
+                find(SELECTED_ITEM_ID, "text").style.border = "1px solid rgba(0, 0, 0, 0.8)";
             }
             SELECTED_ITEM_ID = item_id
-            input.style.border = "1px solid rgba(155, 255, 155, 0.5)";
+            text.style.border = "1px solid rgba(155, 255, 155, 0.5)";
             edit_remove_button.disabled = false;
         }
     } else {
@@ -235,7 +235,7 @@ function check_item(item_id) {
     let edit_remove_button = document.getElementById("edit_remove_button");
     if (CHECKED_ITEMS_IDS.includes(item_id)) {
         CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
-        find(item_id, "input").style.border = "1px solid rgba(0, 0, 0, 0.8)";
+        find(item_id, "text").style.border = "1px solid rgba(0, 0, 0, 0.8)";
         find(item_id, "ul").className = null;
         if (CHECKED_ITEMS_IDS.length > 0) {
             edit_remove_button.className = "btn btn-danger btn-sm";
@@ -251,7 +251,7 @@ function check_item(item_id) {
         }
     } else {
         CHECKED_ITEMS_IDS.push(item_id);
-        find(item_id, "input").style.border = "1px solid rgba(255, 211, 0, 0.7)";
+        find(item_id, "text").style.border = "1px solid rgba(255, 211, 0, 0.7)";
         find(item_id, "ul").className = "disabled";
         add_move_button.innerHTML = 'Move';
         add_move_button.className = 'btn btn-warning btn-sm';
@@ -262,41 +262,38 @@ function check_item(item_id) {
 }
 
 function itemBuilder(item, focus=false) {
-    const root = document.createElement('li');
-    root.parent = item['parent'];
-    root.setAttribute('id', item['id']);
+    const li = document.createElement('li');
+    li.parent = item['parent'];
+    li.setAttribute('id', item['id']);
 
-    const span = document.createElement('span');
-    span.setAttribute('id', `${item['id']}_span`);
-    span.className = 'caret';
-    span.collapsed = item['collapsed'];
-    span.style.display = "none";
-    spanToggler(span);
+    const caret = document.createElement('span');
+    caret.setAttribute('id', `${item['id']}_caret`);
+    caret.className = 'caret';
+    caret.collapsed = item['collapsed'];
+    caret.style.display = "none";
+    caretToggler(caret);
 
-    const input = document.createElement('textarea');
-    setAttributes(input, {
-        "id": `${item['id']}_input`,
+    const text = document.createElement('textarea');
+    setAttributes(text, {
+        "id": `${item['id']}_text`,
+        "class": "text",
         "rows": 1,
         "wrap": "off",
-        "oninput": "nameChanged(this)",
+        "oninput": "textChanged(this)",
         "onclick": "selection(this.parentNode.id)",
         "readonly": true
     });
-    input.style.color = "rgba(255,255,255,0.8)";
-    if (item['name']) {
-        input.value = item['name'];
-    }
-    inputWidthChanger(input);
+    text.value = item['text'];
+    inputWidthChanger(text);
 
     const ul = document.createElement('ul');
     ul.setAttribute("id", `${item['id']}_ul`);
 
-    if (span.collapsed) {
-        span.style.transform = 'rotate(0deg)';
+    if (caret.collapsed) {
+        caret.style.transform = 'rotate(0deg)';
         ul.style.display = "none";
-    }
-    else {
-        span.style.transform = 'rotate(90deg)';
+    } else {
+        caret.style.transform = 'rotate(90deg)';
         ul.style.display = "block";
     }
 
@@ -306,32 +303,30 @@ function itemBuilder(item, focus=false) {
         "class": "counter",
     });
 
-    root.appendChild(span);
-    root.appendChild(input);
-    root.appendChild(counter);
-    root.appendChild(ul);
+    li.appendChild(caret);
+    li.appendChild(text);
+    li.appendChild(counter);
+    li.appendChild(ul);
 
     if (item['parent']) {
 
-        find(item['parent'], "span").style.display = 'inline-block';
+        find(item['parent'], "caret").style.display = 'inline-block';
 
-        const parent_input = find(item['parent'], "input");
+        const parent_input = find(item['parent'], "text");
         parent_input.style.color = "rgba(190,130,70,0.9)";
-        parent_input.style.marginLeft = '15px';
 
         const parent_ul = find(item['parent'], "ul");
-        parent_ul.appendChild(root);
+        parent_ul.appendChild(li);
 
-        find(item['parent'], "counter").innerHTML = ` ${parent_ul.childNodes.length}`;
+        find(item['parent'], "counter").innerHTML = `${parent_ul.childNodes.length}`;
     }
     else {
-        const meta_root = document.getElementById("myUL");
-        meta_root.appendChild(root);
+        const root_ul = document.getElementById("root_ul");
+        root_ul.appendChild(li);
     }
-
     if (focus) {
-        input.readOnly = false;
-        input.focus();
+        text.readOnly = false;
+        text.focus();
     }
 }
 
@@ -340,7 +335,7 @@ function refresh() {
         type: 'GET',
         url: 'items/',
         success: function(data) {
-            document.getElementById("myUL").innerHTML = "";
+            document.getElementById("root_ul").innerHTML = "";
             for (let i = 0; i < data.length; i++) {
                 itemBuilder(data[i]);
             }

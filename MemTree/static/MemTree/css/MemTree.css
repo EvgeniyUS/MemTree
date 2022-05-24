@@ -1,50 +1,24 @@
-ul, #myUL {
+ul, #root_ul {
     display: grid;
     list-style: none;
     overflow: auto;
 }
 
 li {
-    position: relative;
-    white-space: nowrap;
+    display: table;
 }
 
-li::before, li::after {
-    content: "";
-    position: absolute;
-}
-
-li::before {
-    border-top: 1px solid #040505;
-    top: 16px;
-    width: 10px;
-    left: -15px;
-}
-
-li::after {
-    border-left: 1px solid #040505;
-    height: 100%;
-    top: 1px;
-    left: -15px;
-}
-
-ul > li:last-child::after {
-    height: 15px;
-}
-
-#myUL {
+#root_ul {
     margin: 0;
     padding: 0;
 }
 
 .caret {
     color: #040505;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
     user-select: none;
-    position: absolute;
-    top: 3px;
 }
 
 .caret::before {
@@ -52,32 +26,25 @@ ul > li:last-child::after {
     display: inline-block;
 }
 
-textarea {
+.text {
     outline: none !important;
     overflow: visible;
     resize: none;
-    font-size: 16px;
-    text-align: left;
+    color: rgba(255,255,255,0.8);
     border: 1px solid rgba(0, 0, 0, 0.8);
     border-radius: 4px;
     padding-top: 5px;
     padding-left: 10px;
     background: transparent;
-    /*transition: 0.5s ease;*/
+    vertical-align: middle;
+    display: table-cell;
+    margin: 5px;
 }
 
 .counter {
     font-weight: bold;
     user-select: none;
-    position: absolute;
-    margin-top: 15px;
-    margin-left: 3px;
-    padding-right: 2px;
     color: dimgray;
-}
-
-.content {
-    margin-bottom: 56px;
 }
 
 .disabled {

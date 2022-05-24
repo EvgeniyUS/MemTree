@@ -4,7 +4,7 @@ from django.contrib import admin
 from MemTree.models import Item
 
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'parent', 'collapsed', 'user')
+    list_display = ('id', 'parent', 'collapsed', 'user')
 
 
 admin.site.register(Item, ItemAdmin)

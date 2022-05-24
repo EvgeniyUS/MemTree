@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('collapsed', models.BooleanField(default=True)),
-                ('name', models.CharField(blank=True, max_length=100, null=True)),
+                ('text', models.CharField(blank=True, max_length=999, null=True)),
                 ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='MemTree.Item')),
             ],
         ),

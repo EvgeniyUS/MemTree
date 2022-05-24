@@ -8,7 +8,6 @@ body {
     position: fixed;
     top: 0;
     text-align: center;
-    height: 52px;
     width: 100%;
     background: rgba(0, 0, 0, 0.3);
     z-index: 10;
@@ -16,7 +15,8 @@ body {
 
 .content {
     margin-top: 60px;
-    margin-bottom: 10px;
+    margin-bottom: 60px;
+    margin-left: 10px;
 }
 
 .footer {
@@ -27,11 +27,7 @@ body {
     z-index: 10;
 }
 
-.root_buttons {
-    margin: 11px;
+.buttons {
+    margin: 10px;
     text-align: center;
-}
-
-a {
-    margin: 0 10px
 }

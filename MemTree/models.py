@@ -6,9 +6,9 @@ from django.contrib.auth.models import User
 
 
 class Item(models.Model):
-    collapsed = models.BooleanField(default=True)
-    name = models.CharField(max_length=100, null=True, blank=True)
+    text = models.CharField(max_length=999, null=True, blank=True)
     parent = models.ForeignKey('Item', on_delete=models.CASCADE, null=True, blank=True)
+    collapsed = models.BooleanField(default=True)
     user = models.ForeignKey(User, default=1, on_delete=models.CASCADE, related_name='items')
 
     def __str__(self):
@@ -18,7 +18,8 @@ class Item(models.Model):
     def sorted_items(items):
         sorted_items = list()
         def rec(_items):
-            sorted_items.extend(_items.values('id', 'collapsed', 'name', 'parent').order_by('name'))
+            sorted_items.extend(_items.values(
+                'id', 'collapsed', 'text', 'parent').order_by('text'))
             _children = items.filter(parent__in=_items)
             if _children:
                 rec(_children)

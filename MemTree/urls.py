@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^delete-account/', views.delete_account, name='delete_account'),
     url(r'^create/', views.create, name='create'),
     url(r'^collapse/', views.collapse, name='collapse'),
-    url(r'^change-name/', views.change_name, name='change_name'),
+    url(r'^change-text/', views.change_text, name='change_text'),
     url(r'^move/', views.move, name='move'),
     url(r'^delete/', views.delete, name='delete'),
 ]
