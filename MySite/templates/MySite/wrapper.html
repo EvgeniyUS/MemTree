@@ -26,11 +26,14 @@
 
     <div class="header">
         <div class="buttons">
-            <nobr>{{ user.username }}</nobr>
-            <a href='logout' class='btn btn-outline-warning btn-sm'>Log Out</a>
-            {% if not user.is_staff %}
-                &nbsp;
-                <a href='delete-account' class='btn btn-outline-danger btn-sm'>Delete Account</a>
+            {% if user.username %}
+                <nobr>{{ user.username }}</nobr>
+                <a href='logout' class='btn btn-outline-warning btn-sm'>Log Out</a>
+                {% if not user.is_staff %}
+                    <a href='delete-account' class='btn btn-outline-danger btn-sm'>Delete Account</a>
+                {% else %}
+                    <a href='admin' class='btn btn-outline-info btn-sm'>A</a>
+                {% endif %}
             {% endif %}
         </div>
     </div>
