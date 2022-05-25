@@ -19,7 +19,17 @@ from MemTree.models import Item
 @login_required
 def index(request):
     try:
-        return render(request, 'MemTree/MemTree.html')
+        return render(request, 'MemTree/index.html')
+    except Exception as e:
+        return JsonResponse(data={'error': str(e)}, status=500,
+                            content_type="application/json")
+
+
+@require_GET
+@login_required
+def user_help(request):
+    try:
+        return render(request, 'MemTree/user_help.html')
     except Exception as e:
         return JsonResponse(data={'error': str(e)}, status=500,
                             content_type="application/json")

@@ -1,6 +1,9 @@
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = false;
 
+const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
+$.fn.bootstrapBtn = bootstrapButton               // give $().bootstrapBtn the Bootstrap functionality
+
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }

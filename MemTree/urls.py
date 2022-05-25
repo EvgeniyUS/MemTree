@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'^change-text/', views.change_text, name='change_text'),
     url(r'^move/', views.move, name='move'),
     url(r'^delete/', views.delete, name='delete'),
+    url(r'^user-help/', views.user_help, name='user_help'),
 ]

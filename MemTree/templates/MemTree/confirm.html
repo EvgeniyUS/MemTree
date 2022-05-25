@@ -7,7 +7,8 @@
             {% csrf_token %}
             <p>Are you sure you want to {{ action }}?</p>
             <input type="submit" class='btn btn-warning btn-sm' value="Yes"/>
-            <a href="/" class='btn btn-success btn-sm'>Cancel</a>
+            &nbsp;
+            <a href="{% url 'index' %}" class='btn btn-success btn-sm'>Cancel</a>
         </form>
     </div>
 
