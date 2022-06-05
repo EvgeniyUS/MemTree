@@ -361,22 +361,26 @@ function search_mark(item) {
 }
 
 function search() {
-    let value = document.getElementById('search_input').value;
+    let search_input = document.getElementById('search_input');
+    search_input.classList.remove('disabled');
     let elements = document.getElementsByClassName('text');
-    // let search_counter = document.getElementById('search_counter');
-    // search_counter.innerHTML = ''
+    let search_counter = document.getElementById('search_counter');
+    search_counter.innerHTML = '0'
     for (let i = 0; i < elements.length; ++i) {
         const item = elements[i];
-        if ((value) && (item.value.toLowerCase().includes(value.toLowerCase()))) {
-            // search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`
-            // let idx = item.value.indexOf(value);
+        if ((search_input.value) && (item.value.toLowerCase().includes(search_input.value.toLowerCase()))) {
+            search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`
+            // let idx = item.value.indexOf(search_input.value);
             // if (idx >= 0) {
-            //     item.setSelectionRange(idx, idx + value.length);
+            //     item.setSelectionRange(idx, idx + search_input.value.length);
             // }
             search_mark(item)
         } else {
             item.style.background = 'transparent';
         }
+    }
+    if (!(search_input.value)) {
+        search_counter.innerHTML = '';
     }
 }
 

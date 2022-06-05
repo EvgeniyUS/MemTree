@@ -26,30 +26,34 @@
 <body>
 
     <div class="header">
-        <div class="buttons btn-group">
-            {% if user.username %}
-                {% block header %}
-                {% endblock %}
-                <button class="btn btn-outline-light dropdown-toggle"
-                        type="button"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                >{{ user.username }}</button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <a href="{% url 'index' %}" class="dropdown-item">Home</a>
-                    <a href="{% url 'user_help' %}" class="dropdown-item">Help</a>
-                    {% if user.is_staff %}
-                        <a href="{% url 'admin:index' %}" class="dropdown-item">Admin</a>
-                        <div class="dropdown-divider"></div>
-                    {% endif %}
-                    <a class="dropdown-item" href="{% url 'logout' %}">Log Out</a>
-                    {% if not user.is_staff %}
-                        <div class="dropdown-divider"></div>
-                        <a href="{% url 'delete_account' %}" class="dropdown-item" style="color: red">Delete Account</a>
-                    {% endif %}
-                </div>
-            {% endif %}
+        <div class="buttons">
+            <div class="input-group">
+                {% if user.username %}
+                    <input id="search_input" class="form-control disabled" aria-label="Text input with dropdown button" placeholder="Search" type="search" oninput="search()"/>
+                    <label for="search_input" id="search_counter"></label>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-light dropdown-toggle"
+                                type="button"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                        >{{ user.username }}</button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a href="{% url 'index' %}" class="dropdown-item">Home</a>
+                            <a href="{% url 'user_help' %}" class="dropdown-item">Help</a>
+                            {% if user.is_staff %}
+                                <a href="{% url 'admin:index' %}" class="dropdown-item">Admin</a>
+                                <div class="dropdown-divider"></div>
+                            {% endif %}
+                            <a class="dropdown-item" href="{% url 'logout' %}">Log Out</a>
+                            {% if not user.is_staff %}
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'delete_account' %}" class="dropdown-item" style="color: red">Delete Account</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
