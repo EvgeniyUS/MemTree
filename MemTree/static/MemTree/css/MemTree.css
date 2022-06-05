@@ -40,6 +40,15 @@ li {
     margin: 5px;
 }
 
+/*#search_counter {*/
+/*    color: rgba(155, 255, 155, 0.4);*/
+/*}*/
+
+#search_input {
+    color: rgba(255,255,255,0.8);
+    background: transparent;
+}
+
 .counter {
     font-weight: bold;
     user-select: none;

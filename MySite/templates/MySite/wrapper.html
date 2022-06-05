@@ -28,6 +28,8 @@
     <div class="header">
         <div class="buttons btn-group">
             {% if user.username %}
+                {% block header %}
+                {% endblock %}
                 <button class="btn btn-outline-light dropdown-toggle"
                         type="button"
                         data-toggle="dropdown"

@@ -345,11 +345,39 @@ function refresh() {
 
             CHECKED_ITEMS_IDS = Array();
             SELECTED_ITEM_ID = false;
+            search();
         },
         error: function() {
             alert('Got an error');
         }
     });
+}
+
+function search_mark(item) {
+    item.style.background = 'rgba(155, 255, 155, 0.1)';
+    if (item.parentNode.parent) {
+        search_mark(find(item.parentNode.parent, 'text'));
+    }
+}
+
+function search() {
+    let value = document.getElementById('search_input').value;
+    let elements = document.getElementsByClassName('text');
+    // let search_counter = document.getElementById('search_counter');
+    // search_counter.innerHTML = ''
+    for (let i = 0; i < elements.length; ++i) {
+        const item = elements[i];
+        if ((value) && (item.value.toLowerCase().includes(value.toLowerCase()))) {
+            // search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`
+            // let idx = item.value.indexOf(value);
+            // if (idx >= 0) {
+            //     item.setSelectionRange(idx, idx + value.length);
+            // }
+            search_mark(item)
+        } else {
+            item.style.background = 'transparent';
+        }
+    }
 }
 
 function get_id(item) {
