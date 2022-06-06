@@ -1,2 +1,3 @@
-# MySite
-Python 2.7, Django, JavaScript, HTML, JQuery, CSS, Bootstrap, SQLite
+# MemTree
+
+A simple application for text notes.
