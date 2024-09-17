@@ -1,15 +1,20 @@
+/* jshint esversion: 6 */
+/*globals $:false */
+/*globals csrftoken:false */
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = false;
 
 const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
-$.fn.bootstrapBtn = bootstrapButton               // give $().bootstrapBtn the Bootstrap functionality
+$.fn.bootstrapBtn = bootstrapButton;              // give $().bootstrapBtn the Bootstrap functionality
 
 function csrfSafeMethod(method) {
+    "use strict";
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
 $.ajaxSetup({
     beforeSend: function(xhr, settings) {
+        "use strict";
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         }
@@ -17,6 +22,7 @@ $.ajaxSetup({
 });
 
 function caretToggler(caret) {
+    "use strict";
     caret.addEventListener("click", function() {
         this.collapsed = !this.collapsed;
         collapseChanged(this);
@@ -24,6 +30,7 @@ function caretToggler(caret) {
 }
 
 function edit_remove_item() {
+    "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         $("#remove_item_confirm").dialog({
             draggable: false,
@@ -51,7 +58,7 @@ function edit_remove_item() {
                             data: {
                                 ids: JSON.stringify(CHECKED_ITEMS_IDS),
                             },
-                            success: function (data) {
+                            success: function () {
                                 refresh();
                             }
                         });
@@ -72,12 +79,16 @@ function edit_remove_item() {
 }
 
 function setAttributes(element, attrs) {
+    "use strict";
     for (const key in attrs) {
-        element.setAttribute(key, attrs[key]);
+        if (attrs.hasOwnProperty(key)) {
+            element.setAttribute(key, attrs[key]);
+        }
     }
 }
 
 function textChanged(text) {
+    "use strict";
     $.ajax({
         type: 'POST',
         url: 'change-text/',
@@ -86,31 +97,33 @@ function textChanged(text) {
             'id': text.parentNode.id,
             'text': text.value
         },
-        success: function (data) {
+        success: function () {
             inputWidthChanger(text);
         },
     });
 }
 
 function inputWidthChanger(text) {
+    "use strict";
     if ($(text).val()) {
         const value_rows = $(text).val().split('\n');
         $(text).attr('rows', value_rows.length);
-        let lgth = 1;
+        let len = 1;
         let longest;
         for (let i=0; i < value_rows.length; i++) {
-            if (value_rows[i].length > lgth) {
-                lgth = value_rows[i].length;
+            if (value_rows[i].length > len) {
+                len = value_rows[i].length;
                 longest = value_rows[i];
             }
         }
-        $(text).attr('cols', lgth);
+        $(text).attr('cols', len);
     } else {
         $(text).attr('cols', 1);
     }
 }
 
 function collapseChanged(caret) {
+    "use strict";
     if (caret.collapsed) {
         caret.style.transform = 'rotate(0deg)';
         find(get_id(caret), "ul").style.display = "none";
@@ -131,6 +144,7 @@ function collapseChanged(caret) {
 }
 
 function add_move_item() {
+    "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         $.ajax({
             type: 'POST',
@@ -140,11 +154,11 @@ function add_move_item() {
                 ids: JSON.stringify(CHECKED_ITEMS_IDS),
                 parent: SELECTED_ITEM_ID
             },
-            success: function (data) {
+            success: function () {
                 refresh();
             },
             error: function (jqXHR, exception) {
-                let msg = '';
+                let msg;
                 if (jqXHR.status === 0) {
                     msg = 'Not connect.\n Verify Network.';
                 } else if (jqXHR.status === 404) {
@@ -160,7 +174,7 @@ function add_move_item() {
                 } else {
                     msg = 'Uncaught Error.\n' + jqXHR.responseText;
                 }
-                alert(msg);
+                window.alert(msg);
             }
         });
     } else {
@@ -180,7 +194,7 @@ function add_move_item() {
                 itemBuilder(data, true);
             },
             error: function (jqXHR, exception) {
-                let msg = '';
+                let msg;
                 if (jqXHR.status === 0) {
                     msg = 'Not connect.\n Verify Network.';
                 } else if (jqXHR.status === 404) {
@@ -196,13 +210,14 @@ function add_move_item() {
                 } else {
                     msg = 'Uncaught Error.\n' + jqXHR.responseText;
                 }
-                alert(msg);
+                window.alert(msg);
             },
         });
     }
 }
 
 function selection(item_id) {
+    "use strict";
     let edit_remove_button = document.getElementById("edit_remove_button");
     if (!(CHECKED_ITEMS_IDS.includes(item_id)) || SELECTED_ITEM_ID === item_id) {
         let text = find(item_id, "text");
@@ -213,7 +228,7 @@ function selection(item_id) {
             if (SELECTED_ITEM_ID) {
                 find(SELECTED_ITEM_ID, "text").style.border = "1px solid rgba(0, 0, 0, 0.8)";
             }
-            SELECTED_ITEM_ID = item_id
+            SELECTED_ITEM_ID = item_id;
             text.style.border = "1px solid rgba(155, 255, 155, 0.5)";
             edit_remove_button.disabled = false;
         }
@@ -223,8 +238,9 @@ function selection(item_id) {
 }
 
 function check_item(item_id) {
+    "use strict";
     if (item_id === SELECTED_ITEM_ID) {
-        selection(item_id)
+        selection(item_id);
     }
     let add_move_button = document.getElementById("add_move_button");
     let edit_remove_button = document.getElementById("edit_remove_button");
@@ -235,7 +251,7 @@ function check_item(item_id) {
         if (CHECKED_ITEMS_IDS.length > 0) {
             edit_remove_button.className = "btn btn-danger btn-sm";
             edit_remove_button.disabled = false;
-            edit_remove_button.innerHTML = 'Del'
+            edit_remove_button.innerHTML = 'Del';
         }
         else {
             add_move_button.innerHTML = 'Add';
@@ -252,25 +268,26 @@ function check_item(item_id) {
         add_move_button.className = 'btn btn-warning btn-sm';
         edit_remove_button.className = "btn btn-danger btn-sm";
         edit_remove_button.disabled = false;
-        edit_remove_button.innerHTML = 'Del'
+        edit_remove_button.innerHTML = 'Del';
     }
 }
 
-function itemBuilder(item, focus=false) {
+function itemBuilder(item, focus) {
+    "use strict";
     const li = document.createElement('li');
-    li.parent = item['parent'];
-    li.setAttribute('id', item['id']);
+    li.parent = item.parent;
+    li.setAttribute('id', item.id);
 
     const caret = document.createElement('span');
-    caret.setAttribute('id', `${item['id']}_caret`);
+    caret.setAttribute('id', `${item.id}_caret`);
     caret.className = 'caret';
-    caret.collapsed = item['collapsed'];
+    caret.collapsed = item.collapsed;
     caret.style.display = "none";
     caretToggler(caret);
 
     const text = document.createElement('textarea');
     setAttributes(text, {
-        "id": `${item['id']}_text`,
+        "id": `${item.id}_text`,
         "class": "text",
         "rows": 1,
         "wrap": "off",
@@ -278,11 +295,11 @@ function itemBuilder(item, focus=false) {
         "onclick": "selection(this.parentNode.id)",
         "readonly": true
     });
-    text.value = item['text'];
+    text.value = item.text;
     inputWidthChanger(text);
 
     const ul = document.createElement('ul');
-    ul.setAttribute("id", `${item['id']}_ul`);
+    ul.setAttribute("id", `${item.id}_ul`);
 
     if (caret.collapsed) {
         caret.style.transform = 'rotate(0deg)';
@@ -294,7 +311,7 @@ function itemBuilder(item, focus=false) {
 
     const counter = document.createElement('sup');
     setAttributes(counter, {
-        "id": `${item['id']}_counter`,
+        "id": `${item.id}_counter`,
         "class": "counter",
     });
 
@@ -303,17 +320,17 @@ function itemBuilder(item, focus=false) {
     li.appendChild(counter);
     li.appendChild(ul);
 
-    if (item['parent']) {
+    if (item.parent) {
 
-        find(item['parent'], "caret").style.display = 'inline-block';
+        find(item.parent, "caret").style.display = 'inline-block';
 
-        const parent_input = find(item['parent'], "text");
+        const parent_input = find(item.parent, "text");
         parent_input.style.color = "rgba(190,130,70,0.9)";
 
-        const parent_ul = find(item['parent'], "ul");
+        const parent_ul = find(item.parent, "ul");
         parent_ul.appendChild(li);
 
-        find(item['parent'], "counter").innerHTML = `${parent_ul.childNodes.length}`;
+        find(item.parent, "counter").innerHTML = `${parent_ul.childNodes.length}`;
     }
     else {
         const root_ul = document.getElementById("root_ul");
@@ -326,34 +343,36 @@ function itemBuilder(item, focus=false) {
 }
 
 function refresh() {
+    "use strict";
     $.ajax({
         type: 'GET',
         url: 'items/',
         success: function(data) {
             document.getElementById("root_ul").innerHTML = "";
             for (let i = 0; i < data.length; i++) {
-                itemBuilder(data[i]);
+                itemBuilder(data[i], false);
             }
-            let add_move_button = document.getElementById("add_move_button")
+            let add_move_button = document.getElementById("add_move_button");
             add_move_button.className = 'btn btn-success btn-sm';
             add_move_button.innerHTML = 'Add';
 
-            let edit_remove_button = document.getElementById("edit_remove_button")
+            let edit_remove_button = document.getElementById("edit_remove_button");
             edit_remove_button.className = "btn btn-info btn-sm";
             edit_remove_button.disabled  = true;
-            edit_remove_button.innerHTML = "Edit"
+            edit_remove_button.innerHTML = "Edit";
 
             CHECKED_ITEMS_IDS = Array();
             SELECTED_ITEM_ID = false;
             search();
         },
         error: function() {
-            alert('Got an error');
+            window.alert('Got an error');
         }
     });
 }
 
 function search_mark(item) {
+    "use strict";
     item.style.background = 'rgba(155, 255, 155, 0.1)';
     if (item.parentNode.parent) {
         search_mark(find(item.parentNode.parent, 'text'));
@@ -361,20 +380,21 @@ function search_mark(item) {
 }
 
 function search() {
+    "use strict";
     let search_input = document.getElementById('search_input');
     search_input.classList.remove('disabled');
     let elements = document.getElementsByClassName('text');
     let search_counter = document.getElementById('search_counter');
-    search_counter.innerHTML = '0'
+    search_counter.innerHTML = '0';
     for (let i = 0; i < elements.length; ++i) {
         const item = elements[i];
         if ((search_input.value) && (item.value.toLowerCase().includes(search_input.value.toLowerCase()))) {
-            search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`
+            search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`;
             // let idx = item.value.indexOf(search_input.value);
             // if (idx >= 0) {
             //     item.setSelectionRange(idx, idx + search_input.value.length);
             // }
-            search_mark(item)
+            search_mark(item);
         } else {
             item.style.background = 'transparent';
         }
@@ -385,9 +405,11 @@ function search() {
 }
 
 function get_id(item) {
-    return item.id.split('_')[0]
+    "use strict";
+    return item.id.split('_')[0];
 }
 
 function find(item_id, item_type) {
+    "use strict";
     return document.getElementById(`${item_id}_${item_type}`);
 }

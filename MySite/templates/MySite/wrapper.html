@@ -8,6 +8,7 @@
     <script type="text/javascript" src="{% static 'MySite/js/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'MySite/js/jquery-ui.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'MySite/js/bootstrap.bundle.min.js' %}"></script>
+
     <link rel='stylesheet' href="{% static 'MySite/css/jquery-ui.min.css' %}" type='text/css'>
     <link rel='stylesheet' href="{% static 'MySite/css/bootstrap.min.css' %}" type='text/css'>
     <link rel='stylesheet' href="{% static 'MySite/css/MySite.css' %}" type='text/css'>
@@ -15,12 +16,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'MySite/img/apple-touch-icon.png' %}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'MySite/img/favicon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'MySite/img/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'MySite/img/site.webmanifest' %}">
     <link rel="mask-icon" href="{% static 'MySite/img/safari-pinned-tab.svg' %}" color="#5bbad5">
     <link rel="shortcut icon" href="{% static 'MySite/img/favicon.ico' %}">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="msapplication-config" content="/home/orionio/static/MySite/browserconfig.xml">
-    <meta name="theme-color" content="#ffffff">
 </head>
 
 <body>
@@ -29,7 +26,7 @@
         <div class="buttons">
             <div class="input-group">
                 {% if user.username %}
-                    <input id="search_input" class="form-control disabled" aria-label="Text input with dropdown button" placeholder="Search" type="search" oninput="search()"/>
+                    <input id="search_input" class="form-control disabled" placeholder="Search" type="search" oninput="search()"/>
                     <label for="search_input" id="search_counter"></label>
                     <div class="input-group-append">
                         <button class="btn btn-outline-light dropdown-toggle"

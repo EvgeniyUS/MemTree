@@ -123,6 +123,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'MySite/static'),
     os.path.join(BASE_DIR, 'MemTree/static'),
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 LOGIN_URL = '/login'
