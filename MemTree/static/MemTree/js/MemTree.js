@@ -29,6 +29,27 @@ function caretToggler(caret) {
     });
 }
 
+function error_alert(jqXHR, exception) {
+    "use strict";
+    let msg;
+    if (jqXHR.status === 0) {
+        msg = 'Not connect.\n Verify Network.';
+    } else if (jqXHR.status === 404) {
+        msg = 'Requested page not found. [404]';
+    } else if (jqXHR.status === 500) {
+        msg = 'Internal Server Error [500].';
+    } else if (exception === 'parsererror') {
+        msg = 'Requested JSON parse failed.';
+    } else if (exception === 'timeout') {
+        msg = 'Time out error.';
+    } else if (exception === 'abort') {
+        msg = 'Ajax request aborted.';
+    } else {
+        msg = 'Uncaught Error.\n' + jqXHR.responseText;
+    }
+    window.alert(msg);
+}
+
 function edit_remove_item() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
@@ -59,7 +80,17 @@ function edit_remove_item() {
                                 ids: JSON.stringify(CHECKED_ITEMS_IDS),
                             },
                             success: function () {
-                                refresh();
+                                for (const item_id of CHECKED_ITEMS_IDS) {
+                                    const item = document.getElementById(item_id);
+                                    const item_parent = item.parent;
+                                    item.remove();
+                                    parent_update(item_parent);
+                                }
+                                CHECKED_ITEMS_IDS = Array();
+                                buttons_update();
+                            },
+                            error: function (jqXHR, exception) {
+                                error_alert(jqXHR, exception);
                             }
                         });
                         $(this).dialog("close");
@@ -100,6 +131,9 @@ function textChanged(text) {
         success: function () {
             inputWidthChanger(text);
         },
+        error: function (jqXHR, exception) {
+            error_alert(jqXHR, exception);
+        }
     });
 }
 
@@ -140,6 +174,9 @@ function collapseChanged(caret) {
             'id': caret.parentNode.id,
             'collapsed': caret.collapsed
         },
+        error: function (jqXHR, exception) {
+            error_alert(jqXHR, exception);
+        }
     });
 }
 
@@ -155,26 +192,19 @@ function add_move_item() {
                 parent: SELECTED_ITEM_ID
             },
             success: function () {
-                refresh();
+                for (const item_id of CHECKED_ITEMS_IDS) {
+                    const li = document.getElementById(item_id);
+                    const old_parent = li.parent;
+                    li.parent = SELECTED_ITEM_ID;
+                    append_to_parent(li);
+                    parent_update(old_parent);
+                }
+                show_children(SELECTED_ITEM_ID);
+                CHECKED_ITEMS_IDS = Array();
+                buttons_update();
             },
             error: function (jqXHR, exception) {
-                let msg;
-                if (jqXHR.status === 0) {
-                    msg = 'Not connect.\n Verify Network.';
-                } else if (jqXHR.status === 404) {
-                    msg = 'Requested page not found. [404]';
-                } else if (jqXHR.status === 500) {
-                    msg = 'Internal Server Error [500].';
-                } else if (exception === 'parsererror') {
-                    msg = 'Requested JSON parse failed.';
-                } else if (exception === 'timeout') {
-                    msg = 'Time out error.';
-                } else if (exception === 'abort') {
-                    msg = 'Ajax request aborted.';
-                } else {
-                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
-                }
-                window.alert(msg);
+                error_alert(jqXHR, exception);
             }
         });
     } else {
@@ -186,93 +216,77 @@ function add_move_item() {
                 'parent': SELECTED_ITEM_ID
             },
             success: function (data) {
-                const caret = find(SELECTED_ITEM_ID, "caret");
-                if (caret) {
-                    caret.collapsed = false;
-                    collapseChanged(caret);
-                }
-                itemBuilder(data, true);
+                create(data, true);
             },
             error: function (jqXHR, exception) {
-                let msg;
-                if (jqXHR.status === 0) {
-                    msg = 'Not connect.\n Verify Network.';
-                } else if (jqXHR.status === 404) {
-                    msg = 'Requested page not found. [404]';
-                } else if (jqXHR.status === 500) {
-                    msg = 'Internal Server Error [500].';
-                } else if (exception === 'parsererror') {
-                    msg = 'Requested JSON parse failed.';
-                } else if (exception === 'timeout') {
-                    msg = 'Time out error.';
-                } else if (exception === 'abort') {
-                    msg = 'Ajax request aborted.';
-                } else {
-                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
-                }
-                window.alert(msg);
+                error_alert(jqXHR, exception);
             },
         });
     }
 }
 
-function selection(item_id) {
+function show_children(item_id) {
     "use strict";
-    let edit_remove_button = document.getElementById("edit_remove_button");
-    if (!(CHECKED_ITEMS_IDS.includes(item_id)) || SELECTED_ITEM_ID === item_id) {
-        let text = find(item_id, "text");
-        if (SELECTED_ITEM_ID === item_id) {
-            SELECTED_ITEM_ID = false;
-            check_item(item_id);
-        } else {
-            if (SELECTED_ITEM_ID) {
-                find(SELECTED_ITEM_ID, "text").style.border = "1px solid rgba(0, 0, 0, 0.8)";
-            }
-            SELECTED_ITEM_ID = item_id;
-            text.style.border = "1px solid rgba(155, 255, 155, 0.5)";
-            edit_remove_button.disabled = false;
-        }
-    } else {
-        check_item(item_id);
+    const caret = find(item_id, "caret");
+    if (caret && caret.collapsed) {
+        caret.collapsed = false;
+        collapseChanged(caret);
     }
 }
 
-function check_item(item_id) {
+function selection(item_id) {
     "use strict";
-    if (item_id === SELECTED_ITEM_ID) {
-        selection(item_id);
+    if (SELECTED_ITEM_ID === item_id) {
+        SELECTED_ITEM_ID = false;
+        CHECKED_ITEMS_IDS.push(item_id);
+    } else if (CHECKED_ITEMS_IDS.includes(item_id)) {
+        CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
+    } else {
+        SELECTED_ITEM_ID = item_id;
     }
+    buttons_update();
+}
+
+function buttons_update() {
+    "use strict";
     let add_move_button = document.getElementById("add_move_button");
     let edit_remove_button = document.getElementById("edit_remove_button");
-    if (CHECKED_ITEMS_IDS.includes(item_id)) {
-        CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
-        find(item_id, "text").style.border = "1px solid rgba(0, 0, 0, 0.8)";
-        find(item_id, "ul").className = null;
-        if (CHECKED_ITEMS_IDS.length > 0) {
-            edit_remove_button.className = "btn btn-danger btn-sm";
-            edit_remove_button.disabled = false;
-            edit_remove_button.innerHTML = 'Del';
-        }
-        else {
-            add_move_button.innerHTML = 'Add';
-            add_move_button.className = 'btn btn-success btn-sm';
-            edit_remove_button.className = "btn btn-info btn-sm";
-            edit_remove_button.innerHTML = 'Edit';
-            edit_remove_button.disabled = !SELECTED_ITEM_ID;
-        }
-    } else {
-        CHECKED_ITEMS_IDS.push(item_id);
-        find(item_id, "text").style.border = "1px solid rgba(255, 211, 0, 0.7)";
-        find(item_id, "ul").className = "disabled";
+    if (CHECKED_ITEMS_IDS.length > 0) {
         add_move_button.innerHTML = 'Move';
         add_move_button.className = 'btn btn-warning btn-sm';
         edit_remove_button.className = "btn btn-danger btn-sm";
         edit_remove_button.disabled = false;
         edit_remove_button.innerHTML = 'Del';
     }
+    else {
+        add_move_button.innerHTML = 'Add';
+        add_move_button.className = 'btn btn-success btn-sm';
+        edit_remove_button.className = "btn btn-info btn-sm";
+        edit_remove_button.innerHTML = 'Edit';
+        edit_remove_button.disabled = !SELECTED_ITEM_ID;
+    }
+    items_borders_update();
+    search();
 }
 
-function itemBuilder(item, focus) {
+function items_borders_update() {
+    "use strict";
+    for (const item of document.querySelectorAll('[id$="_text"]')) {
+        const item_id = get_id(item);
+        if (item_id === SELECTED_ITEM_ID) {
+            item.style.border = "1px solid rgba(155, 255, 155, 0.5)";
+            find(item_id, "ul").className = null;
+        } else if (CHECKED_ITEMS_IDS.includes(item_id)) {
+            item.style.border = "1px solid rgba(255, 211, 0, 0.7)";
+            find(item_id, "ul").className = "disabled";
+        } else {
+            item.style.border = "1px solid rgba(0, 0, 0, 0.8)";
+            find(item_id, "ul").className = null;
+        }
+    }
+}
+
+function create(item, focus) {
     "use strict";
     const li = document.createElement('li');
     li.parent = item.parent;
@@ -320,53 +334,62 @@ function itemBuilder(item, focus) {
     li.appendChild(counter);
     li.appendChild(ul);
 
-    if (item.parent) {
+    append_to_parent(li);
 
-        find(item.parent, "caret").style.display = 'inline-block';
-
-        const parent_input = find(item.parent, "text");
-        parent_input.style.color = "rgba(190,130,70,0.9)";
-
-        const parent_ul = find(item.parent, "ul");
-        parent_ul.appendChild(li);
-
-        find(item.parent, "counter").innerHTML = `${parent_ul.childNodes.length}`;
-    }
-    else {
-        const root_ul = document.getElementById("root_ul");
-        root_ul.appendChild(li);
-    }
     if (focus) {
+        show_children(item.parent);
         text.readOnly = false;
         text.focus();
     }
 }
 
-function refresh() {
+function append_to_parent(li) {
+    "use strict";
+    if (li.parent) {
+        const parent_ul = find(li.parent, "ul");
+        parent_ul.appendChild(li);
+    }
+    else {
+        const root_ul = document.getElementById("root_ul");
+        root_ul.appendChild(li);
+    }
+    parent_update(li.parent);
+}
+
+function parent_update(parent_id) {
+    "use strict";
+    if (parent_id) {
+        const parent_ul = find(parent_id, "ul");
+        const parent_input = find(parent_id, "text");
+        if (parent_ul.childNodes.length > 0) {
+            parent_input.style.color = "rgba(190,130,70,0.9)";
+            find(parent_id, "caret").style.display = 'inline-block';
+            find(parent_id, "counter").innerHTML = `${parent_ul.childNodes.length}`;
+        }
+        else {
+            parent_input.style.color = "rgba(255,255,255,0.8)";
+            find(parent_id, "caret").style.display = 'none';
+            find(parent_id, "counter").innerHTML = '';
+        }
+    }
+}
+
+function get_items() {
     "use strict";
     $.ajax({
         type: 'GET',
         url: 'items/',
         success: function(data) {
-            document.getElementById("root_ul").innerHTML = "";
             for (let i = 0; i < data.length; i++) {
-                itemBuilder(data[i], false);
+                create(data[i], false);
             }
-            let add_move_button = document.getElementById("add_move_button");
-            add_move_button.className = 'btn btn-success btn-sm';
-            add_move_button.innerHTML = 'Add';
-
-            let edit_remove_button = document.getElementById("edit_remove_button");
-            edit_remove_button.className = "btn btn-info btn-sm";
-            edit_remove_button.disabled  = true;
-            edit_remove_button.innerHTML = "Edit";
-
             CHECKED_ITEMS_IDS = Array();
             SELECTED_ITEM_ID = false;
+            buttons_update();
             search();
         },
-        error: function() {
-            window.alert('Got an error');
+        error: function(jqXHR, exception) {
+            error_alert(jqXHR, exception);
         }
     });
 }
@@ -390,10 +413,6 @@ function search() {
         const item = elements[i];
         if ((search_input.value) && (item.value.toLowerCase().includes(search_input.value.toLowerCase()))) {
             search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`;
-            // let idx = item.value.indexOf(search_input.value);
-            // if (idx >= 0) {
-            //     item.setSelectionRange(idx, idx + search_input.value.length);
-            // }
             search_mark(item);
         } else {
             item.style.background = 'transparent';

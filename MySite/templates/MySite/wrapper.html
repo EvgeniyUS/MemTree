@@ -23,9 +23,9 @@
 <body>
 
     <div class="header">
-        <div class="buttons">
-            <div class="input-group">
-                {% if user.username %}
+        {% if user.username %}
+            <div class="buttons">
+                <div class="input-group">
                     <input id="search_input" class="form-control disabled" placeholder="Search" type="search" oninput="search()"/>
                     <label for="search_input" id="search_counter"></label>
                     <div class="input-group-append">
@@ -49,9 +49,9 @@
                             {% endif %}
                         </div>
                     </div>
-                {% endif %}
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 
     <div class="content">
@@ -60,10 +60,8 @@
     </div>
 
     <div class="footer">
-        <div class="buttons">
-            {% block footer_content %}
-            {% endblock %}
-        </div>
+        {% block footer_content %}
+        {% endblock %}
     </div>
     <div id="remove_item_confirm" title="Warning!" style="display: none">
         <p>Delete all selected items?</p>

@@ -12,15 +12,17 @@
 
     <script type="text/javascript">
         const csrftoken = '{{ csrf_token }}';
-        refresh();
+        get_items();
     </script>
 
 {% endblock %}
 
 {% block footer_content %}
 
-    <button id="add_move_button" class="btn btn-success btn-sm" onclick="add_move_item()" title="Add/Move to selected item">Add</button>
-    &nbsp;
-    <button id="edit_remove_button" class="btn btn-info btn-sm" onclick="edit_remove_item()" title="Edit/Remove selected item" disabled>Edit</button>
+    <div class="buttons">
+        <button id="add_move_button" class="btn btn-success btn-sm" onclick="add_move_item()" title="Add/Move to selected item">Add</button>
+        &nbsp;
+        <button id="edit_remove_button" class="btn btn-info btn-sm" onclick="edit_remove_item()" title="Edit/Remove selected item" disabled>Edit</button>
+    </div>
 
 {% endblock %}
