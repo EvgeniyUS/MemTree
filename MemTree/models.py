@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 
 class Item(models.Model):
@@ -27,3 +31,31 @@ class Item(models.Model):
 
         rec(items.filter(parent=None))
         return sorted_items
+
+
+@receiver([post_save, post_delete], sender=Item)
+def signal_handler(sender, **kwargs):
+    created = kwargs.get("created")
+    if instance := kwargs.get('instance'):
+        data = {'id': instance.id}
+        if created is None:
+            data.update({
+                'signal': 'deleted'
+            })
+        elif created:
+            data.update({
+                'text': instance.text,
+                'collapsed': instance.collapsed,
+                'parent': instance.parent_id,
+                'signal': 'created'
+            })
+        else:
+            data['signal'] = 'updated'
+            data.update({k: getattr(instance, k) for k in kwargs.get("update_fields") if hasattr(instance, k)})
+            if parent := data.get('parent'):
+                data['parent'] = parent.id
+        user = instance.user
+        async_to_sync(get_channel_layer().group_send)(
+            f'{user.username}.{user.id}',
+            {'type': 'notify', 'data': data}
+        )

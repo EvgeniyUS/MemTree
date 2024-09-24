@@ -3,9 +3,86 @@
 /*globals csrftoken:false */
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = false;
+let WEBSOCKET_RECONNECT_TIMEOUT = 10; // sec
 
 const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
 $.fn.bootstrapBtn = bootstrapButton;              // give $().bootstrapBtn the Bootstrap functionality
+
+function ws_connect() {
+    "use strict";
+    let ws_proto = 'ws://';
+    if (window.location.protocol === 'https:') {
+        ws_proto = 'wss://';
+    }
+    window.console.log(`${ws_proto}${window.location.host}/ws/`);
+    const socket = new WebSocket(`${ws_proto}${window.location.host}/ws/`);
+
+    socket.onopen = function () {
+        socket.send(JSON.stringify({'WebSocket': 'OK'}));
+        let menu_button = document.getElementById('menu_button');
+        if (menu_button) {
+            menu_button.classList.remove('btn-outline-light');
+            menu_button.classList.add('btn-outline-success');
+        }
+    };
+
+    socket.onclose = function (event) {
+        let menu_button = document.getElementById('menu_button');
+        if (menu_button) {
+            menu_button.classList.add('btn-outline-light');
+            menu_button.classList.remove('btn-outline-success');
+        }
+        window.console.log(
+            `WebSocket is closed. Reconnect will be attempted in ${WEBSOCKET_RECONNECT_TIMEOUT} second.`,
+            event.reason
+        );
+        setTimeout(function() {
+            ws_connect();
+        }, WEBSOCKET_RECONNECT_TIMEOUT * 1000);
+    };
+
+    socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        if (data.signal === 'updated') {
+            window.console.log('updated');
+            if ('collapsed' in data) {
+                const caret = find(data.id, "caret");
+                caret.collapsed = data.collapsed;
+                if (caret.collapsed) {
+                    caret.style.transform = 'rotate(0deg)';
+                    find(get_id(caret), "ul").style.display = "none";
+                }
+                else {
+                    caret.style.transform = 'rotate(90deg)';
+                    find(get_id(caret), "ul").style.display = "block";
+                }
+            } else if ('text' in data) {
+                const text = find(data.id, "text");
+                text.value = data.text;
+                inputWidthChanger(text);
+            } else if ('parent' in data) {
+                const li = document.getElementById(data.id);
+                const old_parent = li.parent;
+                li.parent = data.parent;
+                append_to_parent(li);
+                parent_update(old_parent);
+            }
+        } else if (data.signal === 'created') {
+            create(data);
+        } else if (data.signal === 'deleted') {
+            const item = document.getElementById(data.id);
+            const item_parent = item.parent;
+            item.remove();
+            parent_update(item_parent);
+        }
+    };
+
+    socket.onerror = function (error) {
+        window.console.error('WebSocket error:', error.message);
+        socket.close();
+    };
+}
+ws_connect();
 
 function csrfSafeMethod(method) {
     "use strict";
@@ -25,7 +102,7 @@ function caretToggler(caret) {
     "use strict";
     caret.addEventListener("click", function() {
         this.collapsed = !this.collapsed;
-        collapseChanged(this);
+        collapse(this);
     });
 }
 
@@ -47,7 +124,7 @@ function error_alert(jqXHR, exception) {
     } else {
         msg = 'Uncaught Error.\n' + jqXHR.responseText;
     }
-    window.alert(msg);
+    window.console.error(msg);
 }
 
 function edit_remove_item() {
@@ -80,12 +157,12 @@ function edit_remove_item() {
                                 ids: JSON.stringify(CHECKED_ITEMS_IDS),
                             },
                             success: function () {
-                                for (const item_id of CHECKED_ITEMS_IDS) {
-                                    const item = document.getElementById(item_id);
-                                    const item_parent = item.parent;
-                                    item.remove();
-                                    parent_update(item_parent);
-                                }
+                                // for (const item_id of CHECKED_ITEMS_IDS) {
+                                //     const item = document.getElementById(item_id);
+                                //     const item_parent = item.parent;
+                                //     item.remove();
+                                //     parent_update(item_parent);
+                                // }
                                 CHECKED_ITEMS_IDS = Array();
                                 buttons_update();
                             },
@@ -118,7 +195,7 @@ function setAttributes(element, attrs) {
     }
 }
 
-function textChanged(text) {
+function changeText(text) {
     "use strict";
     $.ajax({
         type: 'POST',
@@ -156,16 +233,16 @@ function inputWidthChanger(text) {
     }
 }
 
-function collapseChanged(caret) {
+function collapse(caret) {
     "use strict";
-    if (caret.collapsed) {
-        caret.style.transform = 'rotate(0deg)';
-        find(get_id(caret), "ul").style.display = "none";
-    }
-    else {
-        caret.style.transform = 'rotate(90deg)';
-        find(get_id(caret), "ul").style.display = "block";
-    }
+    // if (caret.collapsed) {
+    //     caret.style.transform = 'rotate(0deg)';
+    //     find(get_id(caret), "ul").style.display = "none";
+    // }
+    // else {
+    //     caret.style.transform = 'rotate(90deg)';
+    //     find(get_id(caret), "ul").style.display = "block";
+    // }
     $.ajax({
         type: 'POST',
         url: 'collapse/',
@@ -192,13 +269,13 @@ function add_move_item() {
                 parent: SELECTED_ITEM_ID
             },
             success: function () {
-                for (const item_id of CHECKED_ITEMS_IDS) {
-                    const li = document.getElementById(item_id);
-                    const old_parent = li.parent;
-                    li.parent = SELECTED_ITEM_ID;
-                    append_to_parent(li);
-                    parent_update(old_parent);
-                }
+                // for (const item_id of CHECKED_ITEMS_IDS) {
+                //     const li = document.getElementById(item_id);
+                //     const old_parent = li.parent;
+                //     li.parent = SELECTED_ITEM_ID;
+                //     append_to_parent(li);
+                //     parent_update(old_parent);
+                // }
                 show_children(SELECTED_ITEM_ID);
                 CHECKED_ITEMS_IDS = Array();
                 buttons_update();
@@ -216,7 +293,11 @@ function add_move_item() {
                 'parent': SELECTED_ITEM_ID
             },
             success: function (data) {
-                create(data, true);
+                create(data);
+                show_children(data.parent);
+                const text = find(data.id, 'text');
+                text.readOnly = false;
+                text.focus();
             },
             error: function (jqXHR, exception) {
                 error_alert(jqXHR, exception);
@@ -230,7 +311,7 @@ function show_children(item_id) {
     const caret = find(item_id, "caret");
     if (caret && caret.collapsed) {
         caret.collapsed = false;
-        collapseChanged(caret);
+        collapse(caret);
     }
 }
 
@@ -286,60 +367,56 @@ function items_borders_update() {
     }
 }
 
-function create(item, focus) {
+function create(data) {
     "use strict";
-    const li = document.createElement('li');
-    li.parent = item.parent;
-    li.setAttribute('id', item.id);
+    if (!document.getElementById(data.id)) {
+        const li = document.createElement('li');
+        li.parent = data.parent;
+        li.setAttribute('id', data.id);
 
-    const caret = document.createElement('span');
-    caret.setAttribute('id', `${item.id}_caret`);
-    caret.className = 'caret';
-    caret.collapsed = item.collapsed;
-    caret.style.display = "none";
-    caretToggler(caret);
+        const caret = document.createElement('span');
+        caret.setAttribute('id', `${data.id}_caret`);
+        caret.className = 'caret';
+        caret.collapsed = data.collapsed;
+        caret.style.display = "none";
+        caretToggler(caret);
 
-    const text = document.createElement('textarea');
-    setAttributes(text, {
-        "id": `${item.id}_text`,
-        "class": "text",
-        "rows": 1,
-        "wrap": "off",
-        "oninput": "textChanged(this)",
-        "onclick": "selection(this.parentNode.id)",
-        "readonly": true
-    });
-    text.value = item.text;
-    inputWidthChanger(text);
+        const text = document.createElement('textarea');
+        setAttributes(text, {
+            "id": `${data.id}_text`,
+            "class": "text",
+            "rows": 1,
+            "wrap": "off",
+            "oninput": "changeText(this)",
+            "onclick": "selection(this.parentNode.id)",
+            "readonly": true
+        });
+        text.value = data.text;
+        inputWidthChanger(text);
 
-    const ul = document.createElement('ul');
-    ul.setAttribute("id", `${item.id}_ul`);
+        const ul = document.createElement('ul');
+        ul.setAttribute("id", `${data.id}_ul`);
 
-    if (caret.collapsed) {
-        caret.style.transform = 'rotate(0deg)';
-        ul.style.display = "none";
-    } else {
-        caret.style.transform = 'rotate(90deg)';
-        ul.style.display = "block";
-    }
+        if (caret.collapsed) {
+            caret.style.transform = 'rotate(0deg)';
+            ul.style.display = "none";
+        } else {
+            caret.style.transform = 'rotate(90deg)';
+            ul.style.display = "block";
+        }
 
-    const counter = document.createElement('sup');
-    setAttributes(counter, {
-        "id": `${item.id}_counter`,
-        "class": "counter",
-    });
+        const counter = document.createElement('sup');
+        setAttributes(counter, {
+            "id": `${data.id}_counter`,
+            "class": "counter",
+        });
 
-    li.appendChild(caret);
-    li.appendChild(text);
-    li.appendChild(counter);
-    li.appendChild(ul);
+        li.appendChild(caret);
+        li.appendChild(text);
+        li.appendChild(counter);
+        li.appendChild(ul);
 
-    append_to_parent(li);
-
-    if (focus) {
-        show_children(item.parent);
-        text.readOnly = false;
-        text.focus();
+        append_to_parent(li);
     }
 }
 
@@ -374,14 +451,14 @@ function parent_update(parent_id) {
     }
 }
 
-function get_items() {
+function items() {
     "use strict";
     $.ajax({
         type: 'GET',
         url: 'items/',
         success: function(data) {
             for (let i = 0; i < data.length; i++) {
-                create(data[i], false);
+                create(data[i]);
             }
             CHECKED_ITEMS_IDS = Array();
             SELECTED_ITEM_ID = false;
@@ -418,7 +495,7 @@ function search() {
             item.style.background = 'transparent';
         }
     }
-    if (!(search_input.value)) {
+    if (!search_input.value) {
         search_counter.innerHTML = '';
     }
 }
