@@ -3,6 +3,7 @@
 /*globals csrftoken:false */
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = false;
+let WEBSOCKET = false;
 let WEBSOCKET_RECONNECT_TIMEOUT = 10; // sec
 
 const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
@@ -24,6 +25,7 @@ function ws_connect() {
             menu_button.classList.remove('btn-outline-light');
             menu_button.classList.add('btn-outline-success');
         }
+        WEBSOCKET = true;
     };
 
     socket.onclose = function (event) {
@@ -32,6 +34,7 @@ function ws_connect() {
             menu_button.classList.add('btn-outline-light');
             menu_button.classList.remove('btn-outline-success');
         }
+        WEBSOCKET = false;
         window.console.log(
             `WebSocket is closed. Reconnect will be attempted in ${WEBSOCKET_RECONNECT_TIMEOUT} second.`,
             event.reason
@@ -157,12 +160,14 @@ function edit_remove_item() {
                                 ids: JSON.stringify(CHECKED_ITEMS_IDS),
                             },
                             success: function () {
-                                // for (const item_id of CHECKED_ITEMS_IDS) {
-                                //     const item = document.getElementById(item_id);
-                                //     const item_parent = item.parent;
-                                //     item.remove();
-                                //     parent_update(item_parent);
-                                // }
+                                if (!WEBSOCKET) {
+                                    for (const item_id of CHECKED_ITEMS_IDS) {
+                                        const item = document.getElementById(item_id);
+                                        const item_parent = item.parent;
+                                        item.remove();
+                                        parent_update(item_parent);
+                                    }
+                                }
                                 CHECKED_ITEMS_IDS = Array();
                                 buttons_update();
                             },
@@ -235,14 +240,16 @@ function inputWidthChanger(text) {
 
 function collapse(caret) {
     "use strict";
-    // if (caret.collapsed) {
-    //     caret.style.transform = 'rotate(0deg)';
-    //     find(get_id(caret), "ul").style.display = "none";
-    // }
-    // else {
-    //     caret.style.transform = 'rotate(90deg)';
-    //     find(get_id(caret), "ul").style.display = "block";
-    // }
+    if (!WEBSOCKET) {
+        if (caret.collapsed) {
+            caret.style.transform = 'rotate(0deg)';
+            find(get_id(caret), "ul").style.display = "none";
+        }
+        else {
+            caret.style.transform = 'rotate(90deg)';
+            find(get_id(caret), "ul").style.display = "block";
+        }
+    }
     $.ajax({
         type: 'POST',
         url: 'collapse/',
@@ -269,13 +276,15 @@ function add_move_item() {
                 parent: SELECTED_ITEM_ID
             },
             success: function () {
-                // for (const item_id of CHECKED_ITEMS_IDS) {
-                //     const li = document.getElementById(item_id);
-                //     const old_parent = li.parent;
-                //     li.parent = SELECTED_ITEM_ID;
-                //     append_to_parent(li);
-                //     parent_update(old_parent);
-                // }
+                if (!WEBSOCKET) {
+                    for (const item_id of CHECKED_ITEMS_IDS) {
+                        const li = document.getElementById(item_id);
+                        const old_parent = li.parent;
+                        li.parent = SELECTED_ITEM_ID;
+                        append_to_parent(li);
+                        parent_update(old_parent);
+                    }
+                }
                 show_children(SELECTED_ITEM_ID);
                 CHECKED_ITEMS_IDS = Array();
                 buttons_update();
