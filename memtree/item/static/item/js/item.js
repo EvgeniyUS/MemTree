@@ -9,7 +9,7 @@ let WEBSOCKET_RECONNECT_TIMEOUT = 9999; // sec
 const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
 $.fn.bootstrapBtn = bootstrapButton;              // give $().bootstrapBtn the Bootstrap functionality
 
-function ws_connect() {
+function wsConnect() {
     "use strict";
     let ws_proto = 'ws://';
     if (window.location.protocol === 'https:') {
@@ -40,7 +40,7 @@ function ws_connect() {
             event.reason
         );
         setTimeout(function() {
-            ws_connect();
+            wsConnect();
         }, WEBSOCKET_RECONNECT_TIMEOUT * 1000);
     };
 
@@ -53,11 +53,11 @@ function ws_connect() {
                 caret.collapsed = data.collapsed;
                 if (caret.collapsed) {
                     caret.style.transform = 'rotate(0deg)';
-                    find(get_id(caret), "ul").style.display = "none";
+                    find(getId(caret), "ul").style.display = "none";
                 }
                 else {
                     caret.style.transform = 'rotate(90deg)';
-                    find(get_id(caret), "ul").style.display = "block";
+                    find(getId(caret), "ul").style.display = "block";
                 }
             } else if ('text' in data) {
                 const text = find(data.id, "text");
@@ -67,8 +67,8 @@ function ws_connect() {
                 const li = document.getElementById(data.id);
                 const old_parent = li.parent;
                 li.parent = data.parent;
-                append_to_parent(li);
-                parent_update(old_parent);
+                appendToParent(li);
+                parentUpdate(old_parent);
             }
         } else if (data.signal === 'created') {
             create(data);
@@ -76,7 +76,7 @@ function ws_connect() {
             const item = document.getElementById(data.id);
             const item_parent = item.parent;
             item.remove();
-            parent_update(item_parent);
+            parentUpdate(item_parent);
         }
     };
 
@@ -108,7 +108,7 @@ function caretToggler(caret) {
     });
 }
 
-function error_alert(jqXHR, exception) {
+function errorAlert(jqXHR, exception) {
     "use strict";
     let msg;
     if (jqXHR.status === 0) {
@@ -129,7 +129,7 @@ function error_alert(jqXHR, exception) {
     window.console.error(msg);
 }
 
-function edit_remove_item() {
+function editOrRemove() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         $("#remove_item_confirm").dialog({
@@ -164,14 +164,14 @@ function edit_remove_item() {
                                         const item = document.getElementById(item_id);
                                         const item_parent = item.parent;
                                         item.remove();
-                                        parent_update(item_parent);
+                                        parentUpdate(item_parent);
                                     }
                                 }
                                 CHECKED_ITEMS_IDS = Array();
-                                buttons_update();
+                                buttonsUpdate();
                             },
                             error: function (jqXHR, exception) {
-                                error_alert(jqXHR, exception);
+                                errorAlert(jqXHR, exception);
                             }
                         });
                         $(this).dialog("close");
@@ -214,7 +214,7 @@ function changeText(text) {
             search();
         },
         error: function (jqXHR, exception) {
-            error_alert(jqXHR, exception);
+            errorAlert(jqXHR, exception);
         }
     });
 }
@@ -243,11 +243,11 @@ function collapse(caret) {
     if (!WEBSOCKET) {
         if (caret.collapsed) {
             caret.style.transform = 'rotate(0deg)';
-            find(get_id(caret), "ul").style.display = "none";
+            find(getId(caret), "ul").style.display = "none";
         }
         else {
             caret.style.transform = 'rotate(90deg)';
-            find(get_id(caret), "ul").style.display = "block";
+            find(getId(caret), "ul").style.display = "block";
         }
     }
     $.ajax({
@@ -259,12 +259,12 @@ function collapse(caret) {
             'collapsed': caret.collapsed
         },
         error: function (jqXHR, exception) {
-            error_alert(jqXHR, exception);
+            errorAlert(jqXHR, exception);
         }
     });
 }
 
-function add_move_item() {
+function addOrMove() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         $.ajax({
@@ -281,16 +281,16 @@ function add_move_item() {
                         const li = document.getElementById(item_id);
                         const old_parent = li.parent;
                         li.parent = SELECTED_ITEM_ID;
-                        append_to_parent(li);
-                        parent_update(old_parent);
+                        appendToParent(li);
+                        parentUpdate(old_parent);
                     }
                 }
-                show_children(SELECTED_ITEM_ID);
+                showChildren(SELECTED_ITEM_ID);
                 CHECKED_ITEMS_IDS = Array();
-                buttons_update();
+                buttonsUpdate();
             },
             error: function (jqXHR, exception) {
-                error_alert(jqXHR, exception);
+                errorAlert(jqXHR, exception);
             }
         });
     } else {
@@ -303,19 +303,19 @@ function add_move_item() {
             },
             success: function (data) {
                 create(data);
-                show_children(data.parent);
+                showChildren(data.parent);
                 const text = find(data.id, 'text');
                 text.readOnly = false;
                 text.focus();
             },
             error: function (jqXHR, exception) {
-                error_alert(jqXHR, exception);
+                errorAlert(jqXHR, exception);
             },
         });
     }
 }
 
-function show_children(item_id) {
+function showChildren(item_id) {
     "use strict";
     const caret = find(item_id, "caret");
     if (caret && caret.collapsed) {
@@ -334,10 +334,10 @@ function selection(item_id) {
     } else {
         SELECTED_ITEM_ID = item_id;
     }
-    buttons_update();
+    buttonsUpdate();
 }
 
-function buttons_update() {
+function buttonsUpdate() {
     "use strict";
     let add_move_button = document.getElementById("add_move_button");
     let edit_remove_button = document.getElementById("edit_remove_button");
@@ -355,14 +355,14 @@ function buttons_update() {
         edit_remove_button.innerHTML = 'Edit';
         edit_remove_button.disabled = !SELECTED_ITEM_ID;
     }
-    items_borders_update();
+    bordersUpdate();
     search();
 }
 
-function items_borders_update() {
+function bordersUpdate() {
     "use strict";
     for (const item of document.querySelectorAll('[id$="_text"]')) {
-        const item_id = get_id(item);
+        const item_id = getId(item);
         if (item_id === SELECTED_ITEM_ID) {
             item.style.border = "1px solid rgba(155, 255, 155, 0.5)";
             find(item_id, "ul").className = null;
@@ -425,11 +425,11 @@ function create(data) {
         li.appendChild(counter);
         li.appendChild(ul);
 
-        append_to_parent(li);
+        appendToParent(li);
     }
 }
 
-function append_to_parent(li) {
+function appendToParent(li) {
     "use strict";
     if (li.parent) {
         const parent_ul = find(li.parent, "ul");
@@ -439,10 +439,10 @@ function append_to_parent(li) {
         const root_ul = document.getElementById("root_ul");
         root_ul.appendChild(li);
     }
-    parent_update(li.parent);
+    parentUpdate(li.parent);
 }
 
-function parent_update(parent_id) {
+function parentUpdate(parent_id) {
     "use strict";
     if (parent_id) {
         const parent_ul = find(parent_id, "ul");
@@ -468,11 +468,11 @@ function items(data) {
     document.getElementById('search_input').classList.remove('disabled');
 }
 
-function search_mark(item) {
+function searchMark(item) {
     "use strict";
     item.style.background = 'rgba(155, 255, 155, 0.1)';
     if (item.parentNode.parent) {
-        search_mark(find(item.parentNode.parent, 'text'));
+        searchMark(find(item.parentNode.parent, 'text'));
     }
 }
 
@@ -486,7 +486,7 @@ function search() {
         const item = elements[i];
         if ((search_input.value) && (item.value.toLowerCase().includes(search_input.value.toLowerCase()))) {
             search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`;
-            search_mark(item);
+            searchMark(item);
         } else {
             item.style.background = 'transparent';
         }
@@ -496,7 +496,7 @@ function search() {
     }
 }
 
-function get_id(item) {
+function getId(item) {
     "use strict";
     return item.id.split('_')[0];
 }
