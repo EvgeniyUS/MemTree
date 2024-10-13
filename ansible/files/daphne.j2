@@ -1,0 +1,12 @@
+[Unit]
+  Description=Daphne Service
+  After=network.target
+
+[Service]
+  Type=simple
+  User=root
+  WorkingDirectory={{ project_path }}
+  ExecStart={{ venv_dir }}/bin/daphne -u {{ project_path }}/daphne.sock {{ asgi_module }}:application
+
+[Install]
+  WantedBy=multi-user.target

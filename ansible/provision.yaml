@@ -1,0 +1,27 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: install system packages
+      apt: pkg={{ item }} update-cache=yes
+      with_items: "{{ system_packages }}"
+
+    - name: save ssh key to server
+      copy: src={{ ssh_private_key }} dest=/root/.ssh/id_rsa mode=600
+
+    - name: create directory for app
+      file: path={{ project_path }} state=directory
+
+    - name: remove default nginx site
+      file: path=/etc/nginx/sites-enabled/default state=absent
+
+    - pip:
+        requirements: {{ project_path }}/requirements.txt
+        virtualenv: {{ venv_python }}
+        virtualenv_command: /usr/bin/python3 -m venv
+
+- include: deploy.yml

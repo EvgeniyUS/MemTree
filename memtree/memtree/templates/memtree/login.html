@@ -1,0 +1,18 @@
+{% extends 'memtree/wrapper.html' %}
+
+{% block content %}
+
+    <div style="display: flex; justify-content: center; margin-top: 100px">
+        <form method="POST" style="margin-left: 20px; margin-right: 20px;">
+            {% csrf_token %}
+            {% if message %}
+                <p style="color:#FF0000">{{ message }}</p>
+            {% endif %}
+            {{ form.as_p }}
+            <button type="submit" class='btn btn-success btn-sm'>Log In</button>
+            &nbsp;
+            <a class='btn btn-info btn-sm' href="{% url 'registration' %}">Registration</a>
+        </form>
+    </div>
+
+{% endblock %}

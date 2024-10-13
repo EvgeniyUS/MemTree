@@ -1,0 +1,15 @@
+{% extends 'memtree/wrapper.html' %}
+
+{% block content %}
+
+    <div style="display: flex; justify-content: center; margin-top: 100px">
+        <form method="POST" style="margin-left: 20px; margin-right: 20px;">
+            {% csrf_token %}
+            <p>Are you sure you want to {{ action }}?</p>
+            <input type="submit" class='btn btn-warning btn-sm' value="Yes"/>
+            &nbsp;
+            <a href="{% url 'index' %}" class='btn btn-success btn-sm'>Cancel</a>
+        </form>
+    </div>
+
+{% endblock %}

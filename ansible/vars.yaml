@@ -1,0 +1,12 @@
+install_root: /var/lib
+project_name: memtree
+project_path: "{{ install_root }}/{{ project_name }}"
+venv_dir: "{{ project_path }}/venv"
+venv_python: "{{ venv_dir }}/bin/python"
+asgi_module: "{{ project_name }}.asgi"
+ssh_private_key: ~/.ssh/id_rsa
+static_root: "{{ project_path }}/static"
+system_packages:
+  - nginx
+  - daphne
+  - python-pip

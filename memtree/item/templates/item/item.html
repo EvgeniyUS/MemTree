@@ -1,0 +1,29 @@
+{% extends 'memtree/wrapper.html' %}
+
+{% block content %}
+
+    {% load static %}
+    <script type="text/javascript" src="{% static 'item/js/item.js' %}"></script>
+    <link rel='stylesheet' href="{% static 'item/css/item.css' %}" type='text/css'>
+
+    <div>
+        <ul id="root_ul"></ul>
+    </div>
+
+{% endblock %}
+
+{% block footer_content %}
+
+    <div class="buttons">
+        <button id="add_move_button" class="btn btn-success btn-sm" onclick="add_move_item()" title="Add/Move to selected item">Add</button>
+        &nbsp;
+        <button id="edit_remove_button" class="btn btn-info btn-sm" onclick="edit_remove_item()" title="Edit/Remove selected item" disabled>Edit</button>
+    </div>
+
+    <script type="text/javascript">
+        const csrftoken = '{{ csrf_token }}';
+        ws_connect();
+        items('{{ data|escapejs }}');
+    </script>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: copy project files
+      copy: src=../memtree/ dest={{ project_path }}/
+      notify:
+        - restart daphne
+
+    - name: install python packages
+      ansible.builtin.pip: requirements={{ project_path }}/requirements.txt
+      virtualenv: {{ venv_python }}
+      notify:
+        - restart daphne
+
+    - name: copy nginx config
+      template: src=files/nginx.j2 dest=/etc/nginx/sites-enabled/{{ project_name }}.conf
+      notify:
+        - restart nginx
+
+    - name: django migrate
+      django_manage: command=migrate app_path={{ project_path }} pythonpath={{ venv_python }}
+
+    - name: django collectstatic
+      django_manage: command=collectstatic app_path={{ project_path }} pythonpath={{ venv_python }}
+
+    - name: copy daphne config
+      template: src=files/daphne.j2 dest=/etc/init/daphne.conf
+      notify:
+        - restart daphne
+
+    - name: make sure nginx server is running
+      service: name=nginx state=started enabled=yes
+
+    - name: make sure daphne server is running
+      service: name=daphne state=started enabled=yes
+
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
+
+    - name: restart daphne
+      service: name=daphne state=restarted
