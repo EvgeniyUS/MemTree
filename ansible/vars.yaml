@@ -1,12 +1,13 @@
+server_address: 84.38.182.234
+project_user: root
 install_root: /var/lib
 project_name: memtree
 project_path: "{{ install_root }}/{{ project_name }}"
 venv_dir: "{{ project_path }}/venv"
-venv_python: "{{ venv_dir }}/bin/python"
+venv_python: "{{ venv_dir }}/bin/python3"
 asgi_module: "{{ project_name }}.asgi"
-ssh_private_key: ~/.ssh/id_rsa
 static_root: "{{ project_path }}/static"
 system_packages:
   - nginx
-  - daphne
-  - python-pip
+  - python3-pip
+  - python3-venv
