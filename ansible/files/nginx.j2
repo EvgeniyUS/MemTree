@@ -7,8 +7,8 @@ server {
     server_name memtree;
 
     location = /favicon.ico { access_log off; log_not_found off; }
-    location /static/ {
-        root {{ static_root }};
+    location ^~ /static {
+        alias {{ static_root }};
     }
 
     location / {

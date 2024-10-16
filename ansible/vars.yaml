@@ -1,5 +1,3 @@
-server_address: 84.38.182.234
-project_user: root
 install_root: /var/lib
 project_name: memtree
 project_path: "{{ install_root }}/{{ project_name }}"

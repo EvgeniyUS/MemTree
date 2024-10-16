@@ -6,27 +6,55 @@
   become: yes
 
   tasks:
-    - name: copy project files item
+    - name: copy project files - item
       copy:
         src: "../memtree/item"
         dest: "{{ project_path }}/"
+        mode: 777
+        owner: root
+        group: root
+      notify:
+        - restart daphne
 
-    - name: copy project files memtree
+    - name: copy project files - memtree
       copy:
         src: "../memtree/memtree"
         dest: "{{ project_path }}/"
+        mode: 777
+        owner: root
+        group: root
+      notify:
+        - restart daphne
 
-    - name: copy project files manage.py
+    - name: copy project files - manage.py
       copy:
         src: "../memtree/manage.py"
         dest: "{{ project_path }}/"
+        mode: 777
+        owner: root
+        group: root
+      notify:
+        - restart daphne
 
-    - name: copy project files requirements.txt
+    - name: copy project files - requirements.txt
       copy:
         src: "../memtree/requirements.txt"
         dest: "{{ project_path }}/"
-#      notify:
-#        - restart daphne
+        mode: 777
+        owner: root
+        group: root
+      notify:
+        - restart daphne
+
+    - name: copy project files - db.sqlite3
+      copy:
+        src: "../memtree/db.sqlite3"
+        dest: "{{ project_path }}/"
+        mode: 777
+        owner: root
+        group: root
+      notify:
+        - restart daphne
 
     - name: initiate virtualenv
       pip:
@@ -37,40 +65,59 @@
     - name: copy nginx config
       template:
         src: "files/nginx.j2"
-        dest: "/etc/nginx/sites-enabled/{{ project_name }}.conf"
-#      notify:
-#        - restart nginx
+        dest: "/etc/nginx/sites-available/{{ project_name }}.conf"
+        mode: 777
+        owner: root
+        group: root
+      notify:
+        - restart nginx
 
-#    - name: django migrate
-#      django_manage:
-#        command: migrate
-#        app_path: {{ project_path }}
-#        pythonpath: {{ venv_python }}
-#
-#    - name: django collectstatic
-#      django_manage:
-#        command: collectstatic
-#        app_path: {{ project_path }}
-#        pythonpath: {{ venv_python }}
-#
-#    - name: copy daphne config
-#      template:
-#        src: files/daphne.j2
-#        dest: /etc/systemd/system/daphne.service
-#      notify:
-#        - restart daphne
-#
-#    - name: make sure nginx server is running
-#      service:
-#        name: nginx
-#        state: started
-#        enabled: yes
-#
-#    - name: make sure daphne server is running
-#      service:
-#        name: daphne
-#        state: started
-#        enabled: yes
+    - name: create symbolic links for sites config to enable sites
+      become: yes
+      file:
+        path: "/etc/nginx/sites-enabled/{{ project_name }}.conf"
+        state: link
+        src: "/etc/nginx/sites-available/{{ project_name }}.conf"
+        force: yes
+      notify:
+        - restart nginx
+
+    - name: django migrate
+      django_manage:
+        command: migrate
+        app_path: "{{ project_path }}/"
+        pythonpath: "{{ venv_python }}"
+
+    - name: django collectstatic
+      django_manage:
+        command: collectstatic
+        app_path: "{{ project_path }}/"
+        pythonpath: "{{ venv_python }}"
+
+    - name: copy daphne config
+      template:
+        src: "files/daphne.j2"
+        dest: "/etc/systemd/system/daphne.service"
+        mode: 777
+        owner: root
+        group: root
+      notify:
+        - restart daphne
+
+    - name: reload systemd configuration
+      command: systemctl daemon-reload
+
+    - name: make sure nginx server is running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: make sure daphne server is running
+      service:
+        name: daphne
+        state: started
+        enabled: yes
 
   handlers:
     - name: restart nginx
