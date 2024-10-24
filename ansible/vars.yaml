@@ -2,10 +2,11 @@ install_root: /var/lib
 project_name: memtree
 project_path: "{{ install_root }}/{{ project_name }}"
 venv_dir: "{{ project_path }}/venv"
-venv_python: "{{ venv_dir }}/bin/python3"
 asgi_module: "{{ project_name }}.asgi"
 static_root: "{{ project_path }}/static"
 system_packages:
   - nginx
   - python3-pip
   - python3-venv
+cert_path: /etc/nginx/certificate.pem
+key_path: /etc/nginx/certificate.key

@@ -1,8 +1,10 @@
 import os
+from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SECRET_KEY = 't@4ss2uj6at^!w0(fyen9%=#j5sd6r)q&7#0+@6^g7*v@ffg#x'
+SECRET_KEY = get_random_secret_key()
 DEBUG = False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = [u'127.0.0.1',
                  u'84.38.182.234',
                  u'orionio.pythonanywhere.com']

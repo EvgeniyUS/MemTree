@@ -10,7 +10,7 @@
       copy:
         src: "../memtree/item"
         dest: "{{ project_path }}/"
-        mode: 777
+        mode: 600
         owner: root
         group: root
       notify:
@@ -20,7 +20,7 @@
       copy:
         src: "../memtree/memtree"
         dest: "{{ project_path }}/"
-        mode: 777
+        mode: 600
         owner: root
         group: root
       notify:
@@ -30,7 +30,7 @@
       copy:
         src: "../memtree/manage.py"
         dest: "{{ project_path }}/"
-        mode: 777
+        mode: 600
         owner: root
         group: root
       notify:
@@ -40,21 +40,21 @@
       copy:
         src: "../memtree/requirements.txt"
         dest: "{{ project_path }}/"
-        mode: 777
+        mode: 600
         owner: root
         group: root
       notify:
         - restart daphne
 
-    - name: copy project files - db.sqlite3
-      copy:
-        src: "../memtree/db.sqlite3"
-        dest: "{{ project_path }}/"
-        mode: 777
-        owner: root
-        group: root
-      notify:
-        - restart daphne
+#    - name: copy project files - db.sqlite3
+#      copy:
+#        src: "../memtree/db.sqlite3"
+#        dest: "{{ project_path }}/"
+#        mode: 600
+#        owner: root
+#        group: root
+#      notify:
+#        - restart daphne
 
     - name: initiate virtualenv
       pip:
@@ -66,7 +66,7 @@
       template:
         src: "files/nginx.j2"
         dest: "/etc/nginx/sites-available/{{ project_name }}.conf"
-        mode: 777
+        mode: 600
         owner: root
         group: root
       notify:
@@ -86,19 +86,19 @@
       django_manage:
         command: migrate
         app_path: "{{ project_path }}/"
-        pythonpath: "{{ venv_python }}"
+        virtualenv: "{{ venv_dir }}"
 
     - name: django collectstatic
       django_manage:
         command: collectstatic
         app_path: "{{ project_path }}/"
-        pythonpath: "{{ venv_python }}"
+        virtualenv: "{{ venv_dir }}"
 
     - name: copy daphne config
       template:
         src: "files/daphne.j2"
         dest: "/etc/systemd/system/daphne.service"
-        mode: 777
+        mode: 600
         owner: root
         group: root
       notify:

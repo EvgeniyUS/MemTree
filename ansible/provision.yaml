@@ -22,4 +22,14 @@
         path: /etc/nginx/sites-enabled/default
         state: absent
 
+    - name: create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: "{{ key_path }}"
+
+    - name: create simple self-signed certificate
+      community.crypto.x509_certificate:
+        path: "{{ cert_path }}"
+        privatekey_path: "{{ key_path }}"
+        provider: selfsigned
+
 - import_playbook: deploy.yaml

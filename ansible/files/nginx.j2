@@ -4,7 +4,7 @@ upstream channels-backend {
 
 server {
     listen 80;
-    server_name memtree;
+    server_name "memtree";
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location ^~ /static {
@@ -26,5 +26,36 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Host $server_name;
+    }
+}
+
+server {
+    listen *:443 ssl;
+    server_name "memtree";
+
+    ssl_certificate {{ cert_path }};
+    ssl_certificate_key {{ key_path }};
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location ^~ /static {
+        alias {{ static_root }};
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:{{ project_path }}/daphne.sock;
+    }
+    #/notification/ is redirecting the requests into the daphne.sock
+    location /ws/ {
+        proxy_pass http://unix:{{ project_path }}/daphne.sock;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+        proxy_set_header X-Forwarded-Proto https;
     }
 }
