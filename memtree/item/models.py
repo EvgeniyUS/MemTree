@@ -51,8 +51,7 @@ def signal_handler(sender, **kwargs):
             data.update({k: getattr(instance, k) for k in kwargs.get("update_fields") if hasattr(instance, k)})
             if parent := data.get('parent'):
                 data['parent'] = parent.id
-        user = instance.user
         async_to_sync(get_channel_layer().group_send)(
-            f'{user.username}.{user.id}',
+            f'{instance.user.username}.{instance.user.id}',
             {'type': 'notify', 'data': data}
         )

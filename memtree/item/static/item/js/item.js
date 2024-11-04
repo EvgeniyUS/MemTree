@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 /*globals $:false */
 /*globals csrftoken:false */
+let CHANGED_ITEM = false;
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = false;
 let WEBSOCKET = false;
@@ -15,7 +16,6 @@ function wsConnect() {
     if (window.location.protocol === 'https:') {
         ws_proto = 'wss://';
     }
-    window.console.log(`${ws_proto}${window.location.host}/ws/`);
     const socket = new WebSocket(`${ws_proto}${window.location.host}/ws/`);
 
     socket.onopen = function () {
@@ -47,27 +47,22 @@ function wsConnect() {
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
         if (data.signal === 'updated') {
-            window.console.log('updated');
+            const item = document.getElementById(data.id);
             if ('collapsed' in data) {
-                const caret = find(data.id, "caret");
-                caret.collapsed = data.collapsed;
-                if (caret.collapsed) {
-                    caret.style.transform = 'rotate(0deg)';
-                    find(getId(caret), "ul").style.display = "none";
-                }
-                else {
-                    caret.style.transform = 'rotate(90deg)';
-                    find(getId(caret), "ul").style.display = "block";
-                }
+                item.caret.collapsed = data.collapsed;
+                caretRotate(item.caret);
             } else if ('text' in data) {
-                const text = find(data.id, "text");
-                text.value = data.text;
-                inputWidthChanger(text);
+                if (CHANGED_ITEM != data.id) {
+                    item.text.value = data.text;
+                    inputWidthChanger(item.text);
+                    search();
+                } else {
+                    CHANGED_ITEM = false;
+                }
             } else if ('parent' in data) {
-                const li = document.getElementById(data.id);
-                const old_parent = li.parent;
-                li.parent = data.parent;
-                appendToParent(li);
+                const old_parent = item.parent;
+                item.parent = data.parent;
+                appendToParent(item);
                 parentUpdate(old_parent);
             }
         } else if (data.signal === 'created') {
@@ -181,11 +176,9 @@ function editOrRemove() {
         });
     } else {
         if (SELECTED_ITEM_ID) {
-            const text = find(SELECTED_ITEM_ID, "text");
-            if (text) {
-                text.readOnly = false;
-                text.focus();
-            }
+            const item = document.getElementById(SELECTED_ITEM_ID);
+            item.text.readOnly = false;
+            item.text.focus();
         }
     }
 }
@@ -201,6 +194,7 @@ function setAttributes(element, attrs) {
 
 function changeText(text) {
     "use strict";
+    CHANGED_ITEM = text.parentNode.id;
     $.ajax({
         type: 'POST',
         url: 'change-text/',
@@ -221,34 +215,36 @@ function changeText(text) {
 
 function inputWidthChanger(text) {
     "use strict";
-    if ($(text).val()) {
-        const value_rows = $(text).val().split('\n');
-        $(text).attr('rows', value_rows.length);
-        let len = 1;
-        let longest;
-        for (let i=0; i < value_rows.length; i++) {
-            if (value_rows[i].length > len) {
-                len = value_rows[i].length;
-                longest = value_rows[i];
+    let cols = 1;
+    let rows = [1];
+    if (text.value) {
+        rows = text.value.split('\n');
+        for (const row of rows) {
+            if (row.length > cols) {
+                cols = row.length;
             }
         }
-        $(text).attr('cols', len);
-    } else {
-        $(text).attr('cols', 1);
+    }
+    text.setAttribute('cols', cols);
+    text.setAttribute('rows', rows.length);
+}
+
+function caretRotate(caret) {
+    "use strict";
+    if (caret.collapsed) {
+        caret.style.transform = 'rotate(0deg)';
+        caret.parentNode.ul.style.display = "none";
+    }
+    else {
+        caret.style.transform = 'rotate(90deg)';
+        caret.parentNode.ul.style.display = "block";
     }
 }
 
 function collapse(caret) {
     "use strict";
     if (!WEBSOCKET) {
-        if (caret.collapsed) {
-            caret.style.transform = 'rotate(0deg)';
-            find(getId(caret), "ul").style.display = "none";
-        }
-        else {
-            caret.style.transform = 'rotate(90deg)';
-            find(getId(caret), "ul").style.display = "block";
-        }
+        caretRotate(caret);
     }
     $.ajax({
         type: 'POST',
@@ -278,10 +274,10 @@ function addOrMove() {
             success: function () {
                 if (!WEBSOCKET) {
                     for (const item_id of CHECKED_ITEMS_IDS) {
-                        const li = document.getElementById(item_id);
-                        const old_parent = li.parent;
-                        li.parent = SELECTED_ITEM_ID;
-                        appendToParent(li);
+                        const item = document.getElementById(item_id);
+                        const old_parent = item.parent;
+                        item.parent = SELECTED_ITEM_ID;
+                        appendToParent(item);
                         parentUpdate(old_parent);
                     }
                 }
@@ -302,11 +298,10 @@ function addOrMove() {
                 'parent': SELECTED_ITEM_ID
             },
             success: function (data) {
-                create(data);
-                showChildren(data.parent);
-                const text = find(data.id, 'text');
-                text.readOnly = false;
-                text.focus();
+                const item = create(data);
+                showChildren(item.parent);
+                item.text.readOnly = false;
+                item.text.focus();
             },
             error: function (jqXHR, exception) {
                 errorAlert(jqXHR, exception);
@@ -317,10 +312,12 @@ function addOrMove() {
 
 function showChildren(item_id) {
     "use strict";
-    const caret = find(item_id, "caret");
-    if (caret && caret.collapsed) {
-        caret.collapsed = false;
-        collapse(caret);
+    if (item_id) {
+        const item = document.getElementById(item_id);
+        if (item.caret.collapsed) {
+            item.caret.collapsed = false;
+            collapse(item.caret);
+        }
     }
 }
 
@@ -361,38 +358,36 @@ function buttonsUpdate() {
 
 function bordersUpdate() {
     "use strict";
-    for (const item of document.querySelectorAll('[id$="_text"]')) {
-        const item_id = getId(item);
-        if (item_id === SELECTED_ITEM_ID) {
-            item.style.border = "1px solid rgba(155, 255, 155, 0.5)";
-            find(item_id, "ul").className = null;
-        } else if (CHECKED_ITEMS_IDS.includes(item_id)) {
-            item.style.border = "1px solid rgba(255, 211, 0, 0.7)";
-            find(item_id, "ul").className = "disabled";
+    for (const item of document.getElementsByTagName('li')) {
+        if (item.id === SELECTED_ITEM_ID) {
+            item.text.style.border = "1px solid rgba(155, 255, 155, 0.5)";
+            item.ul.className = null;
+        } else if (CHECKED_ITEMS_IDS.includes(item.id)) {
+            item.text.style.border = "1px solid rgba(255, 211, 0, 0.7)";
+            item.ul.className = "disabled";
         } else {
-            item.style.border = "1px solid rgba(0, 0, 0, 0.8)";
-            find(item_id, "ul").className = null;
+            item.text.style.border = "1px solid rgba(0, 0, 0, 0.8)";
+            item.ul.className = null;
         }
     }
 }
 
 function create(data) {
     "use strict";
-    if (!document.getElementById(data.id)) {
-        const li = document.createElement('li');
-        li.parent = data.parent;
-        li.setAttribute('id', data.id);
+    var item = document.getElementById(data.id);
+    if (!item) {
+        item = document.createElement('li');
+        item.parent = data.parent;
+        item.setAttribute('id', data.id);
 
-        const caret = document.createElement('span');
-        caret.setAttribute('id', `${data.id}_caret`);
-        caret.className = 'caret';
-        caret.collapsed = data.collapsed;
-        caret.style.display = "none";
-        caretToggler(caret);
+        item.caret = document.createElement('span');
+        item.caret.className = 'caret';
+        item.caret.collapsed = data.collapsed;
+        item.caret.style.display = "none";
+        caretToggler(item.caret);
 
-        const text = document.createElement('textarea');
-        setAttributes(text, {
-            "id": `${data.id}_text`,
+        item.text = document.createElement('textarea');
+        setAttributes(item.text, {
             "class": "text",
             "rows": 1,
             "wrap": "off",
@@ -400,62 +395,50 @@ function create(data) {
             "onclick": "selection(this.parentNode.id)",
             "readonly": true
         });
-        text.value = data.text;
-        inputWidthChanger(text);
+        item.text.value = data.text;
+        inputWidthChanger(item.text);
 
-        const ul = document.createElement('ul');
-        ul.setAttribute("id", `${data.id}_ul`);
+        item.ul = document.createElement('ul');
 
-        if (caret.collapsed) {
-            caret.style.transform = 'rotate(0deg)';
-            ul.style.display = "none";
-        } else {
-            caret.style.transform = 'rotate(90deg)';
-            ul.style.display = "block";
-        }
+        item.counter = document.createElement('sup');
+        item.counter.setAttribute('class', 'counter');
 
-        const counter = document.createElement('sup');
-        setAttributes(counter, {
-            "id": `${data.id}_counter`,
-            "class": "counter",
-        });
+        item.appendChild(item.caret);
+        item.appendChild(item.text);
+        item.appendChild(item.counter);
+        item.appendChild(item.ul);
 
-        li.appendChild(caret);
-        li.appendChild(text);
-        li.appendChild(counter);
-        li.appendChild(ul);
+        appendToParent(item);
 
-        appendToParent(li);
+        caretRotate(item.caret);
     }
+    return item;
 }
 
-function appendToParent(li) {
+function appendToParent(item) {
     "use strict";
-    if (li.parent) {
-        const parent_ul = find(li.parent, "ul");
-        parent_ul.appendChild(li);
+    if (item.parent) {
+        document.getElementById(item.parent).ul.appendChild(item);
     }
     else {
-        const root_ul = document.getElementById("root_ul");
-        root_ul.appendChild(li);
+        document.getElementById("root_ul").appendChild(item);
     }
-    parentUpdate(li.parent);
+    parentUpdate(item.parent);
 }
 
 function parentUpdate(parent_id) {
     "use strict";
     if (parent_id) {
-        const parent_ul = find(parent_id, "ul");
-        const parent_input = find(parent_id, "text");
-        if (parent_ul.childNodes.length > 0) {
-            parent_input.style.color = "rgba(190,130,70,0.9)";
-            find(parent_id, "caret").style.display = 'inline-block';
-            find(parent_id, "counter").innerHTML = `${parent_ul.childNodes.length}`;
+        const parent_item = document.getElementById(parent_id);
+        if (parent_item.ul.childNodes.length > 0) {
+            parent_item.text.style.color = "rgba(190,130,70,0.9)";
+            parent_item.caret.style.display = 'inline-block';
+            parent_item.counter.innerHTML = `${parent_item.ul.childNodes.length}`;
         }
         else {
-            parent_input.style.color = "rgba(255,255,255,0.8)";
-            find(parent_id, "caret").style.display = 'none';
-            find(parent_id, "counter").innerHTML = '';
+            parent_item.text.style.color = "rgba(255,255,255,0.8)";
+            parent_item.caret.style.display = 'none';
+            parent_item.counter.innerHTML = '';
         }
     }
 }
@@ -470,38 +453,27 @@ function items(data) {
 
 function searchMark(item) {
     "use strict";
-    item.style.background = 'rgba(155, 255, 155, 0.1)';
-    if (item.parentNode.parent) {
-        searchMark(find(item.parentNode.parent, 'text'));
+    item.text.style.background = 'rgba(155, 255, 155, 0.1)';
+    if (item.parent) {
+        searchMark(document.getElementById(item.parent));
     }
 }
 
 function search() {
     "use strict";
-    let search_input = document.getElementById('search_input');
-    let elements = document.getElementsByClassName('text');
-    let search_counter = document.getElementById('search_counter');
+    const search_input = document.getElementById('search_input');
+    var search_counter = document.getElementById('search_counter');
+    const items = document.getElementsByTagName('li');
     search_counter.innerHTML = '0';
-    for (let i = 0; i < elements.length; ++i) {
-        const item = elements[i];
-        if ((search_input.value) && (item.value.toLowerCase().includes(search_input.value.toLowerCase()))) {
+    for (const item of items) {
+        if ((search_input.value) && (item.text.value.toLowerCase().includes(search_input.value.toLowerCase()))) {
             search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`;
             searchMark(item);
         } else {
-            item.style.background = 'transparent';
+            item.text.style.background = 'transparent';
         }
     }
     if (!search_input.value) {
         search_counter.innerHTML = '';
     }
-}
-
-function getId(item) {
-    "use strict";
-    return item.id.split('_')[0];
-}
-
-function find(item_id, item_type) {
-    "use strict";
-    return document.getElementById(`${item_id}_${item_type}`);
 }
