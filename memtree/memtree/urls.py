@@ -1,14 +1,20 @@
 from django.conf.urls import include
 from django.urls import path
 from django.contrib import admin
-from . import views
+from rest_framework.routers import DefaultRouter
+from memtree.views import index, login, logout, registration, delete_account, user_help
+from item.views import ItemViewSet
+
+router = DefaultRouter()
+router.register(r'items', ItemViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', views.login, name='login'),
-    path('logout/', views.logout, name='logout'),
-    path('registration/', views.registration, name='registration'),
-    path('delete-account/', views.delete_account, name='delete_account'),
-    path('user-help/', views.user_help, name='user_help'),
-    path('', include('item.urls')),
+    path('', index, name='index'),
+    path('login/', login, name='login'),
+    path('logout/', logout, name='logout'),
+    path('registration/', registration, name='registration'),
+    path('delete-account/', delete_account, name='delete_account'),
+    path('user-help/', user_help, name='user_help'),
+    path('api/', include(router.urls)),
 ]

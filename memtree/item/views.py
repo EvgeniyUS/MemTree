@@ -1,99 +1,88 @@
-import json
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_GET, require_POST
+from django_filters import rest_framework as filters
+from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from .models import Item
+from .serializers import ItemObjectSerializer, ItemBulkUpdateSerializer, ItemTreeSerializer
 
 
-@require_GET
-@login_required
-def index(request):
-    try:
-        return render(request, 'item/item.html',
-                      context={'data': json.dumps(Item.sorted_items(request.user.items))})
-    except Exception as e:
-        return JsonResponse(data={'error': str(e)}, status=500,
-                            content_type="application/json")
+class IsOwner(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
 
 
-@require_POST
-@login_required
-def create(request):
-    try:
-        values = request.POST.dict()
-        if values['parent'] and values['parent'] != 'false':
-            parent = request.user.items.get(id=values['parent'])
-        else:
-            parent = None
-        new_item = Item.objects.create(parent=parent, user=request.user)
-        return JsonResponse(data={'id': new_item.id,
-                                  'collapsed': new_item.collapsed,
-                                  'text': new_item.text,
-                                  'parent': parent.id if parent else None},
-                            status=201,
-                            content_type="application/json")
-    except Exception as e:
-        return JsonResponse(data={'error': str(e)}, status=500,
-                            content_type="application/json")
+class OwnerFilterBackend:
+    @staticmethod
+    def filter_queryset(request, queryset, view):
+        return queryset.filter(user=request.user)
 
 
-@require_POST
-@login_required
-def collapse(request):
-    try:
-        values = request.POST.dict()
-        item = request.user.items.get(id=values['id'])
-        item.collapsed = True if values['collapsed'] == 'true' else False
-        item.save(update_fields=['collapsed'])
-        return JsonResponse(data={'result': 'OK'}, status=202,
-                            content_type="application/json")
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500,
-                            content_type="application/json")
+class ItemFilter(filters.FilterSet):
+    text = filters.CharFilter(field_name="text", lookup_expr='icontains')
+    parent = filters.CharFilter(method='filter_parent')
+
+    @staticmethod
+    def filter_parent(queryset, name, value):
+        try:
+            value = int(value)
+        except ValueError:
+            value = None
+        return queryset.filter(parent=value)
 
 
-@require_POST
-@login_required
-def change_text(request):
-    try:
-        values = request.POST.dict()
-        item = request.user.items.get(id=values['id'])
-        item.text = values['text']
-        item.save(update_fields=['text'])
-        return JsonResponse(data={'result': 'OK'}, status=202,
-                            content_type="application/json")
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500,
-                            content_type="application/json")
+class ItemViewSet(ModelViewSet):
+    queryset = Item.objects.all()
+    serializer_class = ItemObjectSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+    filter_backends = (filters.DjangoFilterBackend, OwnerFilterBackend, OrderingFilter, SearchFilter)
+    filterset_class = ItemFilter
+    filterset_fields = ('text', 'parent')
+    ordering_fields = ('text', 'collapsed', 'parent')
+    ordering = ('text',)
+    search_fields = ['id', 'text']
 
+    @action(methods=['get'], detail=False, url_path="search")
+    def search(self, request, *args, **kwargs):
+        pass
 
-@require_POST
-@login_required
-def move(request):
-    try:
-        values = request.POST.dict()
-        for item in request.user.items.filter(id__in=json.loads(values['ids'])):
-            if values['parent'] and values['parent'] != 'false':
-                item.parent = request.user.items.get(id=values['parent'])
-            else:
-                item.parent = None
-            item.save(update_fields=['parent'])
-        return JsonResponse(data={'result': 'OK'}, status=202,
-                            content_type="application/json")
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500,
-                            content_type="application/json")
+    @action(methods=['patch'], detail=False, url_path="bulk-update")
+    def bulk_update(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = ItemBulkUpdateSerializer(instance=queryset, data=request.data,
+                                              context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
+    @action(methods=['get'], detail=False, url_path="validate")
+    def validate(self, request, *args, **kwargs):
+        return Response(Item.tree_validation(request.user))
 
-@require_POST
-@login_required
-def delete(request):
-    try:
-        values = request.POST.dict()
-        request.user.items.filter(id__in=json.loads(values['ids'])).delete()
-        return JsonResponse(data={'result': 'OK'}, status=202,
-                            content_type="application/json")
-    except Exception as e:
-        return JsonResponse(data={'error': str(e)}, status=500,
-                            content_type="application/json")
+    @action(methods=['get'], detail=False, url_path="sorted")
+    def sorted(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        sorted_items = list()
+
+        def rec(_items):
+            sorted_items.extend(ItemObjectSerializer(instance=_items, many=True).data)
+            _children = queryset.filter(parent__in=_items.filter(collapsed=False)).order_by('text')
+            if _children:
+                rec(_children)
+
+        rec(queryset.filter(parent=None))
+        return Response(sorted_items)
+
+    @action(methods=['get'], detail=False, url_path="full-tree")
+    def full_tree(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        return Response(ItemTreeSerializer(instance=queryset.filter(parent=None), many=True).data)
+
+    @action(methods=['get'], detail=True, url_path="tree")
+    def tree(self, request, *args, **kwargs):
+        return Response(ItemTreeSerializer(instance=self.get_object()).data)
+
+    @action(methods=['get'], detail=True, url_path="test")
+    def test(self, request, *args, **kwargs):
+        return Response(self.get_object().path)

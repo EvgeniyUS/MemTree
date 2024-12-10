@@ -23,7 +23,7 @@
     <script type="text/javascript">
         const csrftoken = '{{ csrf_token }}';
         wsConnect();
-        items('{{ data|escapejs }}');
+        {% comment %} items('{{ data|escapejs }}'); {% endcomment %}
     </script>
 
 {% endblock %}

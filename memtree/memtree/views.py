@@ -12,6 +12,18 @@ from django.views.decorators.http import require_GET, require_http_methods
 
 @require_GET
 @login_required
+def index(request):
+    try:
+        # return render(request, 'item/item.html',
+        #               context={'data': json.dumps(Item.sorted_items(request.user.items))})
+        return render(request, 'item/item.html')
+    except Exception as e:
+        return JsonResponse(data={'error': str(e)}, status=500,
+                            content_type="application/json")
+
+
+@require_GET
+@login_required
 def user_help(request):
     try:
         return render(request, 'memtree/user_help.html')

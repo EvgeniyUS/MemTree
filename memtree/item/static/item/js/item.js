@@ -1,14 +1,33 @@
 /* jshint esversion: 6 */
 /*globals $:false */
 /*globals csrftoken:false */
-let CHANGED_ITEM = false;
 let CHECKED_ITEMS_IDS = Array();
-let SELECTED_ITEM_ID = false;
-let WEBSOCKET = false;
+let SELECTED_ITEM_ID = null;
 let WEBSOCKET_RECONNECT_TIMEOUT = 10; // sec
 
 const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
 $.fn.bootstrapBtn = bootstrapButton;              // give $().bootstrapBtn the Bootstrap functionality
+
+function detectDoubleTap(doubleTapMs) {
+    "use strict";
+    let timeout, lastTap = 0;
+    return function detectDoubleTap(event) {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (0 < tapLength && tapLength < doubleTapMs) {
+            event.preventDefault();
+            const doubleTap = new CustomEvent("doubletap", {
+                bubbles: true,
+                detail: event
+            });
+            event.target.dispatchEvent(doubleTap);
+        } else {
+            timeout = setTimeout(() => clearTimeout(timeout), doubleTapMs);
+        }
+        lastTap = currentTime;
+    }
+}
+document.addEventListener('pointerup', detectDoubleTap(300));
 
 function wsConnect() {
     "use strict";
@@ -19,13 +38,14 @@ function wsConnect() {
     const socket = new WebSocket(`${ws_proto}${window.location.host}/ws/`);
 
     socket.onopen = function () {
-        socket.send(JSON.stringify({'WebSocket': 'OK'}));
         let menu_button = document.getElementById('menu_button');
         if (menu_button) {
             menu_button.classList.remove('btn-outline-light');
             menu_button.classList.add('btn-outline-success');
         }
-        WEBSOCKET = true;
+        document.getElementById('search_input').classList.remove('disabled');
+        document.getElementById('root_ul').innerHTML = '';
+        apiList(null);
     };
 
     socket.onclose = function (event) {
@@ -34,7 +54,7 @@ function wsConnect() {
             menu_button.classList.add('btn-outline-light');
             menu_button.classList.remove('btn-outline-success');
         }
-        WEBSOCKET = false;
+        document.getElementById('search_input').classList.add('disabled');
         window.console.log(
             `WebSocket is closed. Reconnect will be attempted in ${WEBSOCKET_RECONNECT_TIMEOUT} second.`,
             event.reason
@@ -48,30 +68,32 @@ function wsConnect() {
         const data = JSON.parse(event.data);
         if (data.signal === 'updated') {
             const item = document.getElementById(data.id);
-            if ('collapsed' in data) {
-                item.caret.collapsed = data.collapsed;
-                caretRotate(item.caret);
-            } else if ('text' in data) {
-                if (CHANGED_ITEM != data.id) {
+            if (item) {
+                if (item.caret.collapsed != data.collapsed) {
+                    item.caret.collapsed = data.collapsed;
+                    caretRotate(item);
+                }
+                if (item.text.value != data.text) {
                     item.text.value = data.text;
                     inputWidthChanger(item.text);
                     search();
-                } else {
-                    CHANGED_ITEM = false;
                 }
-            } else if ('parent' in data) {
-                const old_parent = item.parent;
-                item.parent = data.parent;
-                appendToParent(item);
-                parentUpdate(old_parent);
+                if (item.parent != data.parent) {
+                    item.parent = data.parent;
+                    appendToParent(item);
+                }
+                if (item.children_count != data.children_count) {
+                    item.children_count = data.children_count;
+                    parentUpdate(item.id);
+                }
             }
         } else if (data.signal === 'created') {
             create(data);
         } else if (data.signal === 'deleted') {
             const item = document.getElementById(data.id);
-            const item_parent = item.parent;
-            item.remove();
-            parentUpdate(item_parent);
+            if (item) {
+                item.remove();
+            }
         }
     };
 
@@ -95,35 +117,6 @@ $.ajaxSetup({
     }
 });
 
-function caretToggler(caret) {
-    "use strict";
-    caret.addEventListener("click", function() {
-        this.collapsed = !this.collapsed;
-        collapse(this);
-    });
-}
-
-function errorAlert(jqXHR, exception) {
-    "use strict";
-    let msg;
-    if (jqXHR.status === 0) {
-        msg = 'Not connect.\n Verify Network.';
-    } else if (jqXHR.status === 404) {
-        msg = 'Requested page not found. [404]';
-    } else if (jqXHR.status === 500) {
-        msg = 'Internal Server Error [500].';
-    } else if (exception === 'parsererror') {
-        msg = 'Requested JSON parse failed.';
-    } else if (exception === 'timeout') {
-        msg = 'Time out error.';
-    } else if (exception === 'abort') {
-        msg = 'Ajax request aborted.';
-    } else {
-        msg = 'Uncaught Error.\n' + jqXHR.responseText;
-    }
-    window.console.error(msg);
-}
-
 function editOrRemove() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
@@ -146,29 +139,11 @@ function editOrRemove() {
                     text: "Yes",
                     class: "btn btn-danger btn-sm",
                     click: function () {
-                        $.ajax({
-                            type: 'POST',
-                            url: 'delete/',
-                            dataType: 'json',
-                            data: {
-                                ids: JSON.stringify(CHECKED_ITEMS_IDS),
-                            },
-                            success: function () {
-                                if (!WEBSOCKET) {
-                                    for (const item_id of CHECKED_ITEMS_IDS) {
-                                        const item = document.getElementById(item_id);
-                                        const item_parent = item.parent;
-                                        item.remove();
-                                        parentUpdate(item_parent);
-                                    }
-                                }
-                                CHECKED_ITEMS_IDS = Array();
-                                buttonsUpdate();
-                            },
-                            error: function (jqXHR, exception) {
-                                errorAlert(jqXHR, exception);
-                            }
-                        });
+                        for (const item_id of CHECKED_ITEMS_IDS) {
+                            apiDelete(item_id);
+                        }
+                        CHECKED_ITEMS_IDS = Array();
+                        buttonsUpdate();
                         $(this).dialog("close");
                     }
                 },
@@ -177,8 +152,10 @@ function editOrRemove() {
     } else {
         if (SELECTED_ITEM_ID) {
             const item = document.getElementById(SELECTED_ITEM_ID);
-            item.text.readOnly = false;
-            item.text.focus();
+            if (item) {
+                item.text.readOnly = false;
+                window.requestAnimationFrame(() => item.text.focus())
+            }
         }
     }
 }
@@ -190,27 +167,6 @@ function setAttributes(element, attrs) {
             element.setAttribute(key, attrs[key]);
         }
     }
-}
-
-function changeText(text) {
-    "use strict";
-    CHANGED_ITEM = text.parentNode.id;
-    $.ajax({
-        type: 'POST',
-        url: 'change-text/',
-        dataType: 'json',
-        data: {
-            'id': text.parentNode.id,
-            'text': text.value
-        },
-        success: function () {
-            inputWidthChanger(text);
-            search();
-        },
-        error: function (jqXHR, exception) {
-            errorAlert(jqXHR, exception);
-        }
-    });
 }
 
 function inputWidthChanger(text) {
@@ -227,86 +183,37 @@ function inputWidthChanger(text) {
     }
     text.setAttribute('cols', cols);
     text.setAttribute('rows', rows.length);
-}
-
-function caretRotate(caret) {
-    "use strict";
-    if (caret.collapsed) {
-        caret.style.transform = 'rotate(0deg)';
-        caret.parentNode.ul.style.display = "none";
-    }
-    else {
-        caret.style.transform = 'rotate(90deg)';
-        caret.parentNode.ul.style.display = "block";
+    if (cols > 40 || rows.length > 20) {
+        text.style.fontSize = '12px';
+    } else {
+        text.style.fontSize = null;
     }
 }
 
-function collapse(caret) {
+function caretRotate(item) {
     "use strict";
-    if (!WEBSOCKET) {
-        caretRotate(caret);
+    if (!item.caret.collapsed && item.children_count > 0) {
+        item.caret.style.transform = 'rotate(90deg)';
+        apiList(item.id);
+    } else {
+        item.caret.style.transform = 'rotate(0deg)';
+        item.ul.innerHTML = '';
     }
-    $.ajax({
-        type: 'POST',
-        url: 'collapse/',
-        dataType: 'json',
-        data: {
-            'id': caret.parentNode.id,
-            'collapsed': caret.collapsed
-        },
-        error: function (jqXHR, exception) {
-            errorAlert(jqXHR, exception);
-        }
-    });
 }
 
 function addOrMove() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
-        $.ajax({
-            type: 'POST',
-            url: 'move/',
-            dataType: 'json',
-            data: {
-                ids: JSON.stringify(CHECKED_ITEMS_IDS),
-                parent: SELECTED_ITEM_ID
-            },
-            success: function () {
-                if (!WEBSOCKET) {
-                    for (const item_id of CHECKED_ITEMS_IDS) {
-                        const item = document.getElementById(item_id);
-                        const old_parent = item.parent;
-                        item.parent = SELECTED_ITEM_ID;
-                        appendToParent(item);
-                        parentUpdate(old_parent);
-                    }
-                }
-                showChildren(SELECTED_ITEM_ID);
-                CHECKED_ITEMS_IDS = Array();
-                buttonsUpdate();
-            },
-            error: function (jqXHR, exception) {
-                errorAlert(jqXHR, exception);
-            }
-        });
-    } else {
-        $.ajax({
-            type: 'POST',
-            url: 'create/',
-            dataType: 'json',
-            data: {
+        for (const item_id of CHECKED_ITEMS_IDS) {
+            apiUpdate({
+                'id': item_id,
                 'parent': SELECTED_ITEM_ID
-            },
-            success: function (data) {
-                const item = create(data);
-                showChildren(item.parent);
-                item.text.readOnly = false;
-                item.text.focus();
-            },
-            error: function (jqXHR, exception) {
-                errorAlert(jqXHR, exception);
-            },
-        });
+            });
+        }
+        CHECKED_ITEMS_IDS = Array();
+        buttonsUpdate();
+    } else {
+        apiCreate();
     }
 }
 
@@ -315,8 +222,7 @@ function showChildren(item_id) {
     if (item_id) {
         const item = document.getElementById(item_id);
         if (item.caret.collapsed) {
-            item.caret.collapsed = false;
-            collapse(item.caret);
+            apiUpdate({'id': item.id, 'collapsed': false});
         }
     }
 }
@@ -324,7 +230,7 @@ function showChildren(item_id) {
 function selection(item_id) {
     "use strict";
     if (SELECTED_ITEM_ID === item_id) {
-        SELECTED_ITEM_ID = false;
+        SELECTED_ITEM_ID = null;
         CHECKED_ITEMS_IDS.push(item_id);
     } else if (CHECKED_ITEMS_IDS.includes(item_id)) {
         CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
@@ -353,12 +259,11 @@ function buttonsUpdate() {
         edit_remove_button.disabled = !SELECTED_ITEM_ID;
     }
     bordersUpdate();
-    search();
 }
 
 function bordersUpdate() {
     "use strict";
-    for (const item of document.getElementsByTagName('li')) {
+    for (const item of document.getElementsByClassName('item')) {
         if (item.id === SELECTED_ITEM_ID) {
             item.text.style.border = "1px solid rgba(155, 255, 155, 0.5)";
             item.ul.className = null;
@@ -378,23 +283,37 @@ function create(data) {
     if (!item) {
         item = document.createElement('li');
         item.parent = data.parent;
-        item.setAttribute('id', data.id);
+        item.children_count = data.children_count;
+        setAttributes(item, {
+            "class": "item",
+            "id": data.id,
+        });
 
         item.caret = document.createElement('span');
         item.caret.className = 'caret';
         item.caret.collapsed = data.collapsed;
-        item.caret.style.display = "none";
-        caretToggler(item.caret);
+        item.caret.style.display = 'none';
+        item.caret.addEventListener("click", function() {
+            apiUpdate({
+                'id': this.parentNode.id,
+                'collapsed': !this.collapsed
+            });
+        });
 
         item.text = document.createElement('textarea');
         setAttributes(item.text, {
             "class": "text",
             "rows": 1,
             "wrap": "off",
-            "oninput": "changeText(this)",
+            "oninput": "inputWidthChanger(this)",
+            "onchange": "apiUpdate({'id': this.parentNode.id, 'text': this.value})",
             "onclick": "selection(this.parentNode.id)",
-            "readonly": true
+            "readonly": true,
+            "title": `id=${data.id}\npath=${data.path}\nlength=${data.length}\nrows=${data.rows}\ncols=${data.cols}\nalphabet=${data.alphabet}`
         });
+        // item.text.addEventListener("doubletap", function() {
+        //     selection(this.parentNode.id);
+        // });
         item.text.value = data.text;
         inputWidthChanger(item.text);
 
@@ -408,32 +327,42 @@ function create(data) {
         item.appendChild(item.counter);
         item.appendChild(item.ul);
 
+        if (item.children_count > 0) {
+            item.text.style.color = "rgba(190,130,70,0.9)";
+            item.caret.style.display = 'inline-block';
+            item.counter.innerHTML = item.children_count;
+        }
+        else {
+            item.text.style.color = "rgba(255,255,255,0.8)";
+            item.caret.style.display = 'none';
+            item.counter.innerHTML = '';
+        }
+        caretRotate(item);
         appendToParent(item);
-
-        caretRotate(item.caret);
     }
     return item;
 }
 
 function appendToParent(item) {
     "use strict";
-    if (item.parent) {
-        document.getElementById(item.parent).ul.appendChild(item);
+    const parent = document.getElementById(item.parent);
+    if (parent) {
+        parent.ul.appendChild(item);
+        parentUpdate(parent.id);
     }
     else {
         document.getElementById("root_ul").appendChild(item);
     }
-    parentUpdate(item.parent);
 }
 
 function parentUpdate(parent_id) {
     "use strict";
     if (parent_id) {
         const parent_item = document.getElementById(parent_id);
-        if (parent_item.ul.childNodes.length > 0) {
+        if (parent_item.children_count > 0) {
             parent_item.text.style.color = "rgba(190,130,70,0.9)";
             parent_item.caret.style.display = 'inline-block';
-            parent_item.counter.innerHTML = `${parent_item.ul.childNodes.length}`;
+            parent_item.counter.innerHTML = parent_item.children_count;
         }
         else {
             parent_item.text.style.color = "rgba(255,255,255,0.8)";
@@ -443,37 +372,172 @@ function parentUpdate(parent_id) {
     }
 }
 
-function items(data) {
-    "use strict";
-    for (const item of JSON.parse(data)) {
-        create(item);
-    }
-    document.getElementById('search_input').classList.remove('disabled');
-}
-
-function searchMark(item) {
-    "use strict";
-    item.text.style.background = 'rgba(155, 255, 155, 0.1)';
-    if (item.parent) {
-        searchMark(document.getElementById(item.parent));
-    }
-}
-
 function search() {
     "use strict";
-    const search_input = document.getElementById('search_input');
-    var search_counter = document.getElementById('search_counter');
-    const items = document.getElementsByTagName('li');
-    search_counter.innerHTML = '0';
-    for (const item of items) {
-        if ((search_input.value) && (item.text.value.toLowerCase().includes(search_input.value.toLowerCase()))) {
-            search_counter.innerHTML = `${Number(search_counter.innerHTML) + 1}`;
-            searchMark(item);
-        } else {
+    const search_value = document.getElementById('search_input').value;
+    const search_counter = document.getElementById('search_counter');
+    var marked_items = [];
+    if (search_value) {
+        $.ajax({
+            type: 'GET',
+            url: `api/items/?search=${search_value}`,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function(data) {
+                search_counter.innerHTML = data.length;
+                for (const item_data of data) {
+                    for (const item_id of item_data.path_list) {
+                        const item = document.getElementById(item_id);
+                        if (item) {
+                            item.text.style.background = 'rgba(155, 255, 155, 0.1)';
+                            marked_items.push(item_id);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                for (const item of document.getElementsByClassName('item')) {
+                    if (!marked_items.includes(item.id)) {
+                        item.text.style.background = 'transparent';
+                    }
+                }
+            }
+        });
+    } else {
+        search_counter.innerHTML = '';
+        for (const item of document.getElementsByClassName('item')) {
             item.text.style.background = 'transparent';
         }
     }
-    if (!search_input.value) {
-        search_counter.innerHTML = '';
+}
+
+function apiRetrieve(item_id) {
+    "use strict";
+    $.ajax({
+        type: 'GET',
+        url: `api/items/${item_id}/`,
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function(data) {
+            create(data);
+            search();
+        }
+    });
+}
+
+function apiList(parent_id) {
+    "use strict";
+    $.ajax({
+        type: 'GET',
+        url: `api/items/?parent=${parent_id}`,
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function(data) {
+            for (const item_data of data) {
+                create(item_data);
+            }
+            search();
+        }
+    });
+}
+
+function apiCreate() {
+    "use strict";
+    $.ajax({
+        type: 'POST',
+        url: `api/items/`,
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({'parent': SELECTED_ITEM_ID}),
+        success: function (data) {
+            showChildren(data.parent);
+            const new_item = document.getElementById(data.id);
+            if (new_item) {
+                new_item.text.readOnly = false;
+                window.requestAnimationFrame(() => new_item.text.focus())
+            }
+            search();
+        }
+    });
+}
+
+function apiUpdate(item_data) {
+    "use strict";
+    $.ajax({
+        type: 'PUT',
+        url: `api/items/${item_data.id}/`,
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(item_data),
+        success: function (data) {
+            showChildren(item_data.parent);
+            search();
+        }
+    });
+}
+
+function apiDelete(item_id) {
+    "use strict";
+    $.ajax({
+        type: 'DELETE',
+        url: `api/items/${item_id}/`,
+        contentType: 'application/json',
+    });
+}
+
+function apiSorted() {
+    "use strict";
+    $.ajax({
+        type: 'GET',
+        url: `api/items/sorted/`,
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function(data) {
+            for (const item_data of data) {
+                create(item_data);
+            }
+        }
+    });
+}
+
+function apiBulkUpdate(items_data) {
+    "use strict";
+    $.ajax({
+        type: 'PATCH',
+        url: `api/items/bulk-update/`,
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(items_data)
+    });
+}
+
+function itemData(item) {
+    "use strict";
+    var parent = null;
+    if (item.parent) {
+        parent = Number(item.parent);
     }
+    var text = item.text.value;
+    if (!text) {
+        text = null;
+    }
+    return {
+        'id': Number(item.id),
+        'parent': parent,
+        'collapsed': item.caret.collapsed,
+        'text': text
+    };
+}
+
+function itemsData(items) {
+    "use strict";
+    var items_data_list = Array();
+    for (const item of items) {
+        items_data_list.push(itemData(item));
+    }
+    return items_data_list
+}
+
+function allItemsData() {
+    return itemsData(document.getElementsByClassName('item'))
 }
