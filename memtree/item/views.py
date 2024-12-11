@@ -43,10 +43,6 @@ class ItemViewSet(ModelViewSet):
     ordering = ('text',)
     search_fields = ['id', 'text']
 
-    @action(methods=['get'], detail=False, url_path="search")
-    def search(self, request, *args, **kwargs):
-        pass
-
     @action(methods=['patch'], detail=False, url_path="bulk-update")
     def bulk_update(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

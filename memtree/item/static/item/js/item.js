@@ -3,7 +3,7 @@
 /*globals csrftoken:false */
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = null;
-let WEBSOCKET_RECONNECT_TIMEOUT = 10; // sec
+let WEBSOCKET_RECONNECT_TIMEOUT = 5; // sec
 
 const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
 $.fn.bootstrapBtn = bootstrapButton;              // give $().bootstrapBtn the Bootstrap functionality
