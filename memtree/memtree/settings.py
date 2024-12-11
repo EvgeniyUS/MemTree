@@ -96,10 +96,10 @@ USE_TZ = True
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
 )
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'memtree/static'),
-    os.path.join(BASE_DIR, 'item/static'),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'memtree/static'),
+#     os.path.join(BASE_DIR, 'item/static'),
+# ]
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 LOGIN_URL = '/login'

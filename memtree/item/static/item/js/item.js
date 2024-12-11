@@ -303,6 +303,7 @@ function create(data) {
         item.text = document.createElement('textarea');
         setAttributes(item.text, {
             "class": "text",
+            "name": `text_${data.id}`, // что бы браузер не орал
             "rows": 1,
             "wrap": "off",
             "oninput": "inputWidthChanger(this)",
