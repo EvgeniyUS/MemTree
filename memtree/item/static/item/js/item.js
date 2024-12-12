@@ -171,9 +171,10 @@ function setAttributes(element, attrs) {
 
 function inputWidthChanger(text) {
     "use strict";
-    let cols = 1;
+    let cols = 4;
     let rows = [1];
     if (text.value) {
+        cols = 1;
         rows = text.value.split('\n');
         for (const row of rows) {
             if (row.length > cols) {
@@ -310,6 +311,7 @@ function create(data) {
             "onchange": "apiUpdate({'id': this.parentNode.id, 'text': this.value})",
             "onclick": "selection(this.parentNode.id)",
             "readonly": true,
+            "placeholder": "null",
             "title": `id=${data.id}\npath=${data.path}\nlength=${data.length}\nrows=${data.rows}\ncols=${data.cols}\nalphabet=${data.alphabet}`
         });
         // item.text.addEventListener("doubletap", function() {

@@ -4,7 +4,7 @@ from item.models import Item
 
 
 class ItemObjectSerializer(serializers.ModelSerializer):
-    text = serializers.CharField(required=False, trim_whitespace=False, allow_null=True)
+    text = serializers.CharField(required=False, trim_whitespace=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = Item
