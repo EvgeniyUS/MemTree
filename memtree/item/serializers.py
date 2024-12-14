@@ -13,10 +13,11 @@ class ItemObjectSerializer(serializers.ModelSerializer):
         fields = read_only_fields + ['parent', 'collapsed', 'text']
 
     def validate(self, item_data):
-        if self.instance:
-            item_data['id'] = self.instance.id
-            if not Item.tree_update_validation([item_data]):
-                raise ValidationError
+        if item_data.get('user') and self.context['request'].user != item_data['user']:
+            raise PermissionDenied
+        if (parent := item_data.get('parent')) and not Item.objects.filter(
+            pk=parent.id, user=self.context['request'].user).exists():
+                raise PermissionDenied('Invalid parent.')
         return item_data
 
     def create(self, validated_data):
@@ -26,8 +27,11 @@ class ItemObjectSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if self.context['request'].user != instance.user:
             raise PermissionDenied
-        if validated_data.get('user') and self.context['request'].user != validated_data['user']:
-            raise PermissionDenied
+        if validated_data.get('parent'):
+            if instance == validated_data['parent']:
+                raise ValidationError
+            if validated_data['parent'] in instance.descendants:
+                raise ValidationError
         return super().update(instance, validated_data)
 
 
@@ -41,24 +45,3 @@ class ItemTreeSerializer(serializers.ModelSerializer):
         fields = super(ItemTreeSerializer, self).get_fields()
         fields['children'] = ItemTreeSerializer(many=True, required=False)
         return fields
-
-
-class ItemBulkUpdateSerializer(serializers.ListSerializer):
-    child = ItemObjectSerializer()
-
-    def validate(self, attrs):
-        for data in attrs:
-            if not Item.objects.filter(user=self.context['request'].user,
-                                       pk=data['id']).exists():
-                raise PermissionDenied
-        if not Item.tree_update_validation(attrs):
-            raise ValidationError
-        return attrs
-
-    def update(self, queryset, validated_data):
-        updated_objects = []
-        for data in validated_data:
-            if (item_id := data.pop('id', None)) and \
-                (item := queryset.filter(user=self.context['request'].user, pk=item_id).first()):
-                updated_objects.append(self.child.update(item, data))
-        return updated_objects

@@ -503,17 +503,6 @@ function apiSorted() {
     });
 }
 
-function apiBulkUpdate(items_data) {
-    "use strict";
-    $.ajax({
-        type: 'PATCH',
-        url: `api/items/bulk-update/`,
-        contentType: 'application/json',
-        dataType: 'json',
-        data: JSON.stringify(items_data)
-    });
-}
-
 function itemData(item) {
     "use strict";
     var parent = null;

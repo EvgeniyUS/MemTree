@@ -115,14 +115,3 @@ class Item(models.Model):
             return _count
         _count = rec(items.filter(parent=None), 0)
         return items.count() == _count
-
-    @staticmethod
-    def tree_update_validation(data: list) -> bool:
-        for item_data in data:
-            if 'parent' in item_data:
-                if item := Item.objects.filter(pk=item_data['id']).first():
-                    if item == item_data['parent']:
-                        return False
-                    if item_data['parent'] in item.descendants:
-                        return False
-        return True

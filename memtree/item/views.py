@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from .models import Item
-from .serializers import ItemObjectSerializer, ItemBulkUpdateSerializer, ItemTreeSerializer
+from .serializers import ItemObjectSerializer, ItemTreeSerializer
 
 
 class IsOwner(BasePermission):
@@ -42,15 +42,6 @@ class ItemViewSet(ModelViewSet):
     ordering_fields = ('text', 'collapsed', 'parent')
     ordering = ('text',)
     search_fields = ['id', 'text']
-
-    @action(methods=['patch'], detail=False, url_path="bulk-update")
-    def bulk_update(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = ItemBulkUpdateSerializer(instance=queryset, data=request.data,
-                                              context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
 
     @action(methods=['get'], detail=False, url_path="validate")
     def validate(self, request, *args, **kwargs):
