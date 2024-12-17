@@ -3,7 +3,7 @@
 /*globals csrftoken:false */
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = null;
-let WEBSOCKET_RECONNECT_TIMEOUT = 5; // sec
+let WEBSOCKET_RECONNECT_TIMEOUT = 2; // sec
 
 const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
 $.fn.bootstrapBtn = bootstrapButton;              // give $().bootstrapBtn the Bootstrap functionality
@@ -66,34 +66,13 @@ function wsConnect() {
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        if (data.signal === 'updated') {
-            const item = document.getElementById(data.id);
-            if (item) {
-                if (item.caret.collapsed != data.collapsed) {
-                    item.caret.collapsed = data.collapsed;
-                    caretRotate(item);
-                }
-                if (item.text.value != data.text) {
-                    item.text.value = data.text;
-                    inputWidthChanger(item.text);
-                    search();
-                }
-                if (item.parent != data.parent) {
-                    item.parent = data.parent;
-                    appendToParent(item);
-                }
-                if (item.children_count != data.children_count) {
-                    item.children_count = data.children_count;
-                    parentUpdate(item.id);
-                }
-            }
-        } else if (data.signal === 'created') {
-            create(data);
-        } else if (data.signal === 'deleted') {
+        if (data.signal === 'deleted') {
             const item = document.getElementById(data.id);
             if (item) {
                 item.remove();
             }
+        } else {
+            createOrUpdate(data);
         }
     };
 
@@ -191,17 +170,6 @@ function inputWidthChanger(text) {
     }
 }
 
-function caretRotate(item) {
-    "use strict";
-    if (!item.caret.collapsed && item.children_count > 0) {
-        item.caret.style.transform = 'rotate(90deg)';
-        apiList(item.id);
-    } else {
-        item.caret.style.transform = 'rotate(0deg)';
-        item.ul.innerHTML = '';
-    }
-}
-
 function addOrMove() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
@@ -215,16 +183,6 @@ function addOrMove() {
         buttonsUpdate();
     } else {
         apiCreate();
-    }
-}
-
-function showChildren(item_id) {
-    "use strict";
-    if (item_id) {
-        const item = document.getElementById(item_id);
-        if (item.caret.collapsed) {
-            apiUpdate({'id': item.id, 'collapsed': false});
-        }
     }
 }
 
@@ -251,8 +209,7 @@ function buttonsUpdate() {
         edit_remove_button.className = "btn btn-danger btn-sm";
         edit_remove_button.disabled = false;
         edit_remove_button.innerHTML = 'Del';
-    }
-    else {
+    } else {
         add_move_button.innerHTML = 'Add';
         add_move_button.className = 'btn btn-success btn-sm';
         edit_remove_button.className = "btn btn-info btn-sm";
@@ -278,13 +235,11 @@ function bordersUpdate() {
     }
 }
 
-function create(data) {
+function createOrUpdate(data) {
     "use strict";
     var item = document.getElementById(data.id);
     if (!item) {
         item = document.createElement('li');
-        item.parent = data.parent;
-        item.children_count = data.children_count;
         setAttributes(item, {
             "class": "item",
             "id": data.id,
@@ -292,7 +247,6 @@ function create(data) {
 
         item.caret = document.createElement('span');
         item.caret.className = 'caret';
-        item.caret.collapsed = data.collapsed;
         item.caret.style.display = 'none';
         item.caret.addEventListener("click", function() {
             apiUpdate({
@@ -312,13 +266,10 @@ function create(data) {
             "onclick": "selection(this.parentNode.id)",
             "readonly": true,
             "placeholder": "null",
-            "title": `id=${data.id}\npath=${data.path}\nlength=${data.length}\nrows=${data.rows}\ncols=${data.cols}\nalphabet=${data.alphabet}`
         });
         // item.text.addEventListener("doubletap", function() {
         //     selection(this.parentNode.id);
         // });
-        item.text.value = data.text;
-        inputWidthChanger(item.text);
 
         item.ul = document.createElement('ul');
 
@@ -329,49 +280,52 @@ function create(data) {
         item.appendChild(item.text);
         item.appendChild(item.counter);
         item.appendChild(item.ul);
-
-        if (item.children_count > 0) {
-            item.text.style.color = "rgba(190,130,70,0.9)";
-            item.caret.style.display = 'inline-block';
-            item.counter.innerHTML = item.children_count;
-        }
-        else {
-            item.text.style.color = "rgba(255,255,255,0.8)";
-            item.caret.style.display = 'none';
-            item.counter.innerHTML = '';
-        }
-        caretRotate(item);
-        appendToParent(item);
     }
+    item.parent = data.parent;
+    item.children_count = data.children_count;
+    item.caret.collapsed = data.collapsed;
+    item.text.setAttribute('title', `id=${data.id}\npath=${data.path}\nlength=${data.length}\nrows=${data.rows}\ncols=${data.cols}\nalphabet=${data.alphabet}`);
+    item.text.value = data.text;
+
+    inputWidthChanger(item.text);
+
+    if (item.children_count > 0) {
+        item.text.style.color = "rgba(190,130,70,0.9)";
+        item.caret.style.display = 'inline-block';
+        item.counter.innerHTML = item.children_count;
+    } else {
+        item.text.style.color = "rgba(255,255,255,0.8)";
+        item.caret.style.display = 'none';
+        item.counter.innerHTML = '';
+    }
+
+    if (!item.caret.collapsed && item.children_count > 0) {
+        item.caret.style.transform = 'rotate(90deg)';
+        apiList(item.id);
+    } else {
+        item.caret.style.transform = 'rotate(0deg)';
+        item.ul.innerHTML = '';
+    }
+
+    appendToParent(item);
+
     return item;
 }
 
 function appendToParent(item) {
     "use strict";
-    const parent = document.getElementById(item.parent);
+    var parent = document.getElementById(item.parent);
     if (parent) {
-        parent.ul.appendChild(item);
-        parentUpdate(parent.id);
+        parent = parent.ul;
+    } else {
+        parent = document.getElementById("root_ul");
     }
-    else {
-        document.getElementById("root_ul").appendChild(item);
-    }
-}
-
-function parentUpdate(parent_id) {
-    "use strict";
-    if (parent_id) {
-        const parent_item = document.getElementById(parent_id);
-        if (parent_item.children_count > 0) {
-            parent_item.text.style.color = "rgba(190,130,70,0.9)";
-            parent_item.caret.style.display = 'inline-block';
-            parent_item.counter.innerHTML = parent_item.children_count;
+    if (item.parentNode) {
+        if (parent != item.parentNode) {
+            parent.appendChild(item);
         }
-        else {
-            parent_item.text.style.color = "rgba(255,255,255,0.8)";
-            parent_item.caret.style.display = 'none';
-            parent_item.counter.innerHTML = '';
-        }
+    } else {
+        parent.appendChild(item);
     }
 }
 
@@ -422,7 +376,7 @@ function apiRetrieve(item_id) {
         contentType: 'application/json',
         dataType: 'json',
         success: function(data) {
-            create(data);
+            createOrUpdate(data);
             search();
         }
     });
@@ -437,7 +391,7 @@ function apiList(parent_id) {
         dataType: 'json',
         success: function(data) {
             for (const item_data of data) {
-                create(item_data);
+                createOrUpdate(item_data);
             }
             search();
         }
@@ -453,7 +407,6 @@ function apiCreate() {
         dataType: 'json',
         data: JSON.stringify({'parent': SELECTED_ITEM_ID}),
         success: function (data) {
-            showChildren(data.parent);
             const new_item = document.getElementById(data.id);
             if (new_item) {
                 new_item.text.readOnly = false;
@@ -473,7 +426,6 @@ function apiUpdate(item_data) {
         dataType: 'json',
         data: JSON.stringify(item_data),
         success: function (data) {
-            showChildren(item_data.parent);
             search();
         }
     });
@@ -497,7 +449,7 @@ function apiSorted() {
         dataType: 'json',
         success: function(data) {
             for (const item_data of data) {
-                create(item_data);
+                createOrUpdate(item_data);
             }
         }
     });

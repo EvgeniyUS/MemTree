@@ -1,3 +1,4 @@
+# import json
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from item.models import Item
@@ -32,6 +33,11 @@ class ItemObjectSerializer(serializers.ModelSerializer):
                 raise ValidationError
             if validated_data['parent'] in instance.descendants:
                 raise ValidationError
+        # Pretty JSON template
+        # try:
+        #     validated_data['text'] = json.dumps(json.loads(validated_data['text']), indent=4)
+        # except:
+        #     pass
         return super().update(instance, validated_data)
 
 
