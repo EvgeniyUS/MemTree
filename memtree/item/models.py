@@ -73,8 +73,9 @@ class Item(models.Model):
 
     @property
     def cols(self) -> int:
-        cols = 1
+        cols = 4
         if self.text:
+            cols = 1
             for row in self.text.split('\n'):
                 if len(row) > cols:
                     cols = len(row)

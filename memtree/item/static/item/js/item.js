@@ -148,7 +148,7 @@ function setAttributes(element, attrs) {
     }
 }
 
-function inputWidthChanger(text) {
+function autoResize(text) {
     "use strict";
     let cols = 4;
     let rows = [1];
@@ -163,7 +163,11 @@ function inputWidthChanger(text) {
     }
     text.setAttribute('cols', cols);
     text.setAttribute('rows', rows.length);
-    if (cols > 40 || rows.length > 20) {
+    fontSize(text);
+}
+
+function fontSize(text) {
+    if (text.cols > 40 || text.rows > 20) {
         text.style.fontSize = '12px';
     } else {
         text.style.fontSize = null;
@@ -259,13 +263,14 @@ function createOrUpdate(data) {
         setAttributes(item.text, {
             "class": "text",
             "name": `text_${data.id}`, // что бы браузер не орал
-            "rows": 1,
+            "placeholder": "null",
+            "rows": data.rows,
+            "cols": data.cols,
             "wrap": "off",
-            "oninput": "inputWidthChanger(this)",
+            "readonly": true,
+            "oninput": "autoResize(this)",
             "onchange": "apiUpdate({'id': this.parentNode.id, 'text': this.value})",
             "onclick": "selection(this.parentNode.id)",
-            "readonly": true,
-            "placeholder": "null",
         });
         // item.text.addEventListener("doubletap", function() {
         //     selection(this.parentNode.id);
@@ -286,8 +291,7 @@ function createOrUpdate(data) {
     item.caret.collapsed = data.collapsed;
     item.text.setAttribute('title', `id=${data.id}\npath=${data.path}\nlength=${data.length}\nrows=${data.rows}\ncols=${data.cols}\nalphabet=${data.alphabet}`);
     item.text.value = data.text;
-
-    inputWidthChanger(item.text);
+    fontSize(item.text);
 
     if (item.children_count > 0) {
         item.text.style.color = "rgba(190,130,70,0.9)";
