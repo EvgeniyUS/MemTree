@@ -248,7 +248,7 @@ function createOrUpdate(data) {
     item.caret.collapsed = data.collapsed;
     item.text.setAttribute('title', `id=${data.id}\npath=${data.path}\nlength=${data.length}\nrows=${data.rows}\ncols=${data.cols}\nalphabet=${data.alphabet}`);
     item.text.value = data.text;
-    fontSize(item.text);
+    autoResize(item.text);
 
     if (item.children_count > 0) {
         item.text.style.color = "rgba(190,130,70,0.9)";
