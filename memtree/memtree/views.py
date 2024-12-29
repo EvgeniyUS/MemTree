@@ -14,8 +14,6 @@ from django.views.decorators.http import require_GET, require_http_methods
 @login_required
 def index(request):
     try:
-        # return render(request, 'item/item.html',
-        #               context={'data': json.dumps(Item.sorted_items(request.user.items))})
         return render(request, 'item/item.html')
     except Exception as e:
         return JsonResponse(data={'error': str(e)}, status=500,

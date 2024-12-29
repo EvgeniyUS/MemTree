@@ -1,33 +1,8 @@
 /* jshint esversion: 6 */
-/*globals $:false */
 /*globals csrftoken:false */
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = null;
 let WEBSOCKET_RECONNECT_TIMEOUT = 2; // sec
-
-const bootstrapButton = $.fn.button.noConflict(); // return $.fn.button to previously assigned value
-$.fn.bootstrapBtn = bootstrapButton;              // give $().bootstrapBtn the Bootstrap functionality
-
-function detectDoubleTap(doubleTapMs) {
-    "use strict";
-    let timeout, lastTap = 0;
-    return function detectDoubleTap(event) {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTap;
-        if (0 < tapLength && tapLength < doubleTapMs) {
-            event.preventDefault();
-            const doubleTap = new CustomEvent("doubletap", {
-                bubbles: true,
-                detail: event
-            });
-            event.target.dispatchEvent(doubleTap);
-        } else {
-            timeout = setTimeout(() => clearTimeout(timeout), doubleTapMs);
-        }
-        lastTap = currentTime;
-    }
-}
-document.addEventListener('pointerup', detectDoubleTap(300));
 
 function wsConnect() {
     "use strict";
@@ -45,6 +20,9 @@ function wsConnect() {
         }
         document.getElementById('search_input').classList.remove('disabled');
         document.getElementById('root_ul').innerHTML = '';
+        CHECKED_ITEMS_IDS = Array();
+        SELECTED_ITEM_ID = null;
+        buttonsUpdate();
         apiList(null);
     };
 
@@ -82,51 +60,33 @@ function wsConnect() {
     };
 }
 
-function csrfSafeMethod(method) {
-    "use strict";
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        "use strict";
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-
 function editOrRemove() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
-        $("#remove_item_confirm").dialog({
-            draggable: false,
-            resizable: false,
-            height: "auto",
-            width: "auto",
-            modal: true,
-            buttons: [
-                {
-                    text: "No",
-                    class: "btn btn-success btn-sm",
-                    style: "margin-right:30px",
-                    click: function () {
-                        $(this).dialog("close");
-                    }
-                },
-                {
-                    text: "Yes",
-                    class: "btn btn-danger btn-sm",
-                    click: function () {
+        $.confirm({
+            title: `Delete all selected items?`,
+            content: `Count: ${CHECKED_ITEMS_IDS.length}`,
+            animation: 'none',
+            type: 'red',
+            theme: 'dark',
+            buttons: {
+                ok: {
+                    btnClass: 'btn-red',
+                    action: function () {
                         for (const item_id of CHECKED_ITEMS_IDS) {
                             apiDelete(item_id);
                         }
                         CHECKED_ITEMS_IDS = Array();
                         buttonsUpdate();
-                        $(this).dialog("close");
                     }
                 },
-            ],
+                Cancel: {
+                    btnClass: 'btn-info',
+                    action: function () {
+
+                    }
+                }
+            }
         });
     } else {
         if (SELECTED_ITEM_ID) {
@@ -272,9 +232,6 @@ function createOrUpdate(data) {
             "onchange": "apiUpdate({'id': this.parentNode.id, 'text': this.value})",
             "onclick": "selection(this.parentNode.id)",
         });
-        // item.text.addEventListener("doubletap", function() {
-        //     selection(this.parentNode.id);
-        // });
 
         item.ul = document.createElement('ul');
 
@@ -339,12 +296,21 @@ function search() {
     const search_counter = document.getElementById('search_counter');
     var marked_items = [];
     if (search_value) {
-        $.ajax({
-            type: 'GET',
-            url: `api/items/?search=${search_value}`,
-            contentType: 'application/json',
-            dataType: 'json',
-            success: function(data) {
+        fetch(`api/items/?search=${search_value}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then(data => {
                 search_counter.innerHTML = data.length;
                 for (const item_data of data) {
                     for (const item_id of item_data.path_list) {
@@ -362,8 +328,10 @@ function search() {
                         item.text.style.background = 'transparent';
                     }
                 }
-            }
-        });
+            })
+            .catch(error => {
+                window.console.error('There was a problem with your fetch operation:', error);
+            });
     } else {
         search_counter.innerHTML = '';
         for (const item of document.getElementsByClassName('item')) {
@@ -374,118 +342,126 @@ function search() {
 
 function apiRetrieve(item_id) {
     "use strict";
-    $.ajax({
-        type: 'GET',
-        url: `api/items/${item_id}/`,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function(data) {
+    fetch(`api/items/${item_id}/`, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        })
+        .then(data => {
             createOrUpdate(data);
             search();
-        }
-    });
+        })
+        .catch(error => {
+            window.console.error('There was a problem with your fetch operation:', error);
+        });
 }
 
 function apiList(parent_id) {
     "use strict";
-    $.ajax({
-        type: 'GET',
-        url: `api/items/?parent=${parent_id}`,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function(data) {
+    fetch(`api/items/?parent=${parent_id}`, {
+        method: 'GET',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        })
+        .then(data => {
             for (const item_data of data) {
                 createOrUpdate(item_data);
             }
             search();
-        }
-    });
+        })
+        .catch(error => {
+            window.console.error('There was a problem with your fetch operation:', error);
+        });
 }
 
 function apiCreate() {
     "use strict";
-    $.ajax({
-        type: 'POST',
-        url: `api/items/`,
-        contentType: 'application/json',
-        dataType: 'json',
-        data: JSON.stringify({'parent': SELECTED_ITEM_ID}),
-        success: function (data) {
+    fetch(`api/items/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'parent': SELECTED_ITEM_ID})
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        })
+        .then(data => {
             const new_item = document.getElementById(data.id);
             if (new_item) {
                 new_item.text.readOnly = false;
                 window.requestAnimationFrame(() => new_item.text.focus())
             }
             search();
-        }
-    });
+        })
+        .catch(error => {
+            window.console.error('There was a problem with your fetch operation:', error);
+        });
 }
 
 function apiUpdate(item_data) {
     "use strict";
-    $.ajax({
-        type: 'PUT',
-        url: `api/items/${item_data.id}/`,
-        contentType: 'application/json',
-        dataType: 'json',
-        data: JSON.stringify(item_data),
-        success: function (data) {
+    fetch(`api/items/${item_data.id}/`, {
+        method: 'PUT',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(item_data)
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(response.statusText);
+            }
+        })
+        .then(data => {
             search();
-        }
-    });
+        })
+        .catch(error => {
+            window.console.error('There was a problem with your fetch operation:', error);
+        });
 }
 
 function apiDelete(item_id) {
     "use strict";
-    $.ajax({
-        type: 'DELETE',
-        url: `api/items/${item_id}/`,
-        contentType: 'application/json',
-    });
-}
-
-function apiSorted() {
-    "use strict";
-    $.ajax({
-        type: 'GET',
-        url: `api/items/sorted/`,
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function(data) {
-            for (const item_data of data) {
-                createOrUpdate(item_data);
-            }
+    fetch(`api/items/${item_id}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
         }
-    });
-}
-
-function itemData(item) {
-    "use strict";
-    var parent = null;
-    if (item.parent) {
-        parent = Number(item.parent);
-    }
-    var text = item.text.value;
-    if (!text) {
-        text = null;
-    }
-    return {
-        'id': Number(item.id),
-        'parent': parent,
-        'collapsed': item.caret.collapsed,
-        'text': text
-    };
-}
-
-function itemsData(items) {
-    "use strict";
-    var items_data_list = Array();
-    for (const item of items) {
-        items_data_list.push(itemData(item));
-    }
-    return items_data_list
-}
-
-function allItemsData() {
-    return itemsData(document.getElementsByClassName('item'))
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+        })
+        .catch(error => {
+            window.console.error('There was a problem with your fetch operation:', error);
+        });
 }
