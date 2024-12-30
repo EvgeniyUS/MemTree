@@ -1,8 +1,10 @@
 /* jshint esversion: 6 */
 /*globals csrftoken:false */
+/*globals $:false */
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = null;
 let WEBSOCKET_RECONNECT_TIMEOUT = 2; // sec
+let EDIT_MODE = false;
 
 function wsConnect() {
     "use strict";
@@ -19,6 +21,8 @@ function wsConnect() {
             menu_button.classList.add('btn-outline-success');
         }
         document.getElementById('search_input').classList.remove('disabled');
+        document.getElementById('edit_mode_label').classList.remove('disabled');
+        document.getElementById('root_ul').classList.remove('disabled');
         document.getElementById('root_ul').innerHTML = '';
         CHECKED_ITEMS_IDS = Array();
         SELECTED_ITEM_ID = null;
@@ -33,6 +37,8 @@ function wsConnect() {
             menu_button.classList.remove('btn-outline-success');
         }
         document.getElementById('search_input').classList.add('disabled');
+        document.getElementById('edit_mode_label').classList.add('disabled');
+        document.getElementById('root_ul').classList.add('disabled');
         window.console.log(
             `WebSocket is closed. Reconnect will be attempted in ${WEBSOCKET_RECONNECT_TIMEOUT} second.`,
             event.reason
@@ -60,7 +66,7 @@ function wsConnect() {
     };
 }
 
-function editOrRemove() {
+function remove() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         $.confirm({
@@ -88,14 +94,6 @@ function editOrRemove() {
                 }
             }
         });
-    } else {
-        if (SELECTED_ITEM_ID) {
-            const item = document.getElementById(SELECTED_ITEM_ID);
-            if (item) {
-                item.text.readOnly = false;
-                window.requestAnimationFrame(() => item.text.focus())
-            }
-        }
     }
 }
 
@@ -152,33 +150,37 @@ function addOrMove() {
 
 function selection(item_id) {
     "use strict";
-    if (SELECTED_ITEM_ID === item_id) {
-        SELECTED_ITEM_ID = null;
-        CHECKED_ITEMS_IDS.push(item_id);
-    } else if (CHECKED_ITEMS_IDS.includes(item_id)) {
-        CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
-    } else {
-        SELECTED_ITEM_ID = item_id;
+    if (!EDIT_MODE) {
+        if (SELECTED_ITEM_ID === item_id) {
+            SELECTED_ITEM_ID = null;
+            CHECKED_ITEMS_IDS.push(item_id);
+        } else if (CHECKED_ITEMS_IDS.includes(item_id)) {
+            CHECKED_ITEMS_IDS = CHECKED_ITEMS_IDS.filter(val => val !== item_id);
+        } else {
+            SELECTED_ITEM_ID = item_id;
+        }
+        buttonsUpdate();
     }
-    buttonsUpdate();
 }
 
 function buttonsUpdate() {
     "use strict";
     let add_move_button = document.getElementById("add_move_button");
-    let edit_remove_button = document.getElementById("edit_remove_button");
-    if (CHECKED_ITEMS_IDS.length > 0) {
-        add_move_button.innerHTML = 'Move';
-        add_move_button.className = 'btn btn-warning btn-sm';
-        edit_remove_button.className = "btn btn-danger btn-sm";
-        edit_remove_button.disabled = false;
-        edit_remove_button.innerHTML = 'Del';
+    let remove_button = document.getElementById("remove_button");
+    if (EDIT_MODE) {
+        document.getElementById('footer').style.display = 'none';
     } else {
-        add_move_button.innerHTML = 'Add';
-        add_move_button.className = 'btn btn-success btn-sm';
-        edit_remove_button.className = "btn btn-info btn-sm";
-        edit_remove_button.innerHTML = 'Edit';
-        edit_remove_button.disabled = !SELECTED_ITEM_ID;
+        document.getElementById('footer').style.display = 'block';
+        add_move_button.disabled = false;
+        if (CHECKED_ITEMS_IDS.length > 0) {
+            add_move_button.innerHTML = 'Move';
+            add_move_button.className = 'btn btn-warning btn-sm';
+            remove_button.disabled = false;
+        } else {
+            add_move_button.innerHTML = 'Add';
+            add_move_button.className = 'btn btn-success btn-sm';
+            remove_button.disabled = true;
+        }
     }
     bordersUpdate();
 }
@@ -186,15 +188,22 @@ function buttonsUpdate() {
 function bordersUpdate() {
     "use strict";
     for (const item of document.getElementsByClassName('item')) {
-        if (item.id === SELECTED_ITEM_ID) {
-            item.text.style.border = "1px solid rgba(155, 255, 155, 0.5)";
+        if (EDIT_MODE) {
+            item.text.readOnly = false;
             item.ul.className = null;
-        } else if (CHECKED_ITEMS_IDS.includes(item.id)) {
-            item.text.style.border = "1px solid rgba(255, 211, 0, 0.7)";
-            item.ul.className = "disabled";
+            item.text.style.border = "1px solid rgba(0, 100, 200, 0.5)";
         } else {
-            item.text.style.border = "1px solid rgba(0, 0, 0, 0.8)";
-            item.ul.className = null;
+            item.text.readOnly = true;
+            if (item.id === SELECTED_ITEM_ID) {
+                item.text.style.border = "1px solid rgba(155, 255, 155, 0.5)";
+                item.ul.className = null;
+            } else if (CHECKED_ITEMS_IDS.includes(item.id)) {
+                item.text.style.border = "1px solid rgba(255, 211, 0, 0.7)";
+                item.ul.className = "disabled";
+            } else {
+                item.text.style.border = "1px solid rgba(0, 0, 0, 0.8)";
+                item.ul.className = null;
+            }
         }
     }
 }
@@ -385,6 +394,7 @@ function apiList(parent_id) {
             for (const item_data of data) {
                 createOrUpdate(item_data);
             }
+            buttonsUpdate();
             search();
         })
         .catch(error => {
@@ -415,6 +425,7 @@ function apiCreate() {
                 new_item.text.readOnly = false;
                 window.requestAnimationFrame(() => new_item.text.focus())
             }
+            buttonsUpdate();
             search();
         })
         .catch(error => {
@@ -440,6 +451,7 @@ function apiUpdate(item_data) {
             }
         })
         .then(data => {
+            buttonsUpdate();
             search();
         })
         .catch(error => {
@@ -464,4 +476,9 @@ function apiDelete(item_id) {
         .catch(error => {
             window.console.error('There was a problem with your fetch operation:', error);
         });
+}
+
+function editMode(state) {
+    EDIT_MODE = state;
+    buttonsUpdate();
 }
