@@ -144,7 +144,26 @@ function addOrMove() {
         CHECKED_ITEMS_IDS = Array();
         buttonsUpdate();
     } else {
-        apiCreate();
+        $.confirm({
+            title: 'Creating a new element...',
+            content: '<textarea type="text" placeholder="Enter text" class="newtext form-control"/>',
+            animation: 'none',
+            type: 'green',
+            theme: 'dark',
+            buttons: {
+                formSubmit: {
+                    text: 'Create',
+                    btnClass: 'btn-green',
+                    action: function () {
+                        var text = this.$content.find('.newtext').val();
+                        apiCreate(text);
+                    }
+                },
+                cancel: function () {
+                    //close
+                },
+            }
+        });
     }
 }
 
@@ -402,7 +421,7 @@ function apiList(parent_id) {
         });
 }
 
-function apiCreate() {
+function apiCreate(text) {
     "use strict";
     fetch(`api/items/`, {
         method: 'POST',
@@ -410,7 +429,11 @@ function apiCreate() {
             'X-CSRFToken': csrftoken,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({'parent': SELECTED_ITEM_ID})
+        body: JSON.stringify(
+            {
+                'parent': SELECTED_ITEM_ID,
+                'text': text
+            })
     })
         .then(response => {
             if (response.ok) {
