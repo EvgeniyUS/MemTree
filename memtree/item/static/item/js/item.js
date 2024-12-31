@@ -70,13 +70,13 @@ function remove() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         $.confirm({
-            title: `Delete all selected items?`,
-            content: `Count: ${CHECKED_ITEMS_IDS.length}`,
+            title: '',
+            content: `Delete all selected (${CHECKED_ITEMS_IDS.length}) elements?`,
             animation: 'none',
             type: 'red',
             theme: 'dark',
             buttons: {
-                ok: {
+                Yes: {
                     btnClass: 'btn-red',
                     action: function () {
                         for (const item_id of CHECKED_ITEMS_IDS) {
@@ -145,7 +145,7 @@ function addOrMove() {
         buttonsUpdate();
     } else {
         $.confirm({
-            title: 'Creating a new element...',
+            title: '',
             content: '<textarea type="text" placeholder="Enter text" class="newtext form-control"/>',
             animation: 'none',
             type: 'green',
@@ -193,11 +193,11 @@ function buttonsUpdate() {
         add_move_button.disabled = false;
         if (CHECKED_ITEMS_IDS.length > 0) {
             add_move_button.innerHTML = 'Move';
-            add_move_button.className = 'btn btn-warning btn-sm';
+            add_move_button.className = 'btn-warning';
             remove_button.disabled = false;
         } else {
             add_move_button.innerHTML = 'Add';
-            add_move_button.className = 'btn btn-success btn-sm';
+            add_move_button.className = 'btn-success';
             remove_button.disabled = true;
         }
     }

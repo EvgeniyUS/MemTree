@@ -1,8 +1,8 @@
 
 function confirmLogout() {
     $.confirm({
-        title: `Logout?`,
-        content: `Are you sure?`,
+        title: '',
+        content: `Are you sure you want to log out?`,
         theme: 'dark',
         animation: 'none',
         buttons: {
@@ -40,13 +40,13 @@ function confirmLogout() {
 
 function confirmDeleteAccount() {
     $.confirm({
-        title: `Delete the account?`,
-        content: `All your notes will be deleted and this action cannot be undone!`,
+        title: `ATTENTION!`,
+        content: `You are one step away from deleting your account!<br>All your notes will be deleted and this action cannot be undone!<br>Are you sure?`,
         type: 'red',
         theme: 'dark',
         animation: 'none',
         buttons: {
-            Yes: {
+            Delete: {
                 btnClass: 'btn-red',
                 action: function () {
                     fetch(`delete-account/`, {
