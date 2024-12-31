@@ -193,11 +193,11 @@ function buttonsUpdate() {
         add_move_button.disabled = false;
         if (CHECKED_ITEMS_IDS.length > 0) {
             add_move_button.innerHTML = 'Move';
-            add_move_button.className = 'btn-warning';
+            add_move_button.className = 'btn btn-warning';
             remove_button.disabled = false;
         } else {
             add_move_button.innerHTML = 'Add';
-            add_move_button.className = 'btn-success';
+            add_move_button.className = 'btn btn-success';
             remove_button.disabled = true;
         }
     }
