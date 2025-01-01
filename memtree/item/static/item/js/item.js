@@ -15,30 +15,12 @@ function wsConnect() {
     const socket = new WebSocket(`${ws_proto}${window.location.host}/ws/`);
 
     socket.onopen = function () {
-        let menu_button = document.getElementById('menu_button');
-        if (menu_button) {
-            menu_button.classList.remove('btn-outline-light');
-            menu_button.classList.add('btn-outline-success');
-        }
-        document.getElementById('search_input').classList.remove('disabled');
-        document.getElementById('edit_mode_label').classList.remove('disabled');
-        document.getElementById('root_ul').classList.remove('disabled');
-        document.getElementById('root_ul').innerHTML = '';
-        CHECKED_ITEMS_IDS = Array();
-        SELECTED_ITEM_ID = null;
-        buttonsUpdate();
+        document.getElementById('body').classList.remove('disabled');
         apiList(null);
     };
 
     socket.onclose = function (event) {
-        let menu_button = document.getElementById('menu_button');
-        if (menu_button) {
-            menu_button.classList.add('btn-outline-light');
-            menu_button.classList.remove('btn-outline-success');
-        }
-        document.getElementById('search_input').classList.add('disabled');
-        document.getElementById('edit_mode_label').classList.add('disabled');
-        document.getElementById('root_ul').classList.add('disabled');
+        document.getElementById('body').classList.add('disabled');
         window.console.log(
             `WebSocket is closed. Reconnect will be attempted in ${WEBSOCKET_RECONNECT_TIMEOUT} second.`,
             event.reason
