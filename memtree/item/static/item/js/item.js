@@ -3,7 +3,7 @@
 /*globals $:false */
 let CHECKED_ITEMS_IDS = Array();
 let SELECTED_ITEM_ID = null;
-let WEBSOCKET_RECONNECT_TIMEOUT = 2; // sec
+let WEBSOCKET_RECONNECT_TIMEOUT = 1; // sec
 let EDIT_MODE = false;
 
 function wsConnect() {
