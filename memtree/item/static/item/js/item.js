@@ -340,11 +340,7 @@ function search() {
                 }
             })
             .catch(error => {
-                window.console.error(error);
-                $.alert({
-                    title: '',
-                    content: error,
-                });
+                error_alert(error);
             });
     } else {
         search_counter.innerHTML = '';
@@ -375,11 +371,7 @@ function apiRetrieve(item_id) {
             search();
         })
         .catch(error => {
-            window.console.error(error);
-            $.alert({
-                title: '',
-                content: error,
-            });
+            error_alert(error);
         });
 }
 
@@ -407,11 +399,7 @@ function apiList(parent_id) {
             search();
         })
         .catch(error => {
-            window.console.error(error);
-            $.alert({
-                title: '',
-                content: error,
-            });
+            error_alert(error);
         });
 }
 
@@ -446,11 +434,7 @@ function apiCreate(text) {
             search();
         })
         .catch(error => {
-            window.console.error(error);
-            $.alert({
-                title: '',
-                content: error,
-            });
+            error_alert(error);
         });
 }
 
@@ -476,11 +460,7 @@ function apiUpdate(item_data) {
             search();
         })
         .catch(error => {
-            window.console.error(error);
-            $.alert({
-                title: '',
-                content: error,
-            });
+            error_alert(error);
         });
 }
 
@@ -499,11 +479,7 @@ function apiDelete(item_id) {
             }
         })
         .catch(error => {
-            window.console.error(error);
-            $.alert({
-                title: '',
-                content: error,
-            });
+            error_alert(error);
         });
 }
 

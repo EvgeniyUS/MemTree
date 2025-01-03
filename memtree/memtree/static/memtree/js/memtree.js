@@ -1,3 +1,20 @@
+function error_alert(error) {
+    window.console.error(error);
+    $.confirm({
+        title: 'Error',
+        content: error,
+        theme: 'dark',
+        animation: 'none',
+        buttons: {
+            Ok: {
+                btnClass: 'btn-info',
+                action: function () {
+                    // pass
+                }
+            }
+        }
+    });
+}
 
 function confirmLogout() {
     $.confirm({
@@ -23,11 +40,7 @@ function confirmLogout() {
                             document.location.href = '/';
                         })
                         .catch(error => {
-                            window.console.error(error);
-                            $.alert({
-                                title: '',
-                                content: error,
-                            });
+                            error_alert(error);
                         });
                 }
             },
@@ -67,11 +80,7 @@ function confirmDeleteAccount() {
                             document.location.href = '/';
                         })
                         .catch(error => {
-                            window.console.error(error);
-                            $.alert({
-                                title: '',
-                                content: error,
-                            });
+                            error_alert(error);
                         });
                 }
             },
