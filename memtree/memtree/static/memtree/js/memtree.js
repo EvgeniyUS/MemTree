@@ -23,7 +23,11 @@ function confirmLogout() {
                             document.location.href = '/';
                         })
                         .catch(error => {
-                            window.console.error('There was a problem with your fetch operation:', error);
+                            window.console.error(error);
+                            $.alert({
+                                title: '',
+                                content: error,
+                            });
                         });
                 }
             },
@@ -63,7 +67,11 @@ function confirmDeleteAccount() {
                             document.location.href = '/';
                         })
                         .catch(error => {
-                            window.console.error('There was a problem with your fetch operation:', error);
+                            window.console.error(error);
+                            $.alert({
+                                title: '',
+                                content: error,
+                            });
                         });
                 }
             },

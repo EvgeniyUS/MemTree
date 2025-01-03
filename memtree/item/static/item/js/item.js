@@ -340,7 +340,11 @@ function search() {
                 }
             })
             .catch(error => {
-                window.console.error('There was a problem with your fetch operation:', error);
+                window.console.error(error);
+                $.alert({
+                    title: '',
+                    content: error,
+                });
             });
     } else {
         search_counter.innerHTML = '';
@@ -371,7 +375,11 @@ function apiRetrieve(item_id) {
             search();
         })
         .catch(error => {
-            window.console.error('There was a problem with your fetch operation:', error);
+            window.console.error(error);
+            $.alert({
+                title: '',
+                content: error,
+            });
         });
 }
 
@@ -399,7 +407,11 @@ function apiList(parent_id) {
             search();
         })
         .catch(error => {
-            window.console.error('There was a problem with your fetch operation:', error);
+            window.console.error(error);
+            $.alert({
+                title: '',
+                content: error,
+            });
         });
 }
 
@@ -434,7 +446,11 @@ function apiCreate(text) {
             search();
         })
         .catch(error => {
-            window.console.error('There was a problem with your fetch operation:', error);
+            window.console.error(error);
+            $.alert({
+                title: '',
+                content: error,
+            });
         });
 }
 
@@ -460,7 +476,11 @@ function apiUpdate(item_data) {
             search();
         })
         .catch(error => {
-            window.console.error('There was a problem with your fetch operation:', error);
+            window.console.error(error);
+            $.alert({
+                title: '',
+                content: error,
+            });
         });
 }
 
@@ -479,7 +499,11 @@ function apiDelete(item_id) {
             }
         })
         .catch(error => {
-            window.console.error('There was a problem with your fetch operation:', error);
+            window.console.error(error);
+            $.alert({
+                title: '',
+                content: error,
+            });
         });
 }
 
