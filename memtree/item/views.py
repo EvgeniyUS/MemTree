@@ -42,6 +42,7 @@ class ItemViewSet(ModelViewSet):
     ordering_fields = ('text', 'collapsed', 'parent')
     ordering = ('text',)
     search_fields = ['id', 'text']
+    http_method_names = ['get', 'post', 'put', 'delete']
 
     @action(methods=['get'], detail=False, url_path="validate")
     def validate(self, request, *args, **kwargs):
