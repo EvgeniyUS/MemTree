@@ -1,4 +1,4 @@
-function error_alert(error) {
+function errorAlert(error) {
     window.console.error(error);
     $.confirm({
         title: 'Error',
@@ -40,7 +40,7 @@ function confirmLogout() {
                             document.location.href = '/';
                         })
                         .catch(error => {
-                            error_alert(error);
+                            errorAlert(error);
                         });
                 }
             },
@@ -80,7 +80,7 @@ function confirmDeleteAccount() {
                             document.location.href = '/';
                         })
                         .catch(error => {
-                            error_alert(error);
+                            errorAlert(error);
                         });
                 }
             },

@@ -337,7 +337,7 @@ function search() {
                 }
             })
             .catch(error => {
-                error_alert(error);
+                errorAlert(error);
             });
     } else {
         search_counter.innerHTML = '';
@@ -368,7 +368,7 @@ function apiRetrieve(item_id) {
             search();
         })
         .catch(error => {
-            error_alert(error);
+            errorAlert(error);
         });
 }
 
@@ -396,7 +396,7 @@ function apiList(parent_id) {
             search();
         })
         .catch(error => {
-            error_alert(error);
+            errorAlert(error);
         });
 }
 
@@ -423,7 +423,7 @@ function apiCreate(text) {
             }
         })
         .catch(error => {
-            error_alert(error);
+            errorAlert(error);
         });
 }
 
@@ -446,7 +446,7 @@ function apiUpdate(item_data) {
             }
         })
         .catch(error => {
-            error_alert(error);
+            errorAlert(error);
         });
 }
 
@@ -465,7 +465,7 @@ function apiDelete(item_id) {
             }
         })
         .catch(error => {
-            error_alert(error);
+            errorAlert(error);
         });
 }
 
