@@ -90,28 +90,15 @@ function setAttributes(element, attrs) {
 
 function autoResize(text) {
     "use strict";
-    let cols = 4;
-    let rows = [1];
-    if (text.value) {
-        cols = 1;
-        rows = text.value.split('\n');
-        for (const row of rows) {
-            if (row.length > cols) {
-                cols = row.length;
-            }
-        }
-    }
-    text.setAttribute('cols', cols);
-    text.setAttribute('rows', rows.length);
-    fontSize(text);
-}
-
-function fontSize(text) {
+    text.style.height = "0px";
+    text.style.width = "0px";
     if (text.cols > 40 || text.rows > 20) {
         text.style.fontSize = '12px';
     } else {
         text.style.fontSize = null;
     }
+    text.style.height = text.scrollHeight + 2 + "px";
+    text.style.width = text.scrollWidth + 10 + "px";
 }
 
 function addOrMove() {
@@ -239,8 +226,6 @@ function createOrUpdate(data) {
             "class": "text",
             "name": `text_${data.id}`, // что бы браузер не орал
             "placeholder": "null",
-            "rows": data.rows,
-            "cols": data.cols,
             "wrap": "off",
             "readonly": true,
             "oninput": "autoResize(this)",
@@ -267,6 +252,8 @@ function createOrUpdate(data) {
     item.caret.collapsed = data.collapsed;
     item.text.setAttribute('title', `id=${data.id}\npath=${data.path}\nlength=${data.length}\nrows=${data.rows}\ncols=${data.cols}\nalphabet=${data.alphabet}`);
     item.text.value = data.text;
+    item.text.cols = data.cols;
+    item.text.rows = data.rows;
     autoResize(item.text);
 
     if (item.children_count > 0) {
