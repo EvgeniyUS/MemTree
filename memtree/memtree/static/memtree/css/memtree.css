@@ -50,3 +50,7 @@ body {
     background: transparent;
     border: none;
 }
+
+#search_input::placeholder {
+    color: rgba(255,255,255,0.4);
+}
