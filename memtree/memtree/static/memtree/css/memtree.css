@@ -14,7 +14,7 @@ body {
 }
 
 .content {
-    margin-top: 65px;
+    margin-top: 60px;
     margin-bottom: 60px;
     margin-left: 10px;
 }
@@ -30,7 +30,7 @@ body {
 .buttons {
     display: flex;
     justify-content: space-between;
-    margin: 10px;
+    margin: 10px 20px;
 }
 
 .disabled {
@@ -41,8 +41,15 @@ body {
 #search_counter {
     position: absolute;
     top: 47px;
-    left: 87px;
+    left: 50%;
     color: rgba(155, 255, 155, 0.4);
+}
+
+#select_counter {
+    position: absolute;
+    bottom: 47px;
+    left: 50%;
+    color: rgba(255, 211, 0, 0.7);
 }
 
 #search_input {

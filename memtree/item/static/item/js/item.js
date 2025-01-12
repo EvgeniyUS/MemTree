@@ -156,21 +156,24 @@ function selection(item_id) {
 
 function buttonsUpdate() {
     "use strict";
-    let add_move_button = document.getElementById("add_move_button");
-    let remove_button = document.getElementById("remove_button");
     if (EDIT_MODE) {
         document.getElementById('footer').style.display = 'none';
     } else {
         document.getElementById('footer').style.display = 'block';
+        let add_move_button = document.getElementById("add_move_button");
+        let remove_button = document.getElementById("remove_button");
+        let select_counter = document.getElementById('select_counter');
         add_move_button.disabled = false;
         if (CHECKED_ITEMS_IDS.length > 0) {
             add_move_button.innerHTML = 'Move';
             add_move_button.className = 'btn btn-warning';
             remove_button.disabled = false;
+            select_counter.innerHTML = CHECKED_ITEMS_IDS.length;
         } else {
             add_move_button.innerHTML = 'Add';
             add_move_button.className = 'btn btn-success';
             remove_button.disabled = true;
+            select_counter.innerHTML = '';
         }
     }
     bordersUpdate();
