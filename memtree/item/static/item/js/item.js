@@ -6,7 +6,7 @@ let SELECTED_ITEM_ID = null;
 let WEBSOCKET_RECONNECT_TIMEOUT = 1; // sec
 let EDIT_MODE = false;
 
-function wsConnect() {
+function connect() {
     "use strict";
     let ws_proto = 'ws://';
     if (window.location.protocol === 'https:') {
@@ -26,7 +26,7 @@ function wsConnect() {
             event.reason
         );
         setTimeout(function() {
-            wsConnect();
+            connect();
         }, WEBSOCKET_RECONNECT_TIMEOUT * 1000);
     };
 
@@ -71,7 +71,7 @@ function remove() {
                 Cancel: {
                     btnClass: 'btn-info',
                     action: function () {
-
+                        // pass
                     }
                 }
             }
@@ -129,7 +129,7 @@ function addOrMove() {
                     }
                 },
                 cancel: function () {
-                    //close
+                    // pass
                 },
             },
             onContentReady: function () {

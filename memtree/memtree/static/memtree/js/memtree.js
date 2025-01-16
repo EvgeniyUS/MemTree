@@ -26,7 +26,7 @@ function confirmLogout() {
             Yes: {
                 btnClass: 'btn-red',
                 action: function () {
-                    fetch(`logout/`, {
+                    fetch(`/logout/`, {
                         method: 'POST',
                         headers: {
                             'X-CSRFToken': csrftoken,
@@ -48,7 +48,7 @@ function confirmLogout() {
             Cancel: {
                 btnClass: 'btn-info',
                 action: function () {
-
+                    // pass
                 }
             }
         }
@@ -66,7 +66,7 @@ function confirmDeleteAccount() {
             Delete: {
                 btnClass: 'btn-red',
                 action: function () {
-                    fetch(`delete-account/`, {
+                    fetch(`/delete-account/`, {
                         method: 'POST',
                         headers: {
                             'X-CSRFToken': csrftoken,
@@ -87,7 +87,7 @@ function confirmDeleteAccount() {
             Cancel: {
                 btnClass: 'btn-info',
                 action: function () {
-
+                    // pass
                 }
             }
         }
