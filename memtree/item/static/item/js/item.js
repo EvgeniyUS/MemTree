@@ -21,7 +21,7 @@ function connect() {
 
     socket.onclose = function (event) {
         document.getElementById('body').classList.add('disabled');
-        $('#item').addClass('disabled');
+        $('.item').addClass('disabled');
         window.console.log(
             `WebSocket is closed. Reconnect will be attempted in ${WEBSOCKET_RECONNECT_TIMEOUT} second.`,
             event.reason
@@ -44,7 +44,6 @@ function connect() {
     };
 
     socket.onerror = function (error) {
-        window.console.error('WebSocket error:', error.message);
         socket.close();
     };
 }
@@ -206,9 +205,7 @@ function bordersUpdate() {
 function createOrUpdate(data) {
     "use strict";
     var item = document.getElementById(data.id);
-    var load_children = false;
     if (!item) {
-        load_children = true;
         item = document.createElement('li');
         setAttributes(item, {
             "class": "item",
@@ -252,9 +249,6 @@ function createOrUpdate(data) {
     item.parent = data.parent;
     item.children_count = data.children_count;
     appendToParent(item);
-    if ((!item.caret.collapsed === data.collapsed) && !data.collapsed) {
-        load_children = true
-    }
     item.caret.collapsed = data.collapsed;
 
     item.text.setAttribute('title',
@@ -281,17 +275,15 @@ function createOrUpdate(data) {
             item.ul.innerHTML = '';
         } else {
             item.caret.style.transform = 'rotate(90deg)';
-            if (load_children) {
-                apiList(item.id);
-            }
+            apiList(item.id);
         }
     } else {
         item.text.style.color = "rgba(255,255,255,0.8)";
         item.caret.style.display = 'none';
         item.counter.innerHTML = '';
     }
-    item.classList.remove('disabled');
 
+    item.classList.remove('disabled');
     return item;
 }
 
