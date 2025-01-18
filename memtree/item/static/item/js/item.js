@@ -21,6 +21,7 @@ function connect() {
 
     socket.onclose = function (event) {
         document.getElementById('body').classList.add('disabled');
+        $('#item').addClass('disabled');
         window.console.log(
             `WebSocket is closed. Reconnect will be attempted in ${WEBSOCKET_RECONNECT_TIMEOUT} second.`,
             event.reason
@@ -289,6 +290,7 @@ function createOrUpdate(data) {
         item.caret.style.display = 'none';
         item.counter.innerHTML = '';
     }
+    item.classList.remove('disabled');
 
     return item;
 }
