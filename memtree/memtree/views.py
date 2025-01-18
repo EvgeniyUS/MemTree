@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
 from django.contrib.auth import (
     authenticate,
     login as _login,
-    logout as _logout
+    logout as _logout,
+    update_session_auth_hash
 )
 from django.views.decorators.http import require_GET, require_http_methods
 
@@ -67,6 +68,22 @@ def registration(request):
             return render(request, 'memtree/registration.html',
                           {'form': new_user_data})
     return render(request, 'memtree/registration.html', {'form': UserCreationForm})
+
+
+@require_http_methods(['GET', 'POST'])
+@login_required
+def password_change(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return HttpResponseRedirect('/')
+        else:
+            return render(request, 'memtree/password_change.html',
+                          {'form': form})
+    return render(request, 'memtree/password_change.html',
+                  {'form': PasswordChangeForm(user=request.user)})
 
 
 @require_http_methods(['GET', 'POST'])
