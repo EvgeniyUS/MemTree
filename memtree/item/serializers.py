@@ -9,7 +9,7 @@ class ItemObjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        read_only_fields = ['id', 'user', 'children', 'children_count', 'path', 'path_list',
+        read_only_fields = ['id', 'created', 'modified', 'user', 'children', 'children_count', 'path', 'path_list',
                             'length', 'rows', 'cols', 'alphabet']
         fields = read_only_fields + ['parent', 'collapsed', 'text']
 

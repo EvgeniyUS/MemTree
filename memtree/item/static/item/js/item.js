@@ -115,7 +115,7 @@ function addOrMove() {
     } else {
         $.confirm({
             title: '',
-            content: '<textarea type="text" placeholder="Enter text" class="newtext form-control"/>',
+            content: '<textarea type="text" autocomplete="off" placeholder="Enter text" class="newtext form-control"/>',
             animation: 'none',
             type: 'green',
             theme: 'dark',
@@ -226,6 +226,8 @@ function createOrUpdate(data) {
 
         item.text = document.createElement('textarea');
         setAttributes(item.text, {
+            "type": "text",
+            "autocomplete": "off",
             "class": "text",
             "name": `text_${data.id}`, // что бы браузер не орал
             "placeholder": "null",
@@ -253,7 +255,17 @@ function createOrUpdate(data) {
         load_children = true
     }
     item.caret.collapsed = data.collapsed;
-    item.text.setAttribute('title', `id=${data.id}\npath=${data.path}\nlength=${data.length}\nrows=${data.rows}\ncols=${data.cols}\nalphabet=${data.alphabet}`);
+
+    item.text.setAttribute('title',
+        `id: ${data.id}\n` +
+        `path: ${data.path}\n` +
+        `created: ${new Date(data.created).toLocaleString()}\n` +
+        `modified: ${new Date(data.modified).toLocaleString()}\n` +
+        `length: ${data.length}\n` +
+        `rows: ${data.rows}\n` +
+        `cols: ${data.cols}\n` +
+        `alphabet: ${data.alphabet}`
+    );
     item.text.value = data.text;
     item.text.cols = data.cols;
     item.text.rows = data.rows;

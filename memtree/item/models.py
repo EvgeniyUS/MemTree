@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
+from django.utils import timezone
 
 
 class ItemManager(models.Manager):
@@ -23,6 +24,8 @@ class ItemManager(models.Manager):
 
 
 class Item(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(default=timezone.now)
     text = models.TextField(null=True, blank=True)
     parent = models.ForeignKey('Item', related_name='children', null=True, blank=True, on_delete=models.CASCADE)
     collapsed = models.BooleanField(default=True)
@@ -36,7 +39,10 @@ class Item(models.Model):
     def save(self, *args, **kwargs):
         old_parent = None
         if self.pk:
-            old_parent = Item.objects.get(pk=self.pk).parent
+            old_item = Item.objects.get(pk=self.pk)
+            old_parent = old_item.parent
+            if self.text != old_item.text:
+                self.modified = timezone.now()
         super().save(*args, **kwargs)
         if self.parent:
             post_save.send(sender=Item, instance=self.parent, created=False)

@@ -39,9 +39,9 @@ class ItemViewSet(ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, OwnerFilterBackend, OrderingFilter, SearchFilter)
     filterset_class = ItemFilter
     filterset_fields = ('text', 'parent')
-    ordering_fields = ('text', 'collapsed', 'parent')
+    ordering_fields = ('created', 'modified', 'text', 'collapsed', 'parent')
     ordering = ('text',)
-    search_fields = ['id', 'text']
+    search_fields = ['id', 'created', 'modified', 'text']
     http_method_names = ['get', 'post', 'put', 'delete']
 
     @action(methods=['get'], detail=False, url_path="validate")
