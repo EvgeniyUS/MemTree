@@ -251,11 +251,17 @@ function createOrUpdate(data) {
     appendToParent(item);
     item.caret.collapsed = data.collapsed;
 
+    const created = new Date(data.created).toLocaleString();
+    var modified = new Date(data.modified).toLocaleString();
+    if (created === modified) {
+        modified = '-';
+    }
+
     item.text.setAttribute('title',
         `id: ${data.id}\n` +
         `path: ${data.path}\n` +
-        `created: ${new Date(data.created).toLocaleString()}\n` +
-        `modified: ${new Date(data.modified).toLocaleString()}\n` +
+        `created: ${created}\n` +
+        `modified: ${modified}\n` +
         `length: ${data.length}\n` +
         `rows: ${data.rows}\n` +
         `cols: ${data.cols}\n` +
