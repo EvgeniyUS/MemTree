@@ -1,3 +1,7 @@
+const sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
 function errorAlert(error) {
     window.console.error(error);
     $.confirm({

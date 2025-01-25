@@ -15,9 +15,28 @@
 {% block footer_content %}
 
     <div class="buttons">
-        <button id="add_move_button" class="btn btn-success" onclick="addOrMove()" title="Add/Move to selected item">Add</button>
-        <sub id="select_counter"></sub>
-        <button id="remove_button" class="btn btn-danger" onclick="remove()" title="Remove selected items" disabled>Del</button>
+        <button id="add_move_button" class="btn btn-success" onclick="add()" title="Add to selected item">Add</button>
+
+        <div class="btn-group dropup">
+            <button type="button"
+                    class="btn btn-outline-warning dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="Action with checked items"
+                    id="action_button" hidden>Action</button>
+            
+            <span class="z-3 position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger user-select-none"
+                  id="checked_counter"></span>
+
+            <ul class="z-n1 dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                <li><a class="dropdown-item" onclick="move_children()" style="cursor: pointer">Move children</a></li>
+                <li><a class="dropdown-item" onclick="move_checked()" style="cursor: pointer">Move checked</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" onclick="remove_children()" style="cursor: pointer;color: red">Delete children</a></li>
+                <li><a class="dropdown-item" onclick="remove_checked()" style="cursor: pointer;color: red">Delete checked</a></li>
+            </ul>
+          </div>
+
     </div>
 
     <script type="text/javascript">

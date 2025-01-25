@@ -38,20 +38,6 @@ body {
     opacity: 0.5;
 }
 
-#search_counter {
-    position: absolute;
-    top: 47px;
-    left: 50%;
-    color: rgba(155, 255, 155, 0.4);
-}
-
-#select_counter {
-    position: absolute;
-    bottom: 47px;
-    left: 50%;
-    color: rgba(255, 211, 0, 0.7);
-}
-
 #search_input {
     outline: none !important;
     color: rgba(255,255,255,0.8);
