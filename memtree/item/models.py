@@ -1,7 +1,5 @@
-from time import sleep
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
 from django.utils import timezone
 
 
@@ -38,27 +36,9 @@ class Item(models.Model):
         return str(self.id)
 
     def save(self, *args, **kwargs):
-        old_parent = None
-        if self.pk:
-            old_item = Item.objects.get(pk=self.pk)
-            old_parent = old_item.parent
-            if self.text != old_item.text:
-                self.modified = timezone.now()
+        if self.pk and self.text != Item.objects.get(pk=self.pk).text:
+            self.modified = timezone.now()
         super().save(*args, **kwargs)
-        if self.parent:
-            sleep(1)
-            post_save.send(sender=Item, instance=self.parent, created=False)
-        if old_parent and old_parent != self.parent:
-            sleep(1)
-            post_save.send(sender=Item, instance=old_parent, created=False)
-
-    def delete(self, *args, **kwargs):
-        parent = self.parent
-        super().delete(*args, **kwargs)
-        if parent:
-            # при удалении нескольких элементов остаются артефакты без этого слипа
-            sleep(1)
-            post_save.send(sender=Item, instance=parent, created=False)
 
     @property
     def path_list(self) -> list:

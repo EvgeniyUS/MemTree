@@ -41,6 +41,18 @@ class ItemObjectSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+class ItemParentSerializer(serializers.Serializer):
+    parent = serializers.IntegerField(allow_null=True)
+
+
+class ItemsIDsSerializer(serializers.Serializer):
+    items_ids = serializers.ListField(child=serializers.IntegerField())
+
+
+class ItemBulkMoveSerializer(ItemParentSerializer, ItemsIDsSerializer):
+    pass
+
+
 class ItemTreeSerializer(serializers.ModelSerializer):
 
     class Meta:

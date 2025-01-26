@@ -48,7 +48,7 @@ function connect() {
     };
 }
 
-function remove_checked() {
+function removeChecked() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         $.confirm({
@@ -61,9 +61,7 @@ function remove_checked() {
                 Yes: {
                     btnClass: 'btn-red',
                     action: function () {
-                        for (const item_id of CHECKED_ITEMS_IDS) {
-                            apiDelete(item_id);
-                        }
+                        apiBulkDelete();
                         CHECKED_ITEMS_IDS = Array();
                         buttonsUpdate();
                     }
@@ -79,7 +77,7 @@ function remove_checked() {
     }
 }
 
-function remove_children() {
+function removeChildren() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         $.confirm({
@@ -93,9 +91,7 @@ function remove_children() {
                     btnClass: 'btn-red',
                     action: function () {
                         for (const item_id of CHECKED_ITEMS_IDS) {
-                            for (const child_id of document.getElementById(item_id)._children) {
-                                apiDelete(child_id);
-                            }
+                            apiDeleteChildren(item_id);
                         }
                         CHECKED_ITEMS_IDS = Array();
                         buttonsUpdate();
@@ -161,30 +157,20 @@ function add() {
     });
 }
 
-function move_checked() {
+function moveChecked() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
-        for (const item_id of CHECKED_ITEMS_IDS) {
-            apiUpdate({
-                'id': item_id,
-                'parent': SELECTED_ITEM_ID
-            });
-        }
+        apiBulkMove();
         CHECKED_ITEMS_IDS = Array();
         buttonsUpdate();
     }
 }
 
-function move_children() {
+function moveChildren() {
     "use strict";
     if (CHECKED_ITEMS_IDS.length > 0) {
         for (const item_id of CHECKED_ITEMS_IDS) {
-            for (const child_id of document.getElementById(item_id)._children) {
-                apiUpdate({
-                    'id': child_id,
-                    'parent': SELECTED_ITEM_ID
-                });
-            }
+            apiMoveChildren({'id': item_id});
         }
         CHECKED_ITEMS_IDS = Array();
         buttonsUpdate();
@@ -429,6 +415,7 @@ function apiRetrieve(item_id) {
         })
         .then(data => {
             createOrUpdate(data);
+            buttonsUpdate();
             search();
         })
         .catch(error => {
@@ -480,7 +467,6 @@ function apiCreate(text) {
     })
         .then(response => {
             if (response.ok) {
-                buttonsUpdate();
                 search();
             } else {
                 throw new Error(response.statusText);
@@ -503,8 +489,9 @@ function apiUpdate(item_data) {
     })
         .then(response => {
             if (response.ok) {
-                buttonsUpdate();
-                search();
+                if ('text' in item_data) {
+                    search();
+                }
             } else {
                 throw new Error(response.statusText);
             }
@@ -522,6 +509,87 @@ function apiDelete(item_id) {
             'X-CSRFToken': csrftoken,
             'Content-Type': 'application/json'
         }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+        })
+        .catch(error => {
+            errorAlert(error);
+        });
+}
+
+function apiBulkDelete() {
+    "use strict";
+    fetch(`api/items/bulk-delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'items_ids': CHECKED_ITEMS_IDS})
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+        })
+        .catch(error => {
+            errorAlert(error);
+        });
+}
+
+function apiDeleteChildren(item_id) {
+    "use strict";
+    fetch(`api/items/${item_id}/delete-children/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+        })
+        .catch(error => {
+            errorAlert(error);
+        });
+}
+
+function apiBulkMove() {
+    "use strict";
+    fetch(`api/items/bulk-move/`, {
+        method: 'PUT',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            'parent': SELECTED_ITEM_ID,
+            'items_ids': CHECKED_ITEMS_IDS})
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+        })
+        .catch(error => {
+            errorAlert(error);
+        });
+}
+
+function apiMoveChildren(item_data) {
+    "use strict";
+    fetch(`api/items/${item_data.id}/move-children/`, {
+        method: 'PUT',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'parent': SELECTED_ITEM_ID})
     })
         .then(response => {
             if (!response.ok) {
