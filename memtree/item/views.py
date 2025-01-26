@@ -97,8 +97,8 @@ class ItemViewSet(ModelViewSet):
             parent = queryset.get(pk=serializer.validated_data['parent'])
             post_save.send(sender=Item, instance=parent, created=False)
         return Response(
-            f'Elements ids={str(serializer.validated_data['items_ids'])} ' 
-            f'have been moved to parent element id={serializer.validated_data['parent']}.')
+            f"Elements ids={str(serializer.validated_data['items_ids'])} "
+            f"have been moved to parent element id={serializer.validated_data['parent']}.")
 
     @action(methods=['put'], detail=True, url_path="move-children")
     def move_children(self, request, *args, **kwargs):
@@ -119,7 +119,7 @@ class ItemViewSet(ModelViewSet):
             post_save.send(sender=Item, instance=parent, created=False)
         return Response(
             f'All child elements of the element id={item.pk} ' 
-            f'have been moved to parent element id={serializer.validated_data['parent']}.')
+            f"have been moved to parent element id={serializer.validated_data['parent']}.")
 
     @action(methods=['get'], detail=False, url_path="validate")
     def validate(self, request, *args, **kwargs):
