@@ -254,6 +254,7 @@ function createOrUpdate(data) {
         });
 
         item.caret = document.createElement('span');
+        item.caret.innerHTML = '>';
         item.caret.className = 'caret';
         item.caret.style.display = 'none';
         item.caret.addEventListener("click", function() {

@@ -1,7 +1,7 @@
 ul, #root_ul {
-    display: grid;
+    /* display: grid; */
     list-style: none;
-    overflow: auto;
+    /* overflow: auto; */
 }
 
 li {
@@ -16,15 +16,10 @@ li {
 .caret {
     color: black;
     font-size: 28px;
-    /* font-weight: bold; */
     cursor: pointer;
     user-select: none;
-    margin-right: 5px;
+    margin-left: 10px;
     vertical-align: middle;
-}
-
-.caret::before {
-    content: ">";
 }
 
 .text {
@@ -33,15 +28,16 @@ li {
     resize: none;
     color: rgba(255,255,255,0.8);
     border: 1px solid rgba(0, 0, 0, 0.8);
-    border-radius: 4px;
+    border-radius: 0.375rem;
     padding: 2px 10px;
     background: transparent;
     vertical-align: middle;
-    margin: 5px;
+    margin: 5px 10px;
 }
 
 .counter {
     font-weight: bold;
     user-select: none;
     color: dimgray;
+    margin-right: 10px;
 }
