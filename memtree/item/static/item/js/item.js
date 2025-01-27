@@ -192,6 +192,13 @@ function selection(item_id) {
     }
 }
 
+function clearSelection() {
+    "use strict";
+    SELECTED_ITEM_ID = null;
+    CHECKED_ITEMS_IDS = Array();
+    buttonsUpdate();
+}
+
 function buttonsUpdate() {
     "use strict";
     if (EDIT_MODE) {
@@ -292,6 +299,8 @@ function createOrUpdate(data) {
         modified = '-';
     }
 
+    item.text.setAttribute('data-bs-toggle', 'tooltip');
+    item.text.setAttribute('data-bs-placement', 'top');
     item.text.setAttribute('title',
         `id: ${data.id}\n` +
         `path: ${data.path}\n` +

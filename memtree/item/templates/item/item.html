@@ -28,12 +28,14 @@
             <span class="z-3 position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger user-select-none"
                   id="checked_counter"></span>
 
-            <ul class="z-n1 dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                <li><a class="dropdown-item" onclick="moveChildren()" style="cursor: pointer">Nested move</a></li>
-                <li><a class="dropdown-item" onclick="moveChecked()" style="cursor: pointer">Checked move</a></li>
+            <ul class="z-1 dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                <li><a class="dropdown-item" onclick="removeChecked()" style="cursor: pointer;color: red">Delete</a></li>
+                <li><a class="dropdown-item" onclick="removeChildren()" style="cursor: pointer;color: red">Delete only nested</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" onclick="removeChildren()" style="cursor: pointer;color: red">Nested delete</a></li>
-                <li><a class="dropdown-item" onclick="removeChecked()" style="cursor: pointer;color: red">Checked delete</a></li>
+                <li><a class="dropdown-item" onclick="moveChecked()" style="cursor: pointer">Move</a></li>
+                <li><a class="dropdown-item" onclick="moveChildren()" style="cursor: pointer">Move only nested</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" onclick="clearSelection()" style="cursor: pointer">Clear selection</a></li>
             </ul>
           </div>
 
