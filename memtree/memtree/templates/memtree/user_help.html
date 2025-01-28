@@ -6,13 +6,18 @@
         document.getElementById('edit_mode_label').classList.add('disabled');
     </script>
 
-    <h5>MemTree</h5>
-    <br>
-    <p>A simple application for text notes.</p>
-    <p>The main feature is the possibility of infinite nesting of elements.</p>
-    <br>
-    <p>Description of management:</p>
     <ul>
+        <h3>MemTree</h3>
+        <br>
+        <p>A simple application for text notes.</p>
+        <p>The main feature is the possibility of infinite nesting of elements.</p>
+        <br>
+        <h5>Support:</h5>
+        <p>eugene.v.us@gmail.com</p>
+        <br>
+        <h5>Description of basic management:</h5>
+        <br>
+
         <li>
             <p style="color: rgba(155, 255, 155, 0.5)">Green highlighting (first press on element)</p>
             <p>Only one element can be marked in green.</p>
@@ -27,27 +32,31 @@
             </ul>
         </li>
 
+        <br>
+
         <li>
             <p style="color: rgba(255, 211, 0, 0.7)">Yellow highlighting (second press on element)</p>
             <p>Multiple elements can be marked in yellow at the same time.</p>
             <ul>
                 <li>
                     <p>Delete selected (yellow) elements:</p>
-                    <p>Mark the elements in yellow and press "Del".</p>
+                    <p>Mark the elements in yellow and press "Delete" in "Action" menu.</p>
                 </li>
                 <li>
                     <p>Move selected (yellow) elements to another element (parent):</p>
                     <p>Mark elements in yellow.</p>
                     <p>Then mark parent element in green.</p>
-                    <p>And press the button "Move".</p>
+                    <p>And press "Move" in "Action" menu.</p>
                     <p>If the parent element is not selected, the yellow elements will become the top of the "tree".</p>
                 </li>
             </ul>
         </li>
 
+        <br>
+
         <li>
             <p style="color: rgba(0, 100, 200, 0.5)">Edit text of element:</p>
-            <p>Toggle the "Edit" button to make all the elements editable or read only.</p>
+            <p>Toggle the "Edit" button to make all the elements editable or readonly (default).</p>
         </li>
     </ul>
 
