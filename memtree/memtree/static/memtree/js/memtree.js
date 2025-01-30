@@ -39,7 +39,9 @@ function confirmLogout() {
                     })
                         .then(response => {
                             if (!response.ok) {
-                                throw new Error(response.statusText);
+                                return response.text().then(errorMessage => {
+                                    throw new Error(errorMessage);
+                                })
                             }
                             document.location.href = '/';
                         })
@@ -79,7 +81,9 @@ function confirmDeleteAccount() {
                     })
                         .then(response => {
                             if (!response.ok) {
-                                throw new Error(response.statusText);
+                                return response.text().then(errorMessage => {
+                                    throw new Error(errorMessage);
+                                })
                             }
                             document.location.href = '/';
                         })
