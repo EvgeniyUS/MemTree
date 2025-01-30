@@ -370,11 +370,12 @@ function search() {
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => {
+            .then(async response => {
                 if (response.ok) {
                     return response.json();
                 } else {
-                    throw new Error(response.statusText);
+                    const errorMessage = await response.text();
+                    throw new Error(errorMessage);
                 }
             })
             .then(data => {
@@ -416,11 +417,12 @@ function apiRetrieve(item_id) {
             'Content-Type': 'application/json'
         }
     })
-        .then(response => {
+        .then(async response => {
             if (response.ok) {
                 return response.json();
             } else {
-                throw new Error(response.statusText);
+                const errorMessage = await response.text();
+                throw new Error(errorMessage);
             }
         })
         .then(data => {
@@ -442,11 +444,12 @@ function apiList(parent_id) {
             'Content-Type': 'application/json'
         }
     })
-        .then(response => {
+        .then(async response => {
             if (response.ok) {
                 return response.json();
             } else {
-                throw new Error(response.statusText);
+                const errorMessage = await response.text();
+                throw new Error(errorMessage);
             }
         })
         .then(data => {
@@ -479,7 +482,9 @@ function apiCreate(text) {
             if (response.ok) {
                 search();
             } else {
-                throw new Error(response.statusText);
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                })
             }
         })
         .catch(error => {
@@ -503,7 +508,9 @@ function apiUpdate(item_data) {
                     search();
                 }
             } else {
-                throw new Error(response.statusText);
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                })
             }
         })
         .catch(error => {
@@ -522,7 +529,9 @@ function apiDelete(item_id) {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                })
             }
         })
         .catch(error => {
@@ -542,7 +551,9 @@ function apiBulkDelete() {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                })
             }
         })
         .catch(error => {
@@ -561,7 +572,9 @@ function apiDeleteChildren(item_id) {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                })
             }
         })
         .catch(error => {
@@ -583,7 +596,9 @@ function apiBulkMove() {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                })
             }
         })
         .catch(error => {
@@ -603,7 +618,9 @@ function apiMoveChildren(item_data) {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                })
             }
         })
         .catch(error => {
