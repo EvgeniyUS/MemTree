@@ -1,7 +1,5 @@
 ul, #root_ul {
-    /* display: grid; */
     list-style: none;
-    /* overflow: auto; */
 }
 
 li {
