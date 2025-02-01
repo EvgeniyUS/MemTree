@@ -1,7 +1,3 @@
-ul, #root_ul {
-    list-style: none;
-}
-
 li {
     white-space: nowrap;
 }
