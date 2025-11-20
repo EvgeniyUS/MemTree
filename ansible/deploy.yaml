@@ -6,69 +6,13 @@
   become: yes
 
   tasks:
-    - name: copy project files - item
-      copy:
-        src: "../memtree/item"
-        dest: "{{ project_path }}/"
-        mode: 600
-        owner: root
-        group: root
-      notify:
-        - restart daphne
-
-    - name: copy project files - memtree
-      copy:
-        src: "../memtree/memtree"
-        dest: "{{ project_path }}/"
-        mode: 600
-        owner: root
-        group: root
-      notify:
-        - restart daphne
-
-    - name: copy project files - manage.py
-      copy:
-        src: "../memtree/manage.py"
-        dest: "{{ project_path }}/"
-        mode: 600
-        owner: root
-        group: root
-      notify:
-        - restart daphne
-
-    - name: copy project files - requirements.txt
-      copy:
-        src: "../memtree/requirements.txt"
-        dest: "{{ project_path }}/"
-        mode: 600
-        owner: root
-        group: root
-      notify:
-        - restart daphne
-
-#    - name: copy project files - db.sqlite3
-#      copy:
-#        src: "../memtree/db.sqlite3"
-#        dest: "{{ project_path }}/"
-#        mode: 600
-#        owner: root
-#        group: root
-#      notify:
-#        - restart daphne
-
-    - name: initiate virtualenv
-      pip:
-        virtualenv: "{{ venv_dir }}"
-        virtualenv_command: /usr/bin/python3 -m venv
-        requirements: "{{ project_path }}/requirements.txt"
-
     - name: copy nginx config
       template:
         src: "files/nginx.j2"
         dest: "/etc/nginx/sites-available/{{ project_name }}.conf"
         mode: 600
-        owner: root
-        group: root
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
       notify:
         - restart nginx
 
@@ -82,6 +26,28 @@
       notify:
         - restart nginx
 
+    - name: ensure redis is running and enabled
+      service:
+        name: redis-server
+        state: started
+        enabled: yes
+
+    - name: set redis host
+      lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: '^bind .*'
+        line: "bind {{ redis_bind }}"
+        state: present
+      notify: restart redis-server
+
+    - name: set redis port
+      lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: '^port .*'
+        line: "port {{ redis_port }}"
+        state: present
+      notify: restart redis-server
+
     - name: django migrate
       django_manage:
         command: migrate
@@ -94,30 +60,68 @@
         app_path: "{{ project_path }}/"
         virtualenv: "{{ venv_dir }}"
 
-    - name: copy daphne config
-      template:
-        src: "files/daphne.j2"
-        dest: "/etc/systemd/system/daphne.service"
+    - name: create log directory
+      file:
+        path: "/var/log/daphne"
+        state: directory
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
         mode: 600
-        owner: root
-        group: root
-      notify:
-        - restart daphne
 
-    - name: reload systemd configuration
-      command: systemctl daemon-reload
+    - name: make sure supervisor is running
+      service:
+        name: supervisor
+        state: started
+        enabled: yes
+
+    - name: write supervisor config
+      template:
+        src: "files/supervisor.j2"
+        dest: "/etc/supervisor/conf.d/{{ project_name }}-daphne.conf"
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+        mode: 600
+      notify: 
+        - restart supervisor
+
+    - name: reload supervisor config
+      command: supervisorctl reread
+      changed_when: yes
+
+    - name: update supervisor processes
+      command: supervisorctl update
+      changed_when: yes
+
+    - name: start daphne workers
+      command: supervisorctl start {{ project_name }}-daphne:*
+      changed_when: yes
+      # notify: 
+      #   - restart nginx
+
+    # - name: copy daphne config
+    #   template:
+    #     src: "files/daphne.j2"
+    #     dest: "/etc/systemd/system/daphne.service"
+    #     mode: 600
+    #     owner: root
+    #     group: root
+    #   notify:
+    #     - start daphne
+
+    # - name: reload systemd configuration
+    #   command: systemctl daemon-reload
 
     - name: make sure nginx server is running
       service:
         name: nginx
-        state: started
+        state: restarted
         enabled: yes
 
-    - name: make sure daphne server is running
-      service:
-        name: daphne
-        state: started
-        enabled: yes
+    # - name: make sure daphne server is running
+    #   service:
+    #     name: daphne
+    #     state: stopped
+    #     enabled: no
 
   handlers:
     - name: restart nginx
@@ -125,7 +129,37 @@
         name: nginx
         state: restarted
 
+    - name: start supervisor
+      service:
+        name: supervisor
+        state: started
+
+    - name: restart supervisor
+      service:
+        name: supervisor
+        state: restarted
+
+    - name: stop supervisor
+      service:
+        name: supervisor
+        state: stopped
+
+    - name: start daphne
+      service:
+        name: daphne
+        state: started
+
     - name: restart daphne
       service:
         name: daphne
+        state: restarted
+
+    - name: stop daphne
+      service:
+        name: daphne
+        state: stopped
+
+    - name: restart redis-server
+      service:
+        name: redis-server
         state: restarted

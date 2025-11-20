@@ -32,4 +32,60 @@
         privatekey_path: "{{ key_path }}"
         provider: selfsigned
 
+    - name: copy project files - item
+      copy:
+        src: "../memtree/item"
+        dest: "{{ project_path }}/"
+        mode: 600
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+      # notify:
+      #   - restart daphne
+
+    - name: copy project files - memtree
+      copy:
+        src: "../memtree/memtree"
+        dest: "{{ project_path }}/"
+        mode: 600
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+      # notify:
+      #   - restart daphne
+
+    - name: copy project files - manage.py
+      copy:
+        src: "../memtree/manage.py"
+        dest: "{{ project_path }}/"
+        mode: 600
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+      # notify:
+      #   - restart daphne
+
+    - name: copy project files - requirements.txt
+      copy:
+        src: "../memtree/requirements.txt"
+        dest: "{{ project_path }}/"
+        mode: 600
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+      # notify:
+      #   - restart daphne
+
+#    - name: copy project files - db.sqlite3
+#      copy:
+#        src: "../memtree/db.sqlite3"
+#        dest: "{{ project_path }}/"
+#        mode: 600
+#        owner: root
+#        group: root
+#      notify:
+#        - restart daphne
+
+    - name: initiate virtualenv
+      pip:
+        virtualenv: "{{ venv_dir }}"
+        virtualenv_command: /usr/bin/python3 -m venv
+        requirements: "{{ project_path }}/requirements.txt"
+
 - import_playbook: deploy.yaml

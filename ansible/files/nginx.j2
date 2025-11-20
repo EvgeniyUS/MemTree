@@ -13,11 +13,10 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:{{ project_path }}/daphne.sock;
+        proxy_pass http://channels-backend;
     }
-    #/notification/ is redirecting the requests into the daphne.sock
     location /ws/ {
-        proxy_pass http://unix:{{ project_path }}/daphne.sock;
+        proxy_pass http://channels-backend;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -43,11 +42,10 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:{{ project_path }}/daphne.sock;
+        proxy_pass http://channels-backend;
     }
-    #/notification/ is redirecting the requests into the daphne.sock
     location /ws/ {
-        proxy_pass http://unix:{{ project_path }}/daphne.sock;
+        proxy_pass http://channels-backend;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
