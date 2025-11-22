@@ -1,12 +1,10 @@
 [fcgi-program:{{ project_name }}-daphne]
 socket=tcp://localhost:8000
-# socket_owner=www-data:www-data
-# socket_mode=0660
 socket_backlog=2048                          ; размер очереди соединений
 
-command={{ venv_dir }}/bin/daphne -u {{ project_path }}/{{ project_name }}-daphne%(process_num)d.sock --fd 0 --access-log - --proxy-headers memtree.asgi:application
+command={{ venv_dir }}/bin/daphne -u {{ project_path }}/{{ project_name }}-daphne%(process_num)d.sock --fd 0 --proxy-headers {{ project_name }}.asgi:application
 
-numprocs=4                                   ; количество воркеров
+numprocs=2                                   ; количество воркеров
 process_name={{ project_name }}-daphne%(process_num)d ; имена процессов
 
 directory={{ project_path }}                 ; рабочая директория
@@ -14,5 +12,5 @@ user={{ project_owner }}                     ; пользователь для �
 autostart=true
 autorestart=true
 redirect_stderr=true
-stdout_logfile=/var/log/daphne/access.log
-stderr_logfile=/var/log/daphne/error.log
+; stdout_logfile=/var/log/{{ project_name }}/access.log
+; stderr_logfile=/var/log/{{ project_name }}/error.log

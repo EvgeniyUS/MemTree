@@ -60,14 +60,6 @@
         app_path: "{{ project_path }}/"
         virtualenv: "{{ venv_dir }}"
 
-    - name: create log directory
-      file:
-        path: "/var/log/daphne"
-        state: directory
-        owner: "{{ project_owner }}"
-        group: "{{ project_group }}"
-        mode: 600
-
     - name: make sure supervisor is running
       service:
         name: supervisor

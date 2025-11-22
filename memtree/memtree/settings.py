@@ -107,7 +107,6 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 LOGIN_URL = '/login'
 
-# 1. Настройка кэша (Redis)
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -124,18 +123,51 @@ CACHES = {
     }
 }
 
-# 2. Настройка сессий
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
-
-# Дополнительные параметры сессий (рекомендуется)
-SESSION_COOKIE_NAME = "sessionid"  # стандартное имя
-SESSION_COOKIE_DOMAIN = None  # или ваш домен
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False  # True при HTTPS
-SESSION_SAVE_EVERY_REQUEST = True  # сохранять при каждом запросе
+SESSION_COOKIE_SECURE = True
+SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_AGE = 1209600  # 2 недели (в секундах)
-
-# 3. Настройка сериализации (важно для многопроцессной среды)
 SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"  # безопаснее, чем Pickle
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'django': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join('/var/log/memtree', 'django.log'),
+        },
+        'django_redis': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join('/var/log/memtree', 'django_redis.log'),
+        },
+        'channels': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join('/var/log/memtree', 'channels.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'django'],
+            'level': 'DEBUG' if DEBUG else 'ERROR',
+        },
+        'django_redis': {
+            'handlers': ['console', 'django_redis'],
+            'level': 'DEBUG' if DEBUG else 'ERROR',
+        },
+        'channels': {
+            'handlers': ['console', 'channels'],
+            'level': 'DEBUG' if DEBUG else 'ERROR',
+        },
+        'daphne': {
+            'handlers': ['console', 'django'],
+            'level': 'DEBUG' if DEBUG else 'ERROR',
+        },
+    },
+}
