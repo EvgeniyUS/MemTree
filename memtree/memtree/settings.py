@@ -1,11 +1,8 @@
 import os
-from django.core.management.utils import get_random_secret_key
+from memtree import get_secret_key
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SECRET_KEY = get_random_secret_key()
 DEBUG = False
-# SECRET_KEY = 't@4ss2uj6at^!w0(fyen9%=#j5sd6r)q&7#0+@6^g7*v@ffg#x'
-# DEBUG = True
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = [u'127.0.0.1',
                  u'84.38.182.234',
@@ -51,16 +48,22 @@ TEMPLATES = [
     },
 ]
 
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
+REDIS_PASSWORD = None
+
+SECRET_KEY = get_secret_key()
+
 WSGI_APPLICATION = 'memtree.wsgi.application'
 ASGI_APPLICATION = "memtree.asgi.application"
 
 
 CHANNEL_LAYERS = {
     "default": {
-        # "BACKEND": "channels.layers.InMemoryChannelLayer"
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("localhost", 6379)],
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
         },
     }
 }
@@ -103,3 +106,36 @@ STATICFILES_DIRS = [
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 LOGIN_URL = '/login'
+
+# 1. Настройка кэша (Redis)
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": REDIS_PASSWORD,
+            "SOCKET_CONNECT_TIMEOUT": 5,  # сек
+            "SOCKET_TIMEOUT": 5,          # сек
+            "RETRY_ON_TIMEOUT": True,
+            "MAX_RETRIES": 3,
+        },
+        "KEY_PREFIX": "memtree",  # уникальный префикс для ключей
+    }
+}
+
+# 2. Настройка сессий
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+# Дополнительные параметры сессий (рекомендуется)
+SESSION_COOKIE_NAME = "sessionid"  # стандартное имя
+SESSION_COOKIE_DOMAIN = None  # или ваш домен
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False  # True при HTTPS
+SESSION_SAVE_EVERY_REQUEST = True  # сохранять при каждом запросе
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 1209600  # 2 недели (в секундах)
+
+# 3. Настройка сериализации (важно для многопроцессной среды)
+SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"  # безопаснее, чем Pickle
