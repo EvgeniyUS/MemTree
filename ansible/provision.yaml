@@ -104,9 +104,9 @@
         group: "{{ project_group }}"
         mode: 600
 
-    - name: create django log file
+    - name: create celery log file
       file:
-        path: "/var/log/{{ project_name }}.django.log"
+        path: "/var/log/{{ project_name }}.celery.log"
         state: touch
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"

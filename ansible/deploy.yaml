@@ -66,15 +66,23 @@
         state: started
         enabled: yes
 
-    - name: write supervisor config
+    - name: write daphne supervisor config
       template:
-        src: "files/supervisor.j2"
+        src: "files/supervisor_daphne.j2"
         dest: "/etc/supervisor/conf.d/{{ project_name }}-daphne.conf"
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
         mode: 600
       notify: 
         - restart supervisor
+
+    - name: write celery worker supervisor config
+      template:
+        src: "files/supervisor_celery_worker.j2"
+        dest: "/etc/supervisor/conf.d/{{ project_name }}-celery-worker.conf"
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+        mode: 600
 
     - name: reload supervisor config
       command: supervisorctl reread
@@ -86,6 +94,10 @@
 
     - name: start daphne workers
       command: supervisorctl start {{ project_name }}-daphne:*
+      changed_when: yes
+
+    - name: start celery workers
+      command: supervisorctl start {{ project_name }}-celery-worker:*
       changed_when: yes
       # notify: 
       #   - restart nginx

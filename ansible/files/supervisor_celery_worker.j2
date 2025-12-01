@@ -1,0 +1,13 @@
+[program:{{ project_name }}-celery-worker]
+command={{ venv_dir }}/bin/celery -A {{ project_name }} worker --loglevel=ERROR
+
+numprocs=1                                   ; количество воркеров
+process_name={{ project_name }}-celery-worker%(process_num)d ; имена процессов
+
+directory={{ project_path }}                 ; рабочая директория
+user={{ project_owner }}                     ; пользователь для запуска
+autostart=true
+autorestart=true
+startsecs=10
+; stdout_logfile=/var/log/{{ project_name }}/celery.log
+stderr_logfile=/var/log/{{ project_name }}/celery.log

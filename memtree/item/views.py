@@ -9,6 +9,7 @@ from .models import Item
 from .serializers import (
     ItemObjectSerializer, ItemTreeSerializer, ItemParentSerializer,
     ItemsIDsSerializer, ItemBulkMoveSerializer)
+from .tasks import bulk_delete
 
 
 class IsOwner(BasePermission):
@@ -59,16 +60,10 @@ class ItemViewSet(ModelViewSet):
         """ Removes specified items. """
         serializer = ItemsIDsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        items_to_delete = self.filter_queryset(self.get_queryset()).filter(
-            pk__in=serializer.validated_data['items_ids'])
-        parents_ids = list(items_to_delete.values_list('parent', flat=True).distinct())
-        items_to_delete.delete()
-        parents = self.filter_queryset(self.get_queryset()).filter(pk__in=parents_ids)
-        for parent in parents:
-            post_save.send(sender=Item, instance=parent, created=False)
-        return Response(
-            f"Elements ids={str(serializer.validated_data['items_ids'])} "
-            "have been deleted.")
+        items_ids = list(self.filter_queryset(self.get_queryset()).filter(
+            pk__in=serializer.validated_data['items_ids']).values_list('id', flat=True))
+        bulk_delete.delay(items_ids)
+        return Response('OK')
 
     @action(methods=['delete'], detail=True, url_path="delete-children")
     def delete_children(self, request, *args, **kwargs):
