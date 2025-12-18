@@ -4,9 +4,12 @@ from memtree import get_secret_key
 DEBUG = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-ALLOWED_HOSTS = [u'127.0.0.1',
-                 u'84.38.182.234',
-                 u'orionio.pythonanywhere.com']
+ALLOWED_HOSTS = [
+    u'127.0.0.1',
+    u'84.38.182.234',
+    u'orionio.pythonanywhere.com',
+    u'192.168.122.9',
+]
 
 INSTALLED_APPS = [
     'daphne',
@@ -144,14 +147,6 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join('/var/log/memtree', 'django.log'),
         },
-        'django_redis': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join('/var/log/memtree', 'django_redis.log'),
-        },
-        'channels': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join('/var/log/memtree', 'channels.log'),
-        },
     },
     'loggers': {
         'django': {
@@ -159,11 +154,11 @@ LOGGING = {
             'level': 'DEBUG' if DEBUG else 'ERROR',
         },
         'django_redis': {
-            'handlers': ['console', 'django_redis'],
+            'handlers': ['console', 'django'],
             'level': 'DEBUG' if DEBUG else 'ERROR',
         },
         'channels': {
-            'handlers': ['console', 'channels'],
+            'handlers': ['console', 'django'],
             'level': 'DEBUG' if DEBUG else 'ERROR',
         },
         'daphne': {

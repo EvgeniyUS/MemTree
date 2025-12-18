@@ -4,7 +4,7 @@ socket_backlog=2048                          ; размер очереди со�
 
 command={{ venv_dir }}/bin/daphne -u {{ project_path }}/{{ project_name }}-daphne%(process_num)d.sock --fd 0 --proxy-headers {{ project_name }}.asgi:application
 
-numprocs=2                                   ; количество воркеров
+numprocs=1                                   ; количество воркеров
 process_name={{ project_name }}-daphne%(process_num)d ; имена процессов
 
 directory={{ project_path }}                 ; рабочая директория

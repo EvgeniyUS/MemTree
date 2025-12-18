@@ -1,0 +1,40 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: install redis-server
+      apt:
+        pkg: redis-server
+        update-cache: yes
+
+    - name: set redis host
+      lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: '^bind .*'
+        line: "bind {{ redis_bind }}"
+        state: present
+      notify: restart redis-server
+
+    - name: set redis port
+      lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: '^port .*'
+        line: "port {{ redis_port }}"
+        state: present
+      notify: restart redis-server
+
+    - name: ensure redis is running and enabled
+      service:
+        name: redis-server
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart redis-server
+      service:
+        name: redis-server
+        state: restarted

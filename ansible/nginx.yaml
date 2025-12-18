@@ -1,0 +1,59 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: install nginx
+      apt:
+        pkg: nginx
+        update-cache: yes
+
+    - name: remove default nginx site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: "{{ key_path }}"
+
+    - name: create simple self-signed certificate
+      community.crypto.x509_certificate:
+        path: "{{ cert_path }}"
+        privatekey_path: "{{ key_path }}"
+        provider: selfsigned
+
+    - name: copy nginx config
+      template:
+        src: "files/nginx.j2"
+        dest: "/etc/nginx/sites-available/{{ project_name }}.conf"
+        mode: 600
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+      notify:
+        - restart nginx
+
+    - name: create symbolic links for sites config to enable sites
+      become: yes
+      file:
+        path: "/etc/nginx/sites-enabled/{{ project_name }}.conf"
+        state: link
+        src: "/etc/nginx/sites-available/{{ project_name }}.conf"
+        force: yes
+      notify:
+        - restart nginx
+
+    - name: make sure nginx server is running
+      service:
+        name: nginx
+        state: restarted
+        enabled: yes
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted

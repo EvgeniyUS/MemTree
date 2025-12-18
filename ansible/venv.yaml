@@ -1,0 +1,21 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: install python venv packages
+      apt:
+        pkg: "{{ item }}"
+        update-cache: yes
+      with_items:
+        - python3-pip
+        - python3-venv
+
+    - name: initiate virtualenv
+      pip:
+        virtualenv: "{{ venv_dir }}"
+        virtualenv_command: /usr/bin/python3 -m venv
+        requirements: "{{ project_path }}/requirements.txt"

@@ -1,8 +1,8 @@
-[program:{{ project_name }}-celery-worker]
-command={{ venv_dir }}/bin/celery -A {{ project_name }} worker
+[program:{{ project_name }}-celery-beat]
+command={{ venv_dir }}/bin/celery -A {{ project_name }} beat
 
 numprocs=1                                   ; количество воркеров
-process_name={{ project_name }}-celery-worker%(process_num)d ; имена процессов
+process_name={{ project_name }}-celery-beat%(process_num)d ; имена процессов
 
 directory={{ project_path }}                 ; рабочая директория
 user={{ project_owner }}                     ; пользователь для запуска

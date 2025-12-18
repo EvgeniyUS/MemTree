@@ -1,0 +1,74 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: install supervisor
+      apt:
+        pkg: supervisor
+        update-cache: yes
+
+    - name: write daphne supervisor config
+      template:
+        src: "files/supervisor_daphne.j2"
+        dest: "/etc/supervisor/conf.d/{{ project_name }}-daphne.conf"
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+        mode: 600
+      notify: 
+        - restart supervisor
+
+    - name: write celery worker supervisor config
+      template:
+        src: "files/supervisor_celery_worker.j2"
+        dest: "/etc/supervisor/conf.d/{{ project_name }}-celery-worker.conf"
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+        mode: 600
+      notify: 
+        - restart supervisor
+
+    - name: write celery beat supervisor config
+      template:
+        src: "files/supervisor_celery_beat.j2"
+        dest: "/etc/supervisor/conf.d/{{ project_name }}-celery-beat.conf"
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+        mode: 600
+      notify: 
+        - restart supervisor
+
+    - name: make sure supervisor is running
+      service:
+        name: supervisor
+        state: started
+        enabled: yes
+
+    - name: reload supervisor config
+      command: supervisorctl reread
+      changed_when: yes
+
+    - name: update supervisor processes
+      command: supervisorctl update
+      changed_when: yes
+
+    - name: start daphne workers
+      command: supervisorctl start {{ project_name }}-daphne:*
+      changed_when: yes
+
+    - name: start celery workers
+      command: supervisorctl start {{ project_name }}-celery-worker:*
+      changed_when: yes
+
+    - name: start celery beat
+      command: supervisorctl start {{ project_name }}-celery-beat:*
+      changed_when: yes
+
+  handlers:
+    - name: restart supervisor
+      service:
+        name: supervisor
+        state: restarted
