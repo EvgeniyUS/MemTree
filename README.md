@@ -8,11 +8,3 @@ A simple application for text notes.
   cd ansible
   ansible-playbook -i hosts provision.yaml
   ```	
-
-
-- on update:
-
-  ```
-  cd ansible
-  ansible-playbook -i hosts deploy.yaml
-  ```	
