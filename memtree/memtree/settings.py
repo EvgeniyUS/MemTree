@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'item',
+    'task'
 ]
 
 MIDDLEWARE = [
@@ -167,3 +168,7 @@ LOGGING = {
         },
     },
 }
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_RESULT_EXPIRES = 60 * 5  # seconds

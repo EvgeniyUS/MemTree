@@ -27,6 +27,14 @@
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
 
+    - name: copy project files - task
+      copy:
+        src: "../memtree/task"
+        dest: "{{ project_path }}/"
+        mode: 600
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+
     - name: copy project files - manage.py
       copy:
         src: "../memtree/manage.py"

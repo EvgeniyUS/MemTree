@@ -1,5 +1,7 @@
+import logging
 from django.db.models.signals import post_save
 from django_filters import rest_framework as filters
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, BasePermission
@@ -10,6 +12,9 @@ from .serializers import (
     ItemObjectSerializer, ItemTreeSerializer, ItemParentSerializer,
     ItemsIDsSerializer, ItemBulkMoveSerializer)
 from .tasks import bulk_delete
+from task.models import Task
+
+LOG = logging.getLogger('django')
 
 
 class IsOwner(BasePermission):
@@ -62,8 +67,15 @@ class ItemViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         items_ids = list(self.filter_queryset(self.get_queryset()).filter(
             pk__in=serializer.validated_data['items_ids']).values_list('id', flat=True))
-        bulk_delete.delay(items_ids)
-        return Response('OK')
+        if items_ids:
+            task = Task.objects.create_task(
+                request.user,
+                f"Bulk delete task of items {serializer.validated_data['items_ids']}.",
+                bulk_delete,
+                items_ids
+            )
+            return Response(f'Task {task.uuid} created.')
+        return Response('OK', status=status.HTTP_200_OK)
 
     @action(methods=['delete'], detail=True, url_path="delete-children")
     def delete_children(self, request, *args, **kwargs):

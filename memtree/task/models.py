@@ -1,0 +1,64 @@
+from uuid import uuid4
+from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
+
+
+class TaskStatus:
+    PADDING = 'padding'
+    IN_PROGRESS = 'in_progress'
+    DONE = 'done'
+    FAILED = 'failed'
+
+
+class TaskManager(models.Manager):
+
+    class Meta:
+        abstract = True
+
+    def create_task(self, user, name, celery_task, *args, **kwargs):
+        task = self.create(
+            name=name,
+            user=user,
+        )
+        celery_task.apply_async(args, kwargs, task_id=task.uuid)
+        return task
+
+
+class Task(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    status = models.CharField(default=TaskStatus.PADDING, max_length=15)
+    name = models.CharField(null=True, blank=True, max_length=255)
+    result = models.TextField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    finished = models.DateTimeField(null=True, blank=True)
+    user = models.ForeignKey(User, related_name='tasks', on_delete=models.CASCADE)
+
+    objects = TaskManager()
+
+    def __str__(self):
+        return f'ID={str(self.id)}. STATUS={self.status}. NAME={self.name}. RESULT={str(self.result)}'
+
+    def save(self, *args, **kwargs):
+        if self.pk and self.status in [TaskStatus.DONE, TaskStatus.FAILED]:
+            self.finished = timezone.now()
+        super().save(*args, **kwargs)
+
+    @property
+    def uuid(self) -> str:
+        return str(self.id)
+
+    def set_in_progress(self):
+        if self.status != TaskStatus.IN_PROGRESS:
+            self.status = TaskStatus.IN_PROGRESS
+            self.save(update_fields=['status'])
+
+    def set_done(self, result):
+        self.status = TaskStatus.DONE
+        self.result = str(result)
+        self.save(update_fields=['status', 'result'])
+
+    def set_failed(self, result):
+        self.status = TaskStatus.FAILED
+        self.result = str(result)
+        self.save(update_fields=['status', 'result'])

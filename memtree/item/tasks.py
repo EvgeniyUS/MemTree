@@ -8,6 +8,7 @@ from .models import Item
 def bulk_delete(items_ids):
     chain = delete.s(items_ids) | send_signals.s()
     chain()
+    return f'Items {items_ids} deleted.'
 
 
 @app.task
@@ -19,6 +20,6 @@ def delete(items_ids: list):
 
 
 @app.task
-def send_signals(items_ids):
-    for item in Item.objects.filter(pk__in=items_ids):
+def send_signals(parents_ids):
+    for item in Item.objects.filter(pk__in=parents_ids):
         post_save.send(sender=Item, instance=item, created=False)
