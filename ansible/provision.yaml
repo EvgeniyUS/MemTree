@@ -9,5 +9,5 @@
 - import_playbook: redis.yaml
 - import_playbook: deploy.yaml
 - import_playbook: venv.yaml
-- import_playbook: supervisor.yaml
 - import_playbook: django.yaml
+- import_playbook: supervisor.yaml
