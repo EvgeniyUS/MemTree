@@ -1,7 +1,10 @@
+import logging
 from uuid import uuid4
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+
+LOG = logging.getLogger('django')
 
 
 class TaskStatus:
@@ -42,6 +45,8 @@ class Task(models.Model):
     def save(self, *args, **kwargs):
         if self.pk and self.status in [TaskStatus.DONE, TaskStatus.FAILED]:
             self.finished = timezone.now()
+            if (update_fields := kwargs.get('update_fields')) and 'finished' not in update_fields:
+                update_fields.append('finished')
         super().save(*args, **kwargs)
 
     @property
@@ -52,13 +57,16 @@ class Task(models.Model):
         if self.status != TaskStatus.IN_PROGRESS:
             self.status = TaskStatus.IN_PROGRESS
             self.save(update_fields=['status'])
+            LOG.info(f'Task {self.uuid} in progress.')
 
     def set_done(self, result):
         self.status = TaskStatus.DONE
         self.result = str(result)
         self.save(update_fields=['status', 'result'])
+        LOG.info(f'Task {self.uuid} is DONE. Result: {str(result)}')
 
     def set_failed(self, result):
         self.status = TaskStatus.FAILED
         self.result = str(result)
         self.save(update_fields=['status', 'result'])
+        LOG.warning(f'Task {self.uuid} is FAILED. Error: {str(result)}')

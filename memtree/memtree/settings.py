@@ -148,23 +148,19 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': os.path.join('/var/log/memtree', 'django.log'),
         },
+        'celery': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join('/var/log/memtree', 'celery.log'),
+        },
     },
     'loggers': {
         'django': {
             'handlers': ['console', 'django'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
+            'level': 'INFO',
         },
-        'django_redis': {
-            'handlers': ['console', 'django'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
-        },
-        'channels': {
-            'handlers': ['console', 'django'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
-        },
-        'daphne': {
-            'handlers': ['console', 'django'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
+        'celery': {
+            'handlers': ['console', 'celery'],
+            'level': 'INFO',
         },
     },
 }
