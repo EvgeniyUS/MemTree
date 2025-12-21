@@ -59,7 +59,7 @@ class ItemViewSet(ModelViewSet):
             f"Create item {serializer.validated_data['text']}.",
             create,
             serializer.validated_data['text'],
-            serializer.validated_data['parent'].id,
+            getattr(serializer.validated_data['parent'], 'id', serializer.validated_data['parent']),
             serializer.context['request'].user.id,
         )
         return Response(f'Task {task.uuid} created.')
