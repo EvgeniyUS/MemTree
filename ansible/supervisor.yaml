@@ -55,15 +55,15 @@
       command: supervisorctl update
       changed_when: yes
 
-    - name: start daphne workers
+    - name: start/restart daphne workers
       command: supervisorctl restart {{ project_name }}-daphne:*
       changed_when: yes
 
-    - name: start celery workers
+    - name: start/restart celery workers
       command: supervisorctl restart {{ project_name }}-celery-worker:*
       changed_when: yes
 
-    - name: start celery beat
+    - name: start/restart celery beat
       command: supervisorctl restart {{ project_name }}-celery-beat:*
       changed_when: yes
 
