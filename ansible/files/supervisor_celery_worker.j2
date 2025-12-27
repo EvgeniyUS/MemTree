@@ -9,5 +9,5 @@ user={{ project_owner }}                     ; пользователь для �
 autostart=true
 autorestart=true
 startsecs=10
-; stdout_logfile=/var/log/{{ project_name }}/celery.log
-; stderr_logfile=/var/log/{{ project_name }}/celery.log
+; stdout_logfile={{ logs_path }}/celery.log
+; stderr_logfile={{ logs_path }}/celery.log

@@ -12,5 +12,5 @@ user={{ project_owner }}                     ; пользователь для �
 autostart=true
 autorestart=true
 redirect_stderr=true
-; stdout_logfile=/var/log/{{ project_name }}/access.log
-; stderr_logfile=/var/log/{{ project_name }}/error.log
+stdout_logfile={{ logs_path }}/django.log
+stderr_logfile={{ logs_path }}/django.log

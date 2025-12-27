@@ -23,3 +23,30 @@
         command: collectstatic
         app_path: "{{ project_path }}/"
         virtualenv: "{{ venv_dir }}"
+
+    - name: set static permissions
+      file:
+        path: "{{ static_root }}/"
+        recurse: yes
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+
+    - name: pull migrations - item
+      synchronize:
+        src: "{{ project_path }}/item/migrations/"
+        dest: "../memtree/item/migrations/"
+        mode: pull
+        archive: no
+        recursive: yes
+        rsync_opts:
+          - "--exclude=__pycache__"
+
+    - name: pull migrations - task
+      synchronize:
+        src: "{{ project_path }}/task/migrations/"
+        dest: "../memtree/task/migrations/"
+        mode: pull
+        archive: no
+        recursive: yes
+        rsync_opts:
+          - "--exclude=__pycache__"

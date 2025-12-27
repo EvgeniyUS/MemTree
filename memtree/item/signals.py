@@ -1,15 +1,21 @@
 
+import logging
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from item.serializers import ItemObjectSerializer
 
+LOG = logging.getLogger('django')
+
 
 @receiver([post_save, post_delete], sender=ItemObjectSerializer.Meta.model)
 def signals_receiver(sender, **kwargs):
     if instance := kwargs.get('instance'):
         data = ItemObjectSerializer(instance=instance).data
+        data['id'] = instance.uuid
+        if data['parent']:
+            data['parent'] = str(data['parent'])
         created = kwargs.get("created")
         if created is None:
             data['signal'] = 'deleted'

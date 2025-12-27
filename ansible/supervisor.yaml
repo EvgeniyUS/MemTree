@@ -17,7 +17,6 @@
         dest: "/etc/supervisor/conf.d/{{ project_name }}-daphne.conf"
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
-        mode: 600
       notify: 
         - restart supervisor
 
@@ -27,7 +26,6 @@
         dest: "/etc/supervisor/conf.d/{{ project_name }}-celery-worker.conf"
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
-        mode: 600
       notify: 
         - restart supervisor
 
@@ -37,7 +35,6 @@
         dest: "/etc/supervisor/conf.d/{{ project_name }}-celery-beat.conf"
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
-        mode: 600
       notify: 
         - restart supervisor
 
@@ -49,23 +46,15 @@
 
     - name: reload supervisor config
       command: supervisorctl reread
-      changed_when: yes
+      changed_when: no
 
     - name: update supervisor processes
       command: supervisorctl update
-      changed_when: yes
+      changed_when: no
 
-    - name: start/restart daphne workers
-      command: supervisorctl restart {{ project_name }}-daphne:*
-      changed_when: yes
-
-    - name: start/restart celery workers
-      command: supervisorctl restart {{ project_name }}-celery-worker:*
-      changed_when: yes
-
-    - name: start/restart celery beat
-      command: supervisorctl restart {{ project_name }}-celery-beat:*
-      changed_when: yes
+    - name: start/restart supervisor processes
+      command: supervisorctl restart all
+      changed_when: no
 
   handlers:
     - name: restart supervisor

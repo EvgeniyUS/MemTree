@@ -46,12 +46,6 @@
       notify:
         - restart nginx
 
-    - name: make sure nginx server is running
-      service:
-        name: nginx
-        state: restarted
-        enabled: yes
-
   handlers:
     - name: restart nginx
       service:

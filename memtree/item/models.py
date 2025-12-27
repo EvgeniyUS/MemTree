@@ -1,6 +1,9 @@
+import logging
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+
+LOG = logging.getLogger('django')
 
 
 class ItemManager(models.Manager):
@@ -33,18 +36,23 @@ class Item(models.Model):
     objects = ItemManager()
 
     def __str__(self):
+        return f'ID={self.uuid}. TEXT={self.text[:50] if self.text else None}.'
+
+    @property
+    def uuid(self) -> str:
         return str(self.id)
 
     def save(self, *args, **kwargs):
-        if self.pk and self.text != Item.objects.get(pk=self.pk).text:
+        if not self._state.adding and Item.objects.get(pk=self.pk).text != self.text:
             self.modified = timezone.now()
+            kwargs.get('update_fields', []).append('modified')
         super().save(*args, **kwargs)
 
     @property
     def path_list(self) -> list:
         if self.parent:
-            return self.parent.path_list + [str(self.id)]
-        return [str(self.id)]
+            return self.parent.path_list + [self.uuid]
+        return [self.uuid]
 
     @property
     def path(self) -> str:
@@ -94,7 +102,7 @@ class Item(models.Model):
 
     @property
     def descendants_ids(self):
-        return [child.id for child in self.descendants]
+        return [child.uuid for child in self.descendants]
 
     @staticmethod
     def tree_validation(user: User) -> bool:

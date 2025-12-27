@@ -9,6 +9,7 @@ ALLOWED_HOSTS = [
     u'84.38.182.234',
     u'orionio.pythonanywhere.com',
     u'192.168.122.9',
+    u'192.168.122.130',
 ]
 
 INSTALLED_APPS = [

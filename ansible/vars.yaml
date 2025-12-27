@@ -1,17 +1,11 @@
-install_root: /var/lib
 project_name: memtree
-project_path: "{{ install_root }}/{{ project_name }}"
-project_owner: root
-project_group: root
+project_path: "/var/lib/{{ project_name }}"
+logs_path: "/var/log/{{ project_name }}"
+project_owner: www-data
+project_group: www-data
 venv_dir: "{{ project_path }}/venv"
 asgi_module: "{{ project_name }}.asgi"
 static_root: "{{ project_path }}/static"
-system_packages:
-  - nginx
-  - redis-server
-  - supervisor
-  - python3-pip
-  - python3-venv
 cert_path: /etc/nginx/certificate.pem
 key_path: /etc/nginx/certificate.key
 redis_bind: 127.0.0.1

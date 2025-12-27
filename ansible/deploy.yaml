@@ -10,77 +10,44 @@
       file:
         path: "{{ project_path }}"
         state: directory
-
-    - name: copy project files - item
-      copy:
-        src: "../memtree/item"
-        dest: "{{ project_path }}/"
-        mode: 600
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
 
-    - name: copy project files - memtree
-      copy:
-        src: "../memtree/memtree"
+    - name: sync project files
+      synchronize:
+        src: "../memtree/"
         dest: "{{ project_path }}/"
-        mode: 600
+        archive: no
+        recursive: yes
+
+    - name: set permissions
+      file:
+        path: "{{ project_path }}/"
+        recurse: yes
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
-
-    - name: copy project files - task
-      copy:
-        src: "../memtree/task"
-        dest: "{{ project_path }}/"
-        mode: 600
-        owner: "{{ project_owner }}"
-        group: "{{ project_group }}"
-
-    - name: copy project files - manage.py
-      copy:
-        src: "../memtree/manage.py"
-        dest: "{{ project_path }}/"
-        mode: 600
-        owner: "{{ project_owner }}"
-        group: "{{ project_group }}"
-
-    - name: copy project files - requirements.txt
-      copy:
-        src: "../memtree/requirements.txt"
-        dest: "{{ project_path }}/"
-        mode: 600
-        owner: "{{ project_owner }}"
-        group: "{{ project_group }}"
-
-#    - name: copy project files - db.sqlite3
-#      copy:
-#        src: "../memtree/db.sqlite3"
-#        dest: "{{ project_path }}/"
-#        mode: 600
-#        owner: root
-#        group: root
-#      notify:
-#        - restart daphne
 
     - name: create log directory
       file:
-        path: "/var/log/{{ project_name }}"
+        path: "{{ logs_path }}"
         state: directory
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
-        mode: 600
 
     - name: create django log file
       file:
-        path: "/var/log/{{ project_name }}/django.log"
+        path: "{{ logs_path }}/django.log"
         state: touch
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
-        mode: 600
+        access_time: preserve
+        modification_time: preserve
 
     - name: create celery log file
       file:
-        path: "/var/log/{{ project_name }}/celery.log"
+        path: "{{ logs_path }}/celery.log"
         state: touch
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
-        mode: 600
+        access_time: preserve
+        modification_time: preserve

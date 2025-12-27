@@ -1,18 +1,17 @@
 import logging
-from django.db.models.signals import post_save
 from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, DestroyModelMixin
+from rest_framework.viewsets import GenericViewSet
 from .models import Item
 from .serializers import (
     ItemObjectSerializer, ItemTreeSerializer, ItemParentSerializer,
     ItemsIDsSerializer, ItemBulkMoveSerializer)
-from .tasks import create, delete, move
-from task.models import Task
+from .tasks import create, update, delete, move
 
 LOG = logging.getLogger('django')
 
@@ -34,14 +33,15 @@ class ItemFilter(filters.FilterSet):
 
     @staticmethod
     def filter_parent(queryset, name, value):
-        try:
-            value = int(value)
-        except ValueError:
+        if value == 'null':
             value = None
         return queryset.filter(parent=value)
 
 
-class ItemViewSet(ModelViewSet):
+class ItemViewSet(GenericViewSet,
+                  RetrieveModelMixin,
+                  ListModelMixin,
+                  DestroyModelMixin):
     queryset = Item.objects.all()
     serializer_class = ItemObjectSerializer
     permission_classes = [IsAuthenticated, IsOwner]
@@ -53,16 +53,30 @@ class ItemViewSet(ModelViewSet):
     search_fields = ['id', 'created', 'modified', 'text']
     http_method_names = ['get', 'post', 'put', 'delete']
 
-    def perform_create(self, serializer):
-        task = Task.objects.create_task(
-            serializer.context['request'].user,
-            f"Create item {serializer.validated_data['text']}.",
-            create,
-            serializer.validated_data['text'],
-            getattr(serializer.validated_data['parent'], 'id', serializer.validated_data['parent']),
-            serializer.context['request'].user.id,
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        create.delay(
+            user_id=request.user.id,
+            comment=f"Create item {serializer.validated_data['text'] or '-'}.",
+            text=serializer.validated_data['text'],
+            parent_id=getattr(serializer.validated_data.get('parent'), 'uuid', None),
         )
-        return Response(f'Task {task.uuid} created.')
+        return Response('OK', status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        update.delay(
+            user_id=request.user.id,
+            comment=f"Update item {instance.uuid}.",
+            item_id=instance.uuid,
+            text=serializer.validated_data.get('text'),
+            collapsed=serializer.validated_data.get('collapsed'),
+            parent_id=getattr(serializer.validated_data.get('parent'), 'uuid', None),
+        )
+        return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['delete'], detail=False, url_path="bulk-delete")
     def bulk_delete(self, request, *args, **kwargs):
@@ -72,14 +86,12 @@ class ItemViewSet(ModelViewSet):
         items_ids = list(self.filter_queryset(self.get_queryset()).filter(
             pk__in=serializer.validated_data['items_ids']).values_list('id', flat=True))
         if items_ids:
-            task = Task.objects.create_task(
-                request.user,
-                f"Delete items {items_ids}.",
-                delete,
-                items_ids
+            delete.delay(
+                user_id=request.user.id,
+                comment=f"Delete items {items_ids}.",
+                items_ids=list(map(str, items_ids))
             )
-            return Response(f'Task {task.uuid} created.')
-        return Response('OK', status=status.HTTP_200_OK)
+        return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['delete'], detail=True, url_path="delete-children")
     def delete_children(self, request, *args, **kwargs):
@@ -87,14 +99,12 @@ class ItemViewSet(ModelViewSet):
         item = self.get_object()
         children_items_ids = list(item.children.all().values_list('id', flat=True))
         if children_items_ids:
-            task = Task.objects.create_task(
-                request.user,
-                f"Delete child items {children_items_ids} of item {item.pk}.",
-                delete,
-                children_items_ids
+            delete.delay(
+                user_id=request.user.id,
+                comment=f"Delete child items {children_items_ids} of item {item.pk}.",
+                items_ids=list(map(str, children_items_ids))
             )
-            return Response(f'Task {task.uuid} created.')
-        return Response('OK', status=status.HTTP_200_OK)
+        return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['put'], detail=False, url_path="bulk-move")
     def bulk_move(self, request, *args, **kwargs):
@@ -102,21 +112,22 @@ class ItemViewSet(ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = ItemBulkMoveSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        tasks_ids = []
+        if serializer.validated_data['parent']:
+            parent_id = str(serializer.validated_data['parent'])
+        else:
+            parent_id = None
         for item in queryset.filter(pk__in=serializer.validated_data['items_ids']):
             ItemObjectSerializer(
                 data={'parent': serializer.validated_data['parent']},
-                instance=item, context={'request': request}).is_valid(raise_exception=True)
-
-            task = Task.objects.create_task(
-                request.user,
-                f"Move item {item.id} to {serializer.validated_data['parent'] or 'top'}.",
-                move,
-                item.id,
-                serializer.validated_data['parent'],
+                instance=item, context={'request': request}
+            ).is_valid(raise_exception=True)
+            move.delay(
+                user_id=request.user.id,
+                comment=f"Move item {item.uuid} to {parent_id or 'top'}.",
+                item_id=item.uuid,
+                parent_id=parent_id,
             )
-            tasks_ids.append(task.uuid)
-        return Response(f'Tasks {tasks_ids} created.')
+        return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['put'], detail=True, url_path="move-children")
     def move_children(self, request, *args, **kwargs):
@@ -124,22 +135,23 @@ class ItemViewSet(ModelViewSet):
         serializer = ItemParentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         item = self.get_object()
-        tasks_ids = []
+        if serializer.validated_data['parent']:
+            parent_id = str(serializer.validated_data['parent'])
+        else:
+            parent_id = None
         for child in item.children.all():
             ItemObjectSerializer(
                 data=serializer.validated_data,
                 instance=child,
                 context={'request': request}
             ).is_valid(raise_exception=True)
-            task = Task.objects.create_task(
-                request.user,
-                f"Move child item {child.id} of item {item.id} to {serializer.validated_data['parent'] or 'top'}.",
-                move,
-                child.id,
-                serializer.validated_data['parent'],
+            move.delay(
+                user_id=request.user.id,
+                comment=f"Move child item {child.uuid} of item {item.uuid} to {parent_id or 'top'}.",
+                item_id=child.uuid,
+                parent_id=parent_id,
             )
-            tasks_ids.append(task.uuid)
-        return Response(f'Tasks {tasks_ids} created.')
+        return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['get'], detail=False, url_path="validate")
     def validate(self, request, *args, **kwargs):

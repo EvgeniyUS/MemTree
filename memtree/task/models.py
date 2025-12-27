@@ -19,14 +19,6 @@ class TaskManager(models.Manager):
     class Meta:
         abstract = True
 
-    def create_task(self, user, name, celery_task, *args, **kwargs):
-        task = self.create(
-            name=name,
-            user=user,
-        )
-        celery_task.apply_async(args, kwargs, task_id=task.uuid)
-        return task
-
 
 class Task(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -40,14 +32,7 @@ class Task(models.Model):
     objects = TaskManager()
 
     def __str__(self):
-        return f'ID={str(self.id)}. STATUS={self.status}. NAME={self.name}. RESULT={str(self.result)}'
-
-    def save(self, *args, **kwargs):
-        if self.pk and self.status in [TaskStatus.DONE, TaskStatus.FAILED]:
-            self.finished = timezone.now()
-            if (update_fields := kwargs.get('update_fields')) and 'finished' not in update_fields:
-                update_fields.append('finished')
-        super().save(*args, **kwargs)
+        return f'ID={self.uuid}. STATUS={self.status}. NAME={self.name}. RESULT={str(self.result)}'
 
     @property
     def uuid(self) -> str:
@@ -59,14 +44,16 @@ class Task(models.Model):
             self.save(update_fields=['status'])
             LOG.info(f'Task {self.uuid} in progress.')
 
-    def set_done(self, result):
+    def set_done(self, result, date_done):
         self.status = TaskStatus.DONE
         self.result = str(result)
-        self.save(update_fields=['status', 'result'])
+        self.finished = date_done
+        self.save(update_fields=['status', 'result', 'finished'])
         LOG.info(f'Task {self.uuid} is DONE. Result: {str(result)}')
 
-    def set_failed(self, result):
+    def set_failed(self, result, date_done=timezone.now()):
         self.status = TaskStatus.FAILED
         self.result = str(result)
-        self.save(update_fields=['status', 'result'])
+        self.finished = date_done
+        self.save(update_fields=['status', 'result', 'finished'])
         LOG.warning(f'Task {self.uuid} is FAILED. Error: {str(result)}')
