@@ -1,3 +1,4 @@
+# import json
 import logging
 from celery.signals import task_prerun
 from django.contrib.auth.models import User
@@ -7,6 +8,13 @@ from .models import Item
 from task.models import Task
 
 LOG = logging.getLogger('django')
+
+
+# def pretty_json(text: str) -> str:
+#     try:
+#         return json.dumps(json.loads(text), indent=4)
+#     except:
+#         return text
 
 
 @app.task

@@ -118,8 +118,9 @@ class ItemViewSet(GenericViewSet,
             parent_id = None
         for item in queryset.filter(pk__in=serializer.validated_data['items_ids']):
             ItemObjectSerializer(
-                data={'parent': serializer.validated_data['parent']},
-                instance=item, context={'request': request}
+                data=serializer.validated_data,
+                instance=item,
+                context={'request': request}
             ).is_valid(raise_exception=True)
             move.delay(
                 user_id=request.user.id,

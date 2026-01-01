@@ -1,4 +1,3 @@
-# import json
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from item.models import Item
@@ -16,29 +15,15 @@ class ItemObjectSerializer(serializers.ModelSerializer):
     def validate(self, item_data):
         if item_data.get('user') and self.context['request'].user != item_data['user']:
             raise PermissionDenied
-        if (parent := item_data.get('parent')) and not Item.objects.filter(
-            pk=parent.id, user=self.context['request'].user).exists():
-                raise PermissionDenied('Invalid parent.')
+        if parent := item_data.get('parent'):
+            if self.context['request'].user != parent.user:
+                raise PermissionDenied
+            if self.instance:
+                if self.instance.uuid == parent.uuid:
+                    raise ValidationError
+                if parent.uuid in self.instance.descendants:
+                    raise ValidationError
         return item_data
-
-    def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        if self.context['request'].user != instance.user:
-            raise PermissionDenied
-        if validated_data.get('parent'):
-            if instance == validated_data['parent']:
-                raise ValidationError
-            if validated_data['parent'] in instance.descendants:
-                raise ValidationError
-        # Pretty JSON template
-        # try:
-        #     validated_data['text'] = json.dumps(json.loads(validated_data['text']), indent=4)
-        # except:
-        #     pass
-        return super().update(instance, validated_data)
 
 
 class ItemParentSerializer(serializers.Serializer):
