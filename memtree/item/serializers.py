@@ -13,13 +13,15 @@ class ItemObjectSerializer(serializers.ModelSerializer):
         fields = read_only_fields + ['parent', 'collapsed', 'text']
 
     def validate(self, item_data):
-        if item_data.get('user') and self.context['request'].user != item_data['user']:
+        if self.instance and self.instance.user != self.context['request'].user:
+            raise PermissionDenied
+        if item_data.get('user') and item_data['user'] != self.context['request'].user:
             raise PermissionDenied
         if parent := item_data.get('parent'):
             if self.context['request'].user != parent.user:
                 raise PermissionDenied
             if self.instance:
-                if self.instance.uuid == parent.uuid:
+                if parent.uuid == self.instance.uuid:
                     raise ValidationError
                 if parent.uuid in self.instance.descendants:
                     raise ValidationError
