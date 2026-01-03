@@ -11,19 +11,6 @@ class ItemManager(models.Manager):
     class Meta:
         abstract = True
 
-    def sorted(self):
-        sorted_items = list()
-
-        def rec(_items):
-            sorted_items.extend(_items.values(
-                'id', 'collapsed', 'text', 'parent').order_by('text'))
-            _children = self.filter(parent__in=_items.filter(collapsed=False))
-            if _children:
-                rec(_children)
-
-        rec(self.filter(parent=None))
-        return sorted_items
-
 
 class Item(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -36,7 +23,7 @@ class Item(models.Model):
     objects = ItemManager()
 
     def __str__(self):
-        return f'ID={self.uuid}. TEXT={self.text[:50] if self.text else None}.'
+        return self.uuid
 
     @property
     def uuid(self) -> str:
@@ -89,6 +76,7 @@ class Item(models.Model):
     @property
     def children_count(self) -> int:
         return self.children.count()
+        # return len(self.__class__.descendants_ids(self.id))
 
     @property
     def descendants(self):
@@ -100,18 +88,12 @@ class Item(models.Model):
         children.extend(descendants)
         return children
 
-    @property
-    def descendants_ids(self):
-        return [child.uuid for child in self.descendants]
-
-    @staticmethod
-    def tree_validation(user: User) -> bool:
-        """ Проверка дерева пользователя на основе количества """
-        items = user.items
-        def rec(_items, _count):
-            if _items:
-                _count += _items.count()
-                return rec(items.filter(parent__in=_items), _count)
-            return _count
-        _count = rec(items.filter(parent=None), 0)
-        return items.count() == _count
+    @classmethod
+    def descendants_ids(cls, item_id) -> list:
+        """ ID всех потомков """
+        children_ids = list(cls.objects.filter(parent=item_id).values_list('id', flat=True))
+        descendants_ids = []
+        for child_id in children_ids:
+            descendants_ids.extend(cls.descendants_ids(item_id=child_id))
+        children_ids.extend(descendants_ids)
+        return children_ids

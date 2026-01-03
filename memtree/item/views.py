@@ -1,4 +1,7 @@
+import json
 import logging
+from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
 from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.decorators import action
@@ -11,7 +14,7 @@ from .models import Item
 from .serializers import (
     ItemObjectSerializer, ItemTreeSerializer, ItemParentSerializer,
     ItemsIDsSerializer, ItemBulkMoveSerializer)
-from .tasks import create, update, delete, move
+from .tasks import create, update, delete, import_data
 
 LOG = logging.getLogger('django')
 
@@ -68,29 +71,30 @@ class ItemViewSet(GenericViewSet,
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
+        if serializer.validated_data.get('parent'):
+            serializer.validated_data['parent'] = getattr(
+                serializer.validated_data['parent'], 'uuid', None)
         update.delay(
             user_id=request.user.id,
             comment=f"Update item {instance.uuid}.",
             item_id=instance.uuid,
-            text=serializer.validated_data.get('text'),
-            collapsed=serializer.validated_data.get('collapsed'),
-            parent_id=getattr(serializer.validated_data.get('parent'), 'uuid', None),
+            **serializer.validated_data
         )
         return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['delete'], detail=False, url_path="bulk-delete")
     def bulk_delete(self, request, *args, **kwargs):
         """ Removes specified items. """
-        serializer = ItemsIDsSerializer(data=request.data)
+        serializer = ItemsIDsSerializer(
+            data=request.data,
+            context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
-        items_ids = list(self.filter_queryset(self.get_queryset()).filter(
-            pk__in=serializer.validated_data['items_ids']).values_list('id', flat=True))
-        if items_ids:
-            delete.delay(
-                user_id=request.user.id,
-                comment=f"Delete items {items_ids}.",
-                items_ids=list(map(str, items_ids))
-            )
+        delete.delay(
+            user_id=request.user.id,
+            comment=f"Delete items {serializer.validated_data['items_ids']}.",
+            items_ids=serializer.validated_data['items_ids'],
+        )
         return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['delete'], detail=True, url_path="delete-children")
@@ -101,8 +105,8 @@ class ItemViewSet(GenericViewSet,
         if children_items_ids:
             delete.delay(
                 user_id=request.user.id,
-                comment=f"Delete child items {children_items_ids} of item {item.pk}.",
-                items_ids=list(map(str, children_items_ids))
+                comment=f"Delete child items {children_items_ids} of item {item.uuid}.",
+                items_ids=children_items_ids
             )
         return Response('OK', status=status.HTTP_202_ACCEPTED)
 
@@ -110,67 +114,82 @@ class ItemViewSet(GenericViewSet,
     def bulk_move(self, request, *args, **kwargs):
         """ Moves items to specified parent. """
         queryset = self.filter_queryset(self.get_queryset())
-        serializer = ItemBulkMoveSerializer(data=request.data)
+        serializer = ItemBulkMoveSerializer(
+            data=request.data,
+            context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
-        if serializer.validated_data['parent']:
-            parent_id = str(serializer.validated_data['parent'])
-        else:
-            parent_id = None
         for item in queryset.filter(pk__in=serializer.validated_data['items_ids']):
             ItemObjectSerializer(
                 data=serializer.validated_data,
                 instance=item,
                 context={'request': request}
             ).is_valid(raise_exception=True)
-            move.delay(
+            update.delay(
                 user_id=request.user.id,
-                comment=f"Move item {item.uuid} to {parent_id or 'top'}.",
+                comment=f"Move item {item.uuid} to {serializer.validated_data['parent'] or 'top'}.",
                 item_id=item.uuid,
-                parent_id=parent_id,
+                parent=serializer.validated_data['parent'],
             )
         return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['put'], detail=True, url_path="move-children")
     def move_children(self, request, *args, **kwargs):
         """ Moves all children of the item to specified parent. """
-        serializer = ItemParentSerializer(data=request.data)
+        serializer = ItemParentSerializer(
+            data=request.data,
+            context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
         item = self.get_object()
-        if serializer.validated_data['parent']:
-            parent_id = str(serializer.validated_data['parent'])
-        else:
-            parent_id = None
         for child in item.children.all():
             ItemObjectSerializer(
                 data=serializer.validated_data,
                 instance=child,
                 context={'request': request}
             ).is_valid(raise_exception=True)
-            move.delay(
+            update.delay(
                 user_id=request.user.id,
-                comment=f"Move child item {child.uuid} of item {item.uuid} to {parent_id or 'top'}.",
+                comment=f"Move child item {child.uuid} from {item.uuid} "
+                        f"to {serializer.validated_data['parent'] or 'top'}.",
                 item_id=child.uuid,
-                parent_id=parent_id,
+                parent=serializer.validated_data['parent'],
             )
         return Response('OK', status=status.HTTP_202_ACCEPTED)
 
-    @action(methods=['get'], detail=False, url_path="validate")
-    def validate(self, request, *args, **kwargs):
-        return Response(Item.tree_validation(request.user))
+    @action(methods=['get'], detail=False, url_path="export-data")
+    def export_data(self, request, *args, **kwargs):
+        data = ItemTreeSerializer(
+            instance=self.filter_queryset(self.get_queryset()).filter(parent=None),
+            many=True,
+        ).data
+        json_data = json.dumps(data, ensure_ascii=False, indent=4)
+        response = HttpResponse(
+            json_data,
+            content_type='application/json'
+        )
+        filename = f"memtree_{request.user.username}_{timezone.now().strftime('%Y-%m-%d_%H:%M:%S')}.json"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
 
-    @action(methods=['get'], detail=False, url_path="sorted")
-    def sorted(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        sorted_items = list()
-
-        def rec(_items):
-            sorted_items.extend(ItemObjectSerializer(instance=_items, many=True).data)
-            _children = queryset.filter(parent__in=_items.filter(collapsed=False)).order_by('text')
-            if _children:
-                rec(_children)
-
-        rec(queryset.filter(parent=None))
-        return Response(sorted_items)
+    @action(methods=['post'], detail=False, url_path="import-data")
+    def import_data(self, request, *args, **kwargs):
+        if 'file' not in request.FILES:
+            return JsonResponse(data={'error': 'No file.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        file = request.FILES['file']
+        try:
+            content = file.read().decode('utf-8')
+            data = json.loads(content)
+        except (json.JSONDecodeError, UnicodeDecodeError) as e:
+            return JsonResponse(data={'error': e},
+                                status=status.HTTP_400_BAD_REQUEST)
+        import_data.delay(
+            user_id=request.user.id,
+            comment="Import data from file",
+            data=data,
+        )
+        return Response('OK', status=status.HTTP_202_ACCEPTED)
 
     @action(methods=['get'], detail=False, url_path="full-tree")
     def full_tree(self, request, *args, **kwargs):
