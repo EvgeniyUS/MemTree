@@ -37,17 +37,17 @@ function confirmLogout() {
                             'Content-Type': 'application/json'
                         }
                     })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.text().then(errorMessage => {
-                                    throw new Error(errorMessage);
-                                })
-                            }
-                            document.location.href = '/';
-                        })
-                        .catch(error => {
-                            errorAlert(error);
-                        });
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(errorMessage => {
+                                throw new Error(errorMessage);
+                            })
+                        }
+                        document.location.href = '/';
+                    })
+                    .catch(error => {
+                        errorAlert(error);
+                    });
                 }
             },
 
@@ -79,17 +79,17 @@ function confirmDeleteAccount() {
                             'Content-Type': 'application/json'
                         }
                     })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.text().then(errorMessage => {
-                                    throw new Error(errorMessage);
-                                })
-                            }
-                            document.location.href = '/';
-                        })
-                        .catch(error => {
-                            errorAlert(error);
-                        });
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(errorMessage => {
+                                throw new Error(errorMessage);
+                            })
+                        }
+                        document.location.href = '/';
+                    })
+                    .catch(error => {
+                        errorAlert(error);
+                    });
                 }
             },
             Cancel: {
@@ -100,4 +100,38 @@ function confirmDeleteAccount() {
             }
         }
     });
+}
+
+function triggerFileInput() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/items/import-data/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrftoken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(errorMessage => {
+                    throw new Error(errorMessage);
+                })
+            }
+        })
+        .catch(error => {
+            errorAlert(error);
+        });
+    });
+
+    fileInput.click();
 }

@@ -61,8 +61,7 @@ class ItemTreeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        # fields = ['id', 'parent', 'text']
-        fields = ['text']
+        fields = ['text', 'collapsed', 'created', 'modified']
 
     def get_fields(self):
         fields = super(ItemTreeSerializer, self).get_fields()

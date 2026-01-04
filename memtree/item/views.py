@@ -1,6 +1,6 @@
 import json
 import logging
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 from django_filters import rest_framework as filters
 from rest_framework import status
@@ -168,7 +168,7 @@ class ItemViewSet(GenericViewSet,
             json_data,
             content_type='application/json'
         )
-        filename = f"memtree_{request.user.username}_{timezone.now().strftime('%Y-%m-%d_%H:%M:%S')}.json"
+        filename = f"memtree_{request.user.username}_{timezone.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
 
@@ -186,7 +186,7 @@ class ItemViewSet(GenericViewSet,
                                 status=status.HTTP_400_BAD_REQUEST)
         import_data.delay(
             user_id=request.user.id,
-            comment="Import data from file",
+            comment=f"Import data from FILE {file.name}.",
             data=data,
         )
         return Response('OK', status=status.HTTP_202_ACCEPTED)

@@ -2,7 +2,7 @@
 import logging
 from celery.signals import task_prerun
 from django.contrib.auth.models import User
-from django.db import transaction
+from django.db.transaction import atomic
 from django.db.models.signals import post_save
 from memtree.celery import app
 from .models import Item
@@ -18,7 +18,8 @@ LOG = logging.getLogger('django')
 #         return text
 
 
-@app.task
+@app.task(max_retries=0)
+@atomic
 def create(user_id, comment, text: str, parent_id):
     user = User.objects.get(pk=user_id)
     item_data = {'text': text, 'user': user}
@@ -27,11 +28,12 @@ def create(user_id, comment, text: str, parent_id):
     item = Item.objects.create(**item_data)
     item.save()
     if item.parent:
-        transaction.on_commit(lambda: post_save.send(sender=Item, instance=item.parent, created=False))
+        post_save.send(sender=Item, instance=item.parent, created=False)
     return item.uuid
 
 
 @app.task
+@atomic
 def update(user_id, comment, item_id, **kwargs):
     item = Item.objects.get(pk=item_id, user_id=user_id)
     old_parent = None
@@ -51,25 +53,43 @@ def update(user_id, comment, item_id, **kwargs):
     item.save(update_fields=update_fields)
     if 'parent' in update_fields:
         if old_parent:
-            transaction.on_commit(lambda: post_save.send(sender=Item, instance=old_parent, created=False))
+            post_save.send(sender=Item, instance=old_parent, created=False)
         if item.parent:
-            transaction.on_commit(lambda: post_save.send(sender=Item, instance=item.parent, created=False))
+            post_save.send(sender=Item, instance=item.parent, created=False)
     return update_fields
 
 
 @app.task
+@atomic
 def delete(user_id, comment, items_ids: list):
     items_to_delete = Item.objects.filter(pk__in=items_ids, user_id=user_id)
     parents_ids = list(items_to_delete.values_list('parent', flat=True).distinct())
     items_to_delete.delete()
     for parent_item in Item.objects.filter(pk__in=parents_ids, user_id=user_id):
-        transaction.on_commit(lambda: post_save.send(sender=Item, instance=parent_item, created=False))
+        post_save.send(sender=Item, instance=parent_item, created=False)
     return 'OK'
 
 
-@app.task
-def import_data(user_id, comment, data: dict):
-    LOG.info(data.keys())
+@app.task(retry=False)
+@atomic
+def import_data(user_id, comment, data: list):
+    user = User.objects.get(pk=user_id)
+    def rec_create(_data: list, _parent=None):
+        for item_data in _data:
+            item_data['user'] = user
+            if _parent:
+                item_data['parent'] = _parent
+            children = item_data.pop('children')
+            item = Item.objects.create(**item_data)
+            item.created = item_data['created']
+            item.modified = item_data['modified']
+            item.save()
+            if children:
+                rec_create(children, item)
+        if _parent:
+            post_save.send(sender=Item, instance=_parent, created=False)
+    if data:
+        rec_create(data)
     return 'OK'
 
 

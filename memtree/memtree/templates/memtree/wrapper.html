@@ -59,17 +59,20 @@
                             aria-expanded="false"
                             id="menu_button">{{ user.username }}</button>
                     <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                        <li><a href="{% url 'index' %}" class="dropdown-item">Home</a></li>
-                        <li><a href="{% url 'user_help' %}" class="dropdown-item">Help</a></li>
+                        <a href="{% url 'index' %}" class="dropdown-item">Home</a>
+                        <a href="{% url 'user_help' %}" class="dropdown-item">Help</a>
                         {% if user.is_staff %}
-                            <li><a href="{% url 'admin:index' %}" class="dropdown-item">Admin</a></li>
+                            <a href="{% url 'admin:index' %}" class="dropdown-item">Admin</a>
                         {% endif %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a href="{% url 'password_change' %}" class="dropdown-item">Password change</a></li>
-                        <li><a class="dropdown-item" onclick="confirmLogout()" style="cursor: pointer">Log Out</a></li>
+                        <hr class="dropdown-divider">
+                        <a href="/api/items/export-data/" class="dropdown-item" download>Export</a>
+                        <a class="dropdown-item" onclick="triggerFileInput()" style="cursor: pointer">Import</a>
+                        <hr class="dropdown-divider">
+                        <a href="{% url 'password_change' %}" class="dropdown-item">Password change</a>
+                        <a class="dropdown-item" onclick="confirmLogout()" style="cursor: pointer">Log Out</a>
                         {% if not user.is_staff %}
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" onclick="confirmDeleteAccount()" style="cursor: pointer;color: red">Delete Account</a></li>
+                            <hr class="dropdown-divider">
+                            <a class="dropdown-item" onclick="confirmDeleteAccount()" style="cursor: pointer;color: red">Delete Account</a>
                         {% endif %}
                     </ul>
 

@@ -2,6 +2,7 @@
 import logging
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.db import transaction
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from item.serializers import ItemObjectSerializer
@@ -23,7 +24,7 @@ def signals_receiver(sender, **kwargs):
             data['signal'] = 'created'
         else:
             data['signal'] = 'updated'
-        async_to_sync(get_channel_layer().group_send)(
+        transaction.on_commit(lambda: async_to_sync(get_channel_layer().group_send)(
             f'{instance.user.username}.{instance.user.id}',
             {'type': 'notify', 'data': data}
-        )
+        ))

@@ -367,7 +367,6 @@ function search() {
             method: 'GET',
             headers: {
                 'X-CSRFToken': csrftoken,
-                'Content-Type': 'application/json'
             }
         })
             .then(async response => {
@@ -414,7 +413,6 @@ function apiRetrieve(item_id) {
         method: 'GET',
         headers: {
             'X-CSRFToken': csrftoken,
-            'Content-Type': 'application/json'
         }
     })
         .then(async response => {
@@ -441,7 +439,6 @@ function apiList(parent_id) {
         method: 'GET',
         headers: {
             'X-CSRFToken': csrftoken,
-            'Content-Type': 'application/json'
         }
     })
         .then(async response => {
