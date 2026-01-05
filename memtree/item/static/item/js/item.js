@@ -289,7 +289,6 @@ function createOrUpdate(data) {
         item.appendChild(item.ul);
     }
     item.parent = data.parent;
-    item._children = data.children;
     item.children_count = data.children_count;
     appendToParent(item);
     item.caret.collapsed = data.collapsed;
@@ -369,36 +368,36 @@ function search() {
                 'X-CSRFToken': csrftoken,
             }
         })
-            .then(async response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    const errorMessage = await response.text();
-                    throw new Error(errorMessage);
-                }
-            })
-            .then(data => {
-                search_counter.innerHTML = data.length;
-                for (const item_data of data) {
-                    for (const item_id of item_data.path_list) {
-                        const item = document.getElementById(item_id);
-                        if (item) {
-                            item.text.style.background = 'rgba(155, 255, 155, 0.1)';
-                            marked_items.push(item_id);
-                        } else {
-                            break;
-                        }
+        .then(async response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                const errorMessage = await response.text();
+                throw new Error(errorMessage);
+            }
+        })
+        .then(data => {
+            search_counter.innerHTML = data.length;
+            for (const item_data of data) {
+                for (const item_id of item_data.path_list) {
+                    const item = document.getElementById(item_id);
+                    if (item) {
+                        item.text.style.background = 'rgba(155, 255, 155, 0.1)';
+                        marked_items.push(item_id);
+                    } else {
+                        break;
                     }
                 }
-                for (const item of document.getElementsByClassName('item')) {
-                    if (!marked_items.includes(item.id)) {
-                        item.text.style.background = 'transparent';
-                    }
+            }
+            for (const item of document.getElementsByClassName('item')) {
+                if (!marked_items.includes(item.id)) {
+                    item.text.style.background = 'transparent';
                 }
-            })
-            .catch(error => {
-                errorAlert(error);
-            });
+            }
+        })
+        .catch(error => {
+            errorAlert(error);
+        });
     } else {
         search_counter.innerHTML = '';
         for (const item of document.getElementsByClassName('item')) {
@@ -415,22 +414,22 @@ function apiRetrieve(item_id) {
             'X-CSRFToken': csrftoken,
         }
     })
-        .then(async response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                const errorMessage = await response.text();
-                throw new Error(errorMessage);
-            }
-        })
-        .then(data => {
-            createOrUpdate(data);
-            buttonsUpdate();
-            search();
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+    .then(async response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            const errorMessage = await response.text();
+            throw new Error(errorMessage);
+        }
+    })
+    .then(data => {
+        createOrUpdate(data);
+        buttonsUpdate();
+        search();
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function apiList(parent_id) {
@@ -441,24 +440,24 @@ function apiList(parent_id) {
             'X-CSRFToken': csrftoken,
         }
     })
-        .then(async response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                const errorMessage = await response.text();
-                throw new Error(errorMessage);
-            }
-        })
-        .then(data => {
-            for (const item_data of data) {
-                createOrUpdate(item_data);
-            }
-            buttonsUpdate();
-            search();
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+    .then(async response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            const errorMessage = await response.text();
+            throw new Error(errorMessage);
+        }
+    })
+    .then(data => {
+        for (const item_data of data) {
+            createOrUpdate(item_data);
+        }
+        buttonsUpdate();
+        search();
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function apiCreate(text) {
@@ -475,23 +474,25 @@ function apiCreate(text) {
                 'text': text
             })
     })
-        .then(response => {
-            if (response.ok) {
-                search();
-            } else {
-                return response.text().then(errorMessage => {
-                    throw new Error(errorMessage);
-                })
-            }
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+    .then(response => {
+        if (response.ok) {
+            search();
+        } else {
+            return response.text().then(errorMessage => {
+                throw new Error(errorMessage);
+            })
+        }
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function apiUpdate(item_data) {
     "use strict";
-    fetch(`api/items/${item_data.id}/`, {
+    const item_id = item_data.id;
+    delete item_data.id;
+    fetch(`api/items/${item_id}/`, {
         method: 'PUT',
         headers: {
             'X-CSRFToken': csrftoken,
@@ -499,20 +500,20 @@ function apiUpdate(item_data) {
         },
         body: JSON.stringify(item_data)
     })
-        .then(response => {
-            if (response.ok) {
-                if ('text' in item_data) {
-                    search();
-                }
-            } else {
-                return response.text().then(errorMessage => {
-                    throw new Error(errorMessage);
-                })
+    .then(response => {
+        if (response.ok) {
+            if ('text' in item_data) {
+                search();
             }
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+        } else {
+            return response.text().then(errorMessage => {
+                throw new Error(errorMessage);
+            })
+        }
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function apiDelete(item_id) {
@@ -524,16 +525,16 @@ function apiDelete(item_id) {
             'Content-Type': 'application/json'
         }
     })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(errorMessage => {
-                    throw new Error(errorMessage);
-                })
-            }
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(errorMessage => {
+                throw new Error(errorMessage);
+            })
+        }
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function apiBulkDelete() {
@@ -546,16 +547,16 @@ function apiBulkDelete() {
         },
         body: JSON.stringify({'items_ids': CHECKED_ITEMS_IDS})
     })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(errorMessage => {
-                    throw new Error(errorMessage);
-                })
-            }
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(errorMessage => {
+                throw new Error(errorMessage);
+            })
+        }
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function apiDeleteChildren(item_id) {
@@ -567,16 +568,16 @@ function apiDeleteChildren(item_id) {
             'Content-Type': 'application/json'
         }
     })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(errorMessage => {
-                    throw new Error(errorMessage);
-                })
-            }
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(errorMessage => {
+                throw new Error(errorMessage);
+            })
+        }
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function apiBulkMove() {
@@ -591,16 +592,16 @@ function apiBulkMove() {
             'parent': SELECTED_ITEM_ID,
             'items_ids': CHECKED_ITEMS_IDS})
     })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(errorMessage => {
-                    throw new Error(errorMessage);
-                })
-            }
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(errorMessage => {
+                throw new Error(errorMessage);
+            })
+        }
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function apiMoveChildren(item_data) {
@@ -613,16 +614,16 @@ function apiMoveChildren(item_data) {
         },
         body: JSON.stringify({'parent': SELECTED_ITEM_ID})
     })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(errorMessage => {
-                    throw new Error(errorMessage);
-                })
-            }
-        })
-        .catch(error => {
-            errorAlert(error);
-        });
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(errorMessage => {
+                throw new Error(errorMessage);
+            })
+        }
+    })
+    .catch(error => {
+        errorAlert(error);
+    });
 }
 
 function editMode(state) {

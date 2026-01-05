@@ -1,6 +1,6 @@
 import json
 import logging
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django_filters import rest_framework as filters
 from rest_framework import status
@@ -93,7 +93,7 @@ class ItemViewSet(GenericViewSet,
         delete.delay(
             user_id=request.user.id,
             comment=f"Delete items {serializer.validated_data['items_ids']}.",
-            items_ids=serializer.validated_data['items_ids'],
+            items_ids=list(map(str, serializer.validated_data['items_ids'])),
         )
         return Response('OK', status=status.HTTP_202_ACCEPTED)
 
@@ -101,7 +101,7 @@ class ItemViewSet(GenericViewSet,
     def delete_children(self, request, *args, **kwargs):
         """ Removes all children of the item. """
         item = self.get_object()
-        children_items_ids = list(item.children.all().values_list('id', flat=True))
+        children_items_ids = list(map(str, item.children.values_list('id', flat=True)))
         if children_items_ids:
             delete.delay(
                 user_id=request.user.id,
@@ -119,6 +119,10 @@ class ItemViewSet(GenericViewSet,
             context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
+        if serializer.validated_data['parent']:
+            parent_id = str(serializer.validated_data['parent'])
+        else:
+            parent_id = None
         for item in queryset.filter(pk__in=serializer.validated_data['items_ids']):
             ItemObjectSerializer(
                 data=serializer.validated_data,
@@ -127,9 +131,9 @@ class ItemViewSet(GenericViewSet,
             ).is_valid(raise_exception=True)
             update.delay(
                 user_id=request.user.id,
-                comment=f"Move item {item.uuid} to {serializer.validated_data['parent'] or 'top'}.",
+                comment=f"Move item {item.uuid} to {parent_id or 'top'}.",
                 item_id=item.uuid,
-                parent=serializer.validated_data['parent'],
+                parent=parent_id,
             )
         return Response('OK', status=status.HTTP_202_ACCEPTED)
 
@@ -141,6 +145,10 @@ class ItemViewSet(GenericViewSet,
             context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
+        if serializer.validated_data['parent']:
+            parent_id = str(serializer.validated_data['parent'])
+        else:
+            parent_id = None
         item = self.get_object()
         for child in item.children.all():
             ItemObjectSerializer(
@@ -151,9 +159,9 @@ class ItemViewSet(GenericViewSet,
             update.delay(
                 user_id=request.user.id,
                 comment=f"Move child item {child.uuid} from {item.uuid} "
-                        f"to {serializer.validated_data['parent'] or 'top'}.",
+                        f"to {parent_id or 'top'}.",
                 item_id=child.uuid,
-                parent=serializer.validated_data['parent'],
+                parent=parent_id,
             )
         return Response('OK', status=status.HTTP_202_ACCEPTED)
 

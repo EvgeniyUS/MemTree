@@ -1,4 +1,5 @@
 import logging
+from uuid import uuid4
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -13,12 +14,13 @@ class ItemManager(models.Manager):
 
 
 class Item(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(default=timezone.now)
     text = models.TextField(null=True, blank=True)
     parent = models.ForeignKey('Item', related_name='children', null=True, blank=True, on_delete=models.CASCADE)
     collapsed = models.BooleanField(default=True)
-    user = models.ForeignKey(User, default=1, on_delete=models.CASCADE, related_name='items')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='items')
 
     objects = ItemManager()
 
@@ -43,7 +45,7 @@ class Item(models.Model):
 
     @property
     def path(self) -> str:
-        return f'/{"/".join(self.path_list)}'
+        return f'/ {" / ".join(self.path_list)}'
 
     @property
     def length(self) -> int:

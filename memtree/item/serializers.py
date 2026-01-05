@@ -9,7 +9,7 @@ class ItemObjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         read_only_fields = ['id', 'created', 'modified', 'user',
-                            'children', 'children_count', 'path', 'path_list',
+                            'children_count', 'path', 'path_list',
                             'length', 'rows', 'cols', 'alphabet']
         fields = read_only_fields + ['parent', 'collapsed', 'text']
 
@@ -22,15 +22,15 @@ class ItemObjectSerializer(serializers.ModelSerializer):
             if parent.user != self.context['request'].user:
                 raise PermissionDenied
             if self.instance:
-                if parent.uuid == self.instance.uuid:
+                if parent.id == self.instance.id:
                     raise ValidationError
-                if parent.uuid in Item.descendants_ids(self.instance.id):
+                if parent.id in Item.descendants_ids(self.instance.id):
                     raise ValidationError
         return item_data
 
 
 class ItemParentSerializer(serializers.Serializer):
-    parent = serializers.IntegerField(allow_null=True)
+    parent = serializers.UUIDField(allow_null=True)
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
@@ -42,14 +42,13 @@ class ItemParentSerializer(serializers.Serializer):
 
 
 class ItemsIDsSerializer(serializers.Serializer):
-    items_ids = serializers.ListField(child=serializers.IntegerField())
+    items_ids = serializers.ListField(child=serializers.UUIDField())
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
-        attrs['items_ids'] = list(Item.objects.filter(
-            pk__in=attrs['items_ids'],
-            user=self.context['request'].user
-        ).values_list('id', flat=True))
+        if not Item.objects.filter(pk__in=attrs['items_ids'],
+                                   user=self.context['request'].user).exists():
+            raise ValidationError
         return attrs
 
 
