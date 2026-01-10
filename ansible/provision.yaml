@@ -13,6 +13,7 @@
         update_cache: yes
         cache_valid_time: 86400  # One day
 
+- import_playbook: fail2ban.yaml
 - import_playbook: nginx.yaml
 - import_playbook: redis.yaml
 - import_playbook: deploy.yaml

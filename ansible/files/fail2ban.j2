@@ -1,0 +1,15 @@
+[sshd]
+enabled = true
+port = 22
+logpath = /var/log/auth.log
+maxretry = 2
+bantime = 600
+findtime = 600
+
+[nginx-http-auth]
+enabled = true
+port = http,https
+logpath = /var/log/nginx/*error.log
+maxretry = 5
+bantime = 600
+findtime = 600

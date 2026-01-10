@@ -1,0 +1,28 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yaml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: install fail2ban
+      apt:
+        pkg: fail2ban
+        update-cache: yes
+
+    - name: copy fail2ban config
+      template:
+        src: "files/fail2ban.j2"
+        dest: "/etc/fail2ban/jail.local"
+        mode: 600
+        owner: "{{ project_owner }}"
+        group: "{{ project_group }}"
+      notify:
+        - restart fail2ban
+
+  handlers:
+    - name: restart fail2ban
+      service:
+        name: fail2ban
+        state: restarted
