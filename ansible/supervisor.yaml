@@ -38,7 +38,7 @@
       notify: 
         - restart supervisor
 
-    - name: make sure supervisor is running
+    - name: ensure supervisor is running and enabled
       service:
         name: supervisor
         state: started
