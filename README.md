@@ -1,8 +1,11 @@
 # MemTree
 
-A simple application for text notes.
+A simple web application for text notes.
 
-[Hosted on Ubuntu 22.04](https://84.38.182.234/)
+Try it here - [Hosted on Ubuntu 22.04](https://84.38.182.234/)
+- user: test
+- password: test
+
 
 For self-hosted enter your server address in the file `ansible/hosts` and:
 
