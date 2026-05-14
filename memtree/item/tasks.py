@@ -1,4 +1,4 @@
-# import json
+import json
 import logging
 from celery.signals import task_prerun
 from django.contrib.auth.models import User
@@ -11,18 +11,18 @@ from task.models import Task
 LOG = logging.getLogger('django')
 
 
-# def pretty_json(text: str) -> str:
-#     try:
-#         return json.dumps(json.loads(text), indent=4)
-#     except:
-#         return text
+def pretty_json(text: str) -> str:
+    try:
+        return json.dumps(json.loads(text), indent=4)
+    except Exception:
+        return text
 
 
 @app.task(max_retries=0)
 @atomic
 def create(user_id, comment, text: str, parent_id):
     user = User.objects.get(pk=user_id)
-    item_data = {'text': text, 'user': user}
+    item_data = {'text': pretty_json(text), 'user': user}
     if parent_id:
         item_data['parent'] = Item.objects.get(pk=parent_id, user_id=user_id)
     item = Item.objects.create(**item_data)
@@ -39,7 +39,7 @@ def update(user_id, comment, item_id, **kwargs):
     old_parent = None
     update_fields = []
     if 'text' in kwargs and item.text != kwargs['text']:
-        item.text = kwargs['text']
+        item.text = pretty_json(kwargs['text'])
         update_fields.append('text')
     if 'collapsed' in kwargs and item.collapsed != kwargs['collapsed']:
         item.collapsed = kwargs['collapsed']
