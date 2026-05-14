@@ -13,7 +13,7 @@ LOG = logging.getLogger('django')
 
 def pretty_json(text: str) -> str:
     try:
-        return json.dumps(json.loads(text), indent=4)
+        return json.dumps(json.loads(text), indent=4, ensure_ascii=False)
     except Exception:
         return text
 
