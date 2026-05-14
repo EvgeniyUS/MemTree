@@ -1,3 +1,4 @@
+import ast
 import json
 import logging
 from celery.signals import task_prerun
@@ -13,8 +14,12 @@ LOG = logging.getLogger('django')
 
 def pretty_json(text: str) -> str:
     try:
-        return json.dumps(json.loads(text), indent=4, ensure_ascii=False)
-    except Exception:
+        return json.dumps(
+            ast.literal_eval(text),
+            indent=4,
+            ensure_ascii=False,
+        )
+    except (SyntaxError, ValueError):
         return text
 
 
