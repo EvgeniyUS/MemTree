@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name='Task',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('status', models.CharField(default='padding', max_length=15)),
+                ('status', models.CharField(default='pending', max_length=15)),
                 ('name', models.CharField(blank=True, max_length=255, null=True)),
                 ('result', models.TextField(blank=True, null=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),

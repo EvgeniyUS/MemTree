@@ -8,7 +8,7 @@ LOG = logging.getLogger('django')
 
 
 class TaskStatus:
-    PADDING = 'padding'
+    PENDING = 'pending'
     IN_PROGRESS = 'in_progress'
     DONE = 'done'
     FAILED = 'failed'
@@ -22,7 +22,7 @@ class TaskManager(models.Manager):
 
 class Task(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    status = models.CharField(default=TaskStatus.PADDING, max_length=15)
+    status = models.CharField(default=TaskStatus.PENDING, max_length=15)
     name = models.CharField(null=True, blank=True, max_length=255)
     result = models.TextField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
