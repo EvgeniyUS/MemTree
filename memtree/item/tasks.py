@@ -1,6 +1,7 @@
 import ast
 import json
 import logging
+import unicodedata
 from celery.signals import task_prerun
 from django.contrib.auth.models import User
 from django.db.transaction import atomic
@@ -12,22 +13,79 @@ from task.models import Task
 LOG = logging.getLogger('django')
 
 
-def pretty_json(text: str) -> str:
-    try:
-        return json.dumps(
-            ast.literal_eval(text),
-            indent=4,
-            ensure_ascii=False,
-        )
-    except (SyntaxError, ValueError):
-        return text
+def deserializer(data):
+    """
+    str to object
+    """
+    if isinstance(data, dict):
+        return {k: deserializer(v) for k, v in data.items()}
+    if isinstance(data, (list, tuple)):
+        return [deserializer(i) for i in data]
+    if isinstance(data, str):
+        try:
+            return deserializer(json.loads(data))
+        except json.JSONDecodeError:
+            pass
+        try:
+            return deserializer(ast.literal_eval(data))
+        except (SyntaxError, AttributeError, TypeError, ValueError):
+            pass
+        return str_normalizer(data)
+    return data
+
+
+def str_normalizer(data: str) -> str:
+    """
+    Try to remove/convert useless escapes, unicode
+    """
+    original_data = data
+
+    for _ in range(5):
+        try:
+            data = unicodedata.normalize("NFKD", data)
+        except Exception:
+            data = original_data
+
+        try:
+            data = data.encode('utf-8').decode('unicode_escape')
+        except UnicodeDecodeError:
+            pass
+
+        try:
+            data = data.encode('latin1').decode('utf-8')
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            pass
+
+        if data == original_data:
+            break
+        original_data = data
+
+    return data
+
+
+def prettier(data: str) -> str:
+    """
+    Trying to format formattable str
+    """
+    _data = deserializer(data)
+    if isinstance(_data, (dict, list, tuple)):
+        try:
+            return json.dumps(
+                _data,
+                indent=4,
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+        except (ValueError, TypeError):
+            pass
+    return str(_data)
 
 
 @app.task(max_retries=0)
 @atomic
 def create(user_id, comment, text: str, parent_id):
     user = User.objects.get(pk=user_id)
-    item_data = {'text': pretty_json(text), 'user': user}
+    item_data = {'text': prettier(text), 'user': user}
     if parent_id:
         item_data['parent'] = Item.objects.get(pk=parent_id, user_id=user_id)
     item = Item.objects.create(**item_data)
@@ -44,7 +102,7 @@ def update(user_id, comment, item_id, **kwargs):
     old_parent = None
     update_fields = []
     if 'text' in kwargs and item.text != kwargs['text']:
-        item.text = pretty_json(kwargs['text'])
+        item.text = prettier(kwargs['text'])
         update_fields.append('text')
     if 'collapsed' in kwargs and item.collapsed != kwargs['collapsed']:
         item.collapsed = kwargs['collapsed']
