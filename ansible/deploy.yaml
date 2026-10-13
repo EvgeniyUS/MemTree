@@ -13,6 +13,12 @@
         owner: "{{ project_owner }}"
         group: "{{ project_group }}"
 
+    - name: ensure rsync is installed
+      apt:
+        name: rsync
+        state: present
+      become: true
+
     - name: sync project files
       synchronize:
         src: "../memtree/"
