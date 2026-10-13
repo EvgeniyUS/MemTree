@@ -2,6 +2,7 @@ from django.conf.urls import include
 from django.urls import path
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt import views as jwt_views
 from memtree.views import (
     index, login, logout, registration, delete_account, user_help, password_change)
 from item.views import ItemViewSet
@@ -19,4 +20,6 @@ urlpatterns = [
     path('delete-account/', delete_account, name='delete_account'),
     path('user-help/', user_help, name='user_help'),
     path('api/', include(router.urls)),
+    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]
