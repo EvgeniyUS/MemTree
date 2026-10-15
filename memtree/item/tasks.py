@@ -5,9 +5,9 @@ from celery.signals import task_prerun
 from django.contrib.auth.models import User
 from django.db.transaction import atomic
 from django.db.models.signals import post_save
+from task.models import Task
 from memtree.celery import app
 from .models import Item
-from task.models import Task
 
 LOG = logging.getLogger('django')
 

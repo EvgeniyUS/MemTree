@@ -6,11 +6,11 @@ DEBUG = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = [
-    u'127.0.0.1',
-    u'84.38.182.234',
-    u'orionio.pythonanywhere.com',
-    u'192.168.122.130',
-    u'192.168.122.80',
+    '127.0.0.1',
+    '84.38.182.234',
+    'orionio.pythonanywhere.com',
+    '192.168.122.130',
+    '192.168.122.80',
 ]
 
 INSTALLED_APPS = [
@@ -73,7 +73,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
