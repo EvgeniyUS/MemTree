@@ -12,6 +12,20 @@
         upgrade: yes
         update_cache: yes
         cache_valid_time: 86400  # One day
+    - name: Add flushexpiredtokens daily at 03:00
+      cron:
+        name: "DRF Simple JWT cleanup"
+        minute: "0"
+        hour: "3"
+        job: "{{ venv_dir }}/bin/python3 {{ project_path }}/manage.py flushexpiredtokens >> {{ logs_path }}/django.log 2>&1"
+        user: "{{ project_owner }}"
+    - name: Add SQLite VACUUM daily at 04:00
+      cron:
+        name: "SQLite VACUUM"
+        minute: "0"
+        hour: "4"
+        job: "sqlite3 {{ project_path }}/db.sqlite3 \"VACUUM;\" >> {{ logs_path }}/django.log 2>&1"
+        user: "{{ project_owner }}"
 
 - import_playbook: fail2ban.yaml
 - import_playbook: nginx.yaml
