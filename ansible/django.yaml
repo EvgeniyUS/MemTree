@@ -11,25 +11,21 @@
         command: makemigrations
         app_path: "{{ project_path }}/"
         virtualenv: "{{ venv_dir }}"
+      become_user: "{{ project_owner }}"
 
     - name: django migrate
       django_manage:
         command: migrate
         app_path: "{{ project_path }}/"
         virtualenv: "{{ venv_dir }}"
+      become_user: "{{ project_owner }}"
 
     - name: django collectstatic
       django_manage:
         command: collectstatic
         app_path: "{{ project_path }}/"
         virtualenv: "{{ venv_dir }}"
-
-    - name: set static permissions
-      file:
-        path: "{{ static_root }}/"
-        recurse: yes
-        owner: "{{ project_owner }}"
-        group: "{{ project_group }}"
+      become_user: "{{ project_owner }}"
 
     - name: pull migrations - item
       synchronize:
