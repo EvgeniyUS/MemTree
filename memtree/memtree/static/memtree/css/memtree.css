@@ -1,4 +1,5 @@
 body {
+    overflow-anchor: none !important;
     margin: 0px;
     font-family: monospace;
     color: rgba(255, 255, 255, 0.8);
