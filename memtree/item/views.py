@@ -59,11 +59,13 @@ class ItemViewSet(GenericViewSet,
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        collapsed = serializer.validated_data.get('collapsed')
         create.delay(
             user_id=request.user.id,
             comment=f"Create item {serializer.validated_data['text'] or '-'}.",
             text=serializer.validated_data['text'],
             parent_id=getattr(serializer.validated_data.get('parent'), 'uuid', None),
+            collapsed=collapsed if collapsed is not None else True,
         )
         return Response('OK', status=status.HTTP_201_CREATED)
 

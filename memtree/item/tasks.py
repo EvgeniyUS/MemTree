@@ -25,9 +25,9 @@ def pretty_json(text: str) -> str:
 
 @app.task(max_retries=0)
 @atomic
-def create(user_id, comment, text: str, parent_id):
+def create(user_id, comment, text: str, parent_id, collapsed: bool = True):
     user = User.objects.get(pk=user_id)
-    item_data = {'text': pretty_json(text), 'user': user}
+    item_data = {'text': pretty_json(text), 'user': user, 'collapsed': collapsed}
     if parent_id:
         item_data['parent'] = Item.objects.get(pk=parent_id, user_id=user_id)
     item = Item.objects.create(**item_data)

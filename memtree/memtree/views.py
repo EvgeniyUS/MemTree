@@ -9,6 +9,7 @@ from django.contrib.auth import (
     update_session_auth_hash
 )
 from django.views.decorators.http import require_GET, require_http_methods
+from memtree.welcome import seed_welcome_items
 
 
 @require_GET
@@ -62,7 +63,8 @@ def registration(request):
     if request.method == 'POST':
         new_user_data = UserCreationForm(request.POST)
         if new_user_data.is_valid():
-            new_user_data.save()
+            user = new_user_data.save()
+            seed_welcome_items(user)
             return HttpResponseRedirect('/')
         else:
             return render(request, 'memtree/registration.html',
